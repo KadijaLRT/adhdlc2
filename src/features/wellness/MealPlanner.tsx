@@ -2,6 +2,7 @@ import { View, Text, Switch, Pressable, ScrollView } from 'react-native';
 import { useAppStore, selectEnergyLevel, selectWellnessPreferences } from '@/store/index';
 import { getMealSuggestions } from '@/content/mealSuggestions';
 import { BLOOD_TYPE_DISCLAIMER, type BloodType } from '@/content/bloodTypeAffinities';
+import { Subheading } from '@/shared/components/Heading';
 
 const BLOOD_TYPES: BloodType[] = ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'];
 
@@ -37,7 +38,7 @@ export default function MealPlanner() {
           )}
         </View>
         <View className="gap-3">
-          <Text className="text-slate-100 text-lg font-semibold">Today&apos;s suggestions</Text>
+          <Subheading>Today&apos;s suggestions</Subheading>
           {(meals || []).map((meal) => (
             <View key={meal.id} className="bg-slate-900 rounded-2xl p-4">
               <Text className="text-slate-100 font-medium mb-1">{meal.title}</Text>

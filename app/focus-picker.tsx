@@ -3,6 +3,7 @@ import { View, Text, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppStore, selectTasks } from '@/store/index';
+import { Heading } from '@/shared/components/Heading';
 
 const DURATIONS = [5, 15, 25];
 
@@ -22,7 +23,7 @@ export default function FocusPickerScreen() {
     <SafeAreaView className="flex-1 bg-slate-950">
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
         <View className="w-full max-w-md self-center">
-          <Text className="text-slate-100 text-2xl font-semibold mb-1 mt-2">Focus</Text>
+          <Heading className="mb-1 mt-2">Focus</Heading>
           <Text className="text-slate-400 text-sm mb-6">Pick something, or just show up. Both count.</Text>
 
           <Text className="text-slate-300 text-sm font-medium mb-2">What are you focusing on?</Text>

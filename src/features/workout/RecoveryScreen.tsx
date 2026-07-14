@@ -3,6 +3,7 @@ import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useAppStore, selectSetLogs } from '@/store/index';
 import { calculateWorkoutStreak } from './progressCalculations';
 import { STRETCH_ROUTINES, RECOVERY_TIPS } from '@/content/recoveryContent';
+import { Heading, Subheading } from '@/shared/components/Heading';
 
 export default function RecoveryScreen() {
   const setLogs = useAppStore(selectSetLogs);
@@ -16,7 +17,7 @@ export default function RecoveryScreen() {
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
-        <Text className="text-slate-100 text-2xl font-semibold mb-1 mt-2">Recovery</Text>
+        <Heading className="mb-1 mt-2">Recovery</Heading>
         <Text className="text-slate-400 text-sm mb-6">
           Staying consistent matters more than any single hard session.
         </Text>
@@ -29,7 +30,7 @@ export default function RecoveryScreen() {
           </View>
         )}
 
-        <Text className="text-slate-100 text-lg font-semibold mb-3">Stretch routines</Text>
+        <Subheading className="mb-3">Stretch routines</Subheading>
         <View className="gap-2 mb-6">
           {(STRETCH_ROUTINES || []).map((routine) => {
             const isExpanded = expandedId === routine.id;
@@ -55,7 +56,7 @@ export default function RecoveryScreen() {
           })}
         </View>
 
-        <Text className="text-slate-100 text-lg font-semibold mb-3">Good to know</Text>
+        <Subheading className="mb-3">Good to know</Subheading>
         <View className="gap-2">
           <View className="bg-slate-900 rounded-xl p-4">
             <Text className="text-slate-300 text-xs font-medium mb-1">💧 Hydration</Text>

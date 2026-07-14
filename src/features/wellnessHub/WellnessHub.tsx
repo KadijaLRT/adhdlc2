@@ -1,6 +1,7 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAppStore, type EnergyLevel } from '@/store/index';
+import { Heading } from '@/shared/components/Heading';
 
 const MOOD_OPTIONS: { level: EnergyLevel; emoji: string; label: string }[] = [
   { level: 'high', emoji: '😀', label: 'Good' },
@@ -21,7 +22,7 @@ export default function WellnessHub() {
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
-        <Text className="text-slate-100 text-2xl font-semibold mb-1 mt-2">Wellness</Text>
+        <Heading className="mb-1 mt-2">Wellness</Heading>
         <Text className="text-slate-400 text-sm mb-6">How do you feel right now?</Text>
 
         <View className="flex-row gap-2 mb-6">

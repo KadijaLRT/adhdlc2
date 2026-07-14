@@ -88,3 +88,38 @@ npm run lint
   planning documents but intentionally not built yet, each is a
   substantial scope decision that should be scoped and approved on its
   own before implementation.
+
+## Deployment note: Vercel build error
+
+If you see this error on Vercel:
+
+```
+Error: Package subpath './src/lib/TerminalReporter' is not defined by "exports" in .../node_modules/metro/package.json
+```
+
+This is a known upstream bug (see expo/expo#39337): `@expo/cli` internally
+does a deep `require("metro/src/lib/TerminalReporter")`, and newer patch
+versions of `metro` added a stricter `package.json` `exports` field that
+blocks that kind of deep import. It's not caused by anything in this
+project's own code.
+
+Already applied in this project:
+- `package.json` pins `metro` and its related packages via `"overrides"`
+  to `0.80.9`, the version Expo SDK 52 actually expects.
+- `"engines": { "node": "20.x" }` plus a `.nvmrc`, since Vercel's default
+  Node version can be much newer than what Expo/Metro is tested against.
+
+If the error still occurs after redeploying:
+1. In the Vercel project's settings, explicitly set the Node.js Version
+   to 20.x (Project Settings → General → Node.js Version), since
+   `package.json engines` is a hint, not a guarantee Vercel will honor it
+   for the build image.
+2. Clear Vercel's build cache before redeploying (Deployments → the
+   failing deployment → Redeploy → uncheck "Use existing Build Cache"),
+   since a stale `node_modules` cache from before the `overrides` were
+   added can mask the fix.
+3. If it persists, `metro`'s exact compatible version may differ from
+   `0.80.9` depending on the installed Expo SDK patch version — check
+   `npm ls metro` locally after `npm install` and adjust the override to
+   match whatever version is listed in Expo's own `package-lock.json` for
+   SDK 52.

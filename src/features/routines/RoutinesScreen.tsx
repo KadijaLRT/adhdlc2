@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView } from 'react-native';
 import { useAppStore, selectRoutines, selectStreaks } from '@/store/index';
+import { Heading } from '@/shared/components/Heading';
 
 const EMOJI_OPTIONS = ['🧘', '💊', '🍽️', '🛏️', '📚', '🚿'];
 
@@ -26,7 +27,7 @@ export default function RoutinesScreen() {
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
-        <Text className="text-slate-100 text-2xl font-semibold mb-1 mt-2">Routines</Text>
+        <Heading className="mb-1 mt-2">Routines</Heading>
         <Text className="text-slate-400 text-sm mb-6">Missing a day never breaks anything. It just waits for you.</Text>
 
         <View className="bg-slate-900 rounded-2xl p-4 mb-6">

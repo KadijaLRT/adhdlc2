@@ -3,6 +3,7 @@ import { View, Text, Pressable, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppStore } from '@/store/index';
+import { Heading } from '@/shared/components/Heading';
 
 interface FocusSessionProps {
   taskTitle: string | null;
@@ -79,7 +80,7 @@ export default function FocusSession({ taskTitle, durationMinutes }: FocusSessio
 
         {phase === 'ended' && (
           <>
-            <Text className="text-slate-100 text-2xl font-semibold text-center mb-2">That&apos;s time in.</Text>
+            <Heading className="text-center mb-2">That&apos;s time in.</Heading>
             <Text className="text-slate-400 text-center mb-10">Whatever you got done counts. No pressure either way.</Text>
             <Pressable onPress={handleLogSession} className="bg-indigo-600 rounded-full py-4 px-10 mb-3 active:bg-indigo-500">
               <Text className="text-white font-semibold">Log this session</Text>

@@ -10,6 +10,10 @@ import type { WellnessSlice } from './wellnessSlice';
 import type { ProfileSlice } from './profileSlice';
 import type { RoutineSlice } from './routineSlice';
 import type { RpgSlice } from './rpgSlice';
+import type { ReflectionSlice } from './reflectionSlice';
+import type { ScheduleSlice } from './scheduleSlice';
+import type { SchoolSlice } from './schoolSlice';
+import type { BodyProgressSlice } from './bodyProgressSlice';
 import type { NutritionFitnessSlice } from './nutritionFitnessSlice';
 import type { WorkoutSlice } from './workoutSlice';
 import type { ProgramSlice } from './programSlice';
@@ -21,7 +25,7 @@ export interface HydrationSlice {
 }
 
 type FullState = TaskSlice & StreakSlice & MilestoneSlice & EnergySlice &
-  StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & RoutineSlice & RpgSlice &
+  StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & RoutineSlice & RpgSlice & ReflectionSlice & ScheduleSlice & SchoolSlice & BodyProgressSlice &
   NutritionFitnessSlice & WorkoutSlice & ProgramSlice & GrocerySlice;
 
 // The only place that reads every domain's storage at once. Adding a new
@@ -35,13 +39,13 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
       const repo = await getRepository();
       const [
         tasks, streaks, milestones, energyLogs, cycleLogs, stressLogs,
-        wellnessPreferences, profile, routines, rpgState,
-        nutritionFitnessState, workoutState, programState, groceryState,
+        wellnessPreferences, profile, routines, rpgState, reflectionState,
+        nutritionFitnessState, workoutState, programState, groceryState, scheduleState, schoolState, bodyProgressState,
       ] = await Promise.all([
           repo.getTasks(), repo.getStreaks(), repo.getMilestones(),
           repo.getEnergyLogs(), repo.getCycleLogs(), repo.getStressLogs(),
-          repo.getWellnessPreferences(), repo.getProfile(), repo.getRoutines(), repo.getRpgState(),
-          repo.getNutritionFitnessState(), repo.getWorkoutState(), repo.getProgramState(), repo.getGroceryState(),
+          repo.getWellnessPreferences(), repo.getProfile(), repo.getRoutines(), repo.getRpgState(), repo.getReflectionState(),
+          repo.getNutritionFitnessState(), repo.getWorkoutState(), repo.getProgramState(), repo.getGroceryState(), repo.getScheduleState(), repo.getSchoolState(), repo.getBodyProgressState(),
         ]);
       set((state) => ({
         ...state,
@@ -58,6 +62,14 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
         coins: rpgState?.coins ?? state.coins,
         skillXp: rpgState?.skillXp ?? state.skillXp,
         ownedUnlockables: rpgState?.ownedUnlockables ?? state.ownedUnlockables,
+        reflections: reflectionState?.reflections ?? state.reflections,
+        scheduleItems: scheduleState?.scheduleItems ?? state.scheduleItems,
+        runningBehindMinutes: scheduleState?.runningBehindMinutes ?? state.runningBehindMinutes,
+        courses: schoolState?.courses ?? state.courses,
+        assignments: schoolState?.assignments ?? state.assignments,
+        weightLog: bodyProgressState?.weightLog ?? state.weightLog,
+        measurementLog: bodyProgressState?.measurementLog ?? state.measurementLog,
+        weightGoalLbs: bodyProgressState?.weightGoalLbs ?? state.weightGoalLbs,
 
         savedRecipeIds: nutritionFitnessState?.savedRecipeIds ?? state.savedRecipeIds,
         completedExerciseLog: nutritionFitnessState?.completedExerciseLog ?? state.completedExerciseLog,

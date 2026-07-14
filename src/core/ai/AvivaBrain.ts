@@ -37,6 +37,10 @@ const BrainDumpResultSchema = z.object({
 });
 export type BrainDumpResult = z.infer<typeof BrainDumpResultSchema>;
 
+const FlashcardSchema = z.object({ front: z.string(), back: z.string() });
+const FlashcardSetSchema = z.object({ cards: z.array(FlashcardSchema) });
+export type FlashcardSet = z.infer<typeof FlashcardSetSchema>;
+
 /**
  * Wraps all calls to the Groq API used by "Aviva." Every method sanitizes
  * inputs before they leave the device and validates responses against a
@@ -127,6 +131,47 @@ Time of day: ${cleanContext.timeOfDay}`;
       return validated.data;
     } catch (error) {
       console.error('AvivaBrain: parseBrainDump failed', error);
+      return null;
+    }
+  }
+
+  async breakDownAssignment(assignmentTitle: string, context: AvivaContext): Promise<TaskDecomposition | null> {
+    // Reuses the exact same schema/sanitization/validation path as
+    // decomposeTask — an assignment breakdown is the same shape of
+    // problem as a task breakdown, just entered from School instead of
+    // Tasks. No duplicated AI logic.
+    return this.decomposeTask(assignmentTitle, context);
+  }
+
+  async generateFlashcards(notesText: string): Promise<FlashcardSet | null> {
+    const cleanNotes = sanitizeString(notesText);
+    if (!cleanNotes) return null;
+
+    const systemPrompt = `You create simple study flashcards from a student's notes.
+Extract the clearest, most testable facts or concepts. Keep each card short.
+Respond with ONLY valid JSON, no markdown fences:
+{"cards": [{"front": string, "back": string}]}`;
+
+    try {
+      const response = await this.client.chat.completions.create({
+        model: AI_MODEL,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: `Notes: "${cleanNotes}"` },
+        ],
+        temperature: 0.4,
+        response_format: { type: 'json_object' },
+      });
+      const raw = response?.choices?.[0]?.message?.content || '';
+      if (!raw) return null;
+      const validated = FlashcardSetSchema.safeParse(JSON.parse(raw));
+      if (!validated.success) {
+        console.error('AvivaBrain: flashcard generation schema validation failed', validated.error.flatten());
+        return null;
+      }
+      return validated.data;
+    } catch (error) {
+      console.error('AvivaBrain: generateFlashcards failed', error);
       return null;
     }
   }

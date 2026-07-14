@@ -1,5 +1,6 @@
 import { View, Text, Pressable, ScrollView, Share } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Heading, Subheading } from '@/shared/components/Heading';
 import {
   useAppStore,
   selectProfile,
@@ -79,7 +80,7 @@ export default function ProfileScreen() {
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
-        <Text className="text-slate-100 text-2xl font-semibold mb-1 mt-2">You</Text>
+        <Heading className="mb-1 mt-2">You</Heading>
         <Text className="text-slate-400 text-sm mb-4">
           {profile?.biggestHurdle ? `Working on: ${profile.biggestHurdle}` : 'Your progress, all in one place.'}
         </Text>
@@ -92,7 +93,7 @@ export default function ProfileScreen() {
           <Text className="text-slate-500 text-xs">{totalXp} / {nextLevelXp} XP to level {level + 1}</Text>
         </View>
 
-        <Text className="text-slate-100 text-lg font-semibold mb-3">Skills</Text>
+        <Subheading className="mb-3">Skills</Subheading>
         <View className="flex-row flex-wrap gap-2 mb-6">
           {(SKILLS || []).map((skill) => (
             <View key={skill.id} className="bg-slate-900 rounded-xl p-3 w-[31%] items-center">
@@ -103,7 +104,7 @@ export default function ProfileScreen() {
           ))}
         </View>
 
-        <Text className="text-slate-100 text-lg font-semibold mb-3">Shop</Text>
+        <Subheading className="mb-3">Shop</Subheading>
         <View className="gap-2 mb-6">
           {(UNLOCKABLES || []).map((item) => {
             const owned = (ownedUnlockables || []).includes(item.id);
@@ -129,7 +130,7 @@ export default function ProfileScreen() {
           })}
         </View>
 
-        <Text className="text-slate-100 text-lg font-semibold mb-3">Your journey</Text>
+        <Subheading className="mb-3">Your journey</Subheading>
         <View className="flex-row flex-wrap gap-3 mb-6">
           <StatTile label="Tasks completed" value={String(tasksCompleted)} />
           <StatTile label="Longest routine streak" value={`${longestStreak} days`} />
@@ -139,7 +140,7 @@ export default function ProfileScreen() {
           <StatTile label="Milestones unlocked" value={String(unlockedMilestoneCount)} />
         </View>
 
-        <Text className="text-slate-100 text-lg font-semibold mb-3">Personalize</Text>
+        <Subheading className="mb-3">Personalize</Subheading>
         <View className="gap-2 mb-6">
           <Pressable onPress={() => router?.push?.('/achievements')} className="bg-slate-900 rounded-xl p-4 flex-row items-center justify-between">
             <Text className="text-slate-200 text-sm">🏆 Achievements</Text>
@@ -157,9 +158,13 @@ export default function ProfileScreen() {
             <Text className="text-slate-200 text-sm">💪 Fitness preferences</Text>
             <Text className="text-slate-600 text-xs">→</Text>
           </Pressable>
+          <Pressable onPress={() => router?.push?.('/body/progress')} className="bg-slate-900 rounded-xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-200 text-sm">📏 Weight & measurements</Text>
+            <Text className="text-slate-600 text-xs">→</Text>
+          </Pressable>
         </View>
 
-        <Text className="text-slate-100 text-lg font-semibold mb-3">Shop</Text>
+        <Subheading className="mb-3">Shop</Subheading>
         <View className="gap-2 mb-6">
           {(UNLOCKABLES || []).map((item) => {
             const owned = (ownedUnlockables || []).includes(item.id);
@@ -185,7 +190,7 @@ export default function ProfileScreen() {
           })}
         </View>
 
-        <Text className="text-slate-100 text-lg font-semibold mb-3">Your data</Text>
+        <Subheading className="mb-3">Your data</Subheading>
         <View className="gap-2">
           <Pressable onPress={handleExportData} className="bg-slate-900 rounded-xl p-4">
             <Text className="text-slate-200 text-sm mb-1">Export my data</Text>

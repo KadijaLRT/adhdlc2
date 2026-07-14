@@ -3,6 +3,7 @@ import { View, Text, TextInput, Pressable, ScrollView, ActivityIndicator } from 
 import { useAppStore } from '@/store/index';
 import { AGENTS } from '@/core/ai/agents';
 import { askOrchestrator } from '@/core/ai/orchestrator';
+import { Heading } from '@/shared/components/Heading';
 
 export default function CoachScreen() {
   const energyLevel = useAppStore((s) => s.energyLevel);
@@ -31,7 +32,7 @@ export default function CoachScreen() {
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
-        <Text className="text-slate-100 text-2xl font-semibold mb-1 mt-2">Coach</Text>
+        <Heading className="mb-1 mt-2">Coach</Heading>
         <Text className="text-slate-400 text-sm mb-4">Pick a specialist, or just ask and I&apos;ll route it for you.</Text>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">

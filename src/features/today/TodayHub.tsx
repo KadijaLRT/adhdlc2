@@ -2,6 +2,7 @@ import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAppStore, selectTasks, selectRoutines, selectStreaks, selectEnergyLevel } from '@/store/index';
 import { suggestNextTask } from '@/features/tasks/suggestNextTask';
+import { Heading } from '@/shared/components/Heading';
 
 /**
  * "Today" absorbs Tasks, Focus, and Routines into one hub rather than
@@ -27,7 +28,7 @@ export default function TodayHub() {
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
-        <Text className="text-slate-100 text-2xl font-semibold mb-1 mt-2">Today</Text>
+        <Heading className="mb-1 mt-2">Today</Heading>
         <Text className="text-slate-400 text-sm mb-6">One thing at a time.</Text>
 
         {suggested ? (
@@ -53,6 +54,14 @@ export default function TodayHub() {
           <Pressable onPress={() => router?.push?.('/routines')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
             <Text className="text-slate-100 text-sm">🔁 Routines</Text>
             <Text className="text-slate-500 text-xs">{pendingRoutineCount > 0 ? `${pendingRoutineCount} left today` : 'all done'}</Text>
+          </Pressable>
+          <Pressable onPress={() => router?.push?.('/schedule')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-100 text-sm">🕐 Today's timeline</Text>
+            <Text className="text-slate-500 text-xs">→</Text>
+          </Pressable>
+          <Pressable onPress={() => router?.push?.('/school')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-100 text-sm">📖 Study</Text>
+            <Text className="text-slate-500 text-xs">→</Text>
           </Pressable>
           <Pressable onPress={() => router?.push?.('/stuck')} className="bg-amber-400/10 border-2 border-amber-400 rounded-2xl p-4">
             <Text className="text-amber-300 text-sm text-center font-medium">I&apos;m feeling stuck</Text>

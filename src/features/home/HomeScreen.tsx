@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Heading } from '@/shared/components/Heading';
 import {
   useAppStore,
   selectTasks,
@@ -15,6 +16,7 @@ import DayRhythmCard from '@/features/energy/DayRhythmCard';
 import WeeklyChallengeCard from '@/features/gamification/WeeklyChallengeCard';
 import { getDailyInsight } from './DailyInsight';
 import { buildTodaysPlan, type PlanItem } from './buildTodaysPlan';
+import ReflectionCard from './ReflectionCard';
 
 function StreakBadge() {
   const streaks = useAppStore(selectStreaks);
@@ -36,6 +38,9 @@ export default function HomeScreen() {
   const [todaysPlan, setTodaysPlan] = useState<PlanItem[]>([]);
 
   const insight = getDailyInsight(energyLevel, stressLogs, streaks);
+  const [modeOverride, setModeOverride] = useState<'auto' | 'planning' | 'reflection'>('auto');
+  const timeBasedIsEvening = new Date().getHours() >= 20;
+  const isEvening = modeOverride === 'auto' ? timeBasedIsEvening : modeOverride === 'reflection';
   const todayLabel = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
 
   const handleStartMyDay = () => {
@@ -53,17 +58,30 @@ export default function HomeScreen() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, gap: 14 }}>
       <View className="w-full max-w-md self-center gap-4">
         <View>
-          <Text className="text-slate-100 text-2xl font-semibold">Good day 👋</Text>
+          <Heading>Good day 👋</Heading>
           <Text className="text-slate-400 text-sm">{todayLabel}</Text>
           <StreakBadge />
         </View>
 
-        <View className="bg-slate-900 rounded-2xl p-4">
-          <Text className="text-indigo-300 text-xs uppercase tracking-wider mb-1">Coach</Text>
-          <Text className="text-slate-200 text-sm">{insight}</Text>
-        </View>
+        {isEvening ? (
+          <ReflectionCard />
+        ) : (
+          <View className="bg-slate-900 rounded-2xl p-4">
+            <Text className="text-indigo-300 text-xs uppercase tracking-wider mb-1">Coach</Text>
+            <Text className="text-slate-200 text-sm">{insight}</Text>
+          </View>
+        )}
 
-        {!planStarted ? (
+        <Pressable
+          onPress={() => setModeOverride(isEvening ? 'planning' : 'reflection')}
+          className="py-1"
+        >
+          <Text className="text-slate-600 text-center text-xs">
+            {isEvening ? 'Switch to day view' : 'Switch to evening check-in'}
+          </Text>
+        </Pressable>
+
+        {!isEvening && (!planStarted ? (
           <Pressable onPress={handleStartMyDay} className="bg-indigo-600 rounded-2xl py-4 items-center active:bg-indigo-500">
             <Text className="text-white font-semibold text-base">Start My Day</Text>
           </Pressable>
@@ -83,7 +101,7 @@ export default function HomeScreen() {
               </View>
             )}
           </View>
-        )}
+        ))}
 
         <ExecutiveFunctionRings />
         <DayRhythmCard />

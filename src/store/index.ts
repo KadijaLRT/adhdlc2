@@ -15,11 +15,15 @@ import { createProgramSlice, type ProgramSlice } from './slices/programSlice';
 import { createGrocerySlice, type GrocerySlice } from './slices/grocerySlice';
 import { createRoutineSlice, type RoutineSlice } from './slices/routineSlice';
 import { createRpgSlice, type RpgSlice } from './slices/rpgSlice';
+import { createReflectionSlice, type ReflectionSlice } from './slices/reflectionSlice';
+import { createScheduleSlice, type ScheduleSlice } from './slices/scheduleSlice';
+import { createSchoolSlice, type SchoolSlice } from './slices/schoolSlice';
+import { createBodyProgressSlice, type BodyProgressSlice } from './slices/bodyProgressSlice';
 
 export * from './slices/types';
 
 export type AppState = UiSlice & TaskSlice & StreakSlice & MilestoneSlice &
-  EnergySlice & StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & NutritionFitnessSlice & WorkoutSlice & ProgramSlice & GrocerySlice & RoutineSlice & RpgSlice;
+  EnergySlice & StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & NutritionFitnessSlice & WorkoutSlice & ProgramSlice & GrocerySlice & RoutineSlice & RpgSlice & ReflectionSlice & ScheduleSlice & SchoolSlice & BodyProgressSlice;
 
 // Combined store. To add a new domain: create slices/xSlice.ts exporting
 // createXSlice + XSlice, spread it in here, add its storage keys to
@@ -43,6 +47,10 @@ export const useAppStore = create<AppState>()((...args) => ({
   ...createGrocerySlice(...args),
   ...createRoutineSlice(...args),
   ...createRpgSlice(...args),
+  ...createReflectionSlice(...args),
+  ...createScheduleSlice(...args),
+  ...createSchoolSlice(...args),
+  ...createBodyProgressSlice(...args),
 }));
 
 // Individual selectors — components should always select a single slice
@@ -61,6 +69,13 @@ export const selectCycleLogs = (s: AppState) => s.cycleLogs || [];
 export const selectWellnessPreferences = (s: AppState) => s.wellnessPreferences;
 export const selectProfile = (s: AppState) => s.profile;
 export const selectIsHydrated = (s: AppState) => s.isHydrated;
+export const selectReflections = (s: AppState) => s.reflections || [];
+export const selectScheduleItems = (s: AppState) => s.scheduleItems || [];
+export const selectCourses = (s: AppState) => s.courses || [];
+export const selectAssignments = (s: AppState) => s.assignments || [];
+export const selectWeightLog = (s: AppState) => s.weightLog || [];
+export const selectMeasurementLog = (s: AppState) => s.measurementLog || [];
+export const selectWeightGoalLbs = (s: AppState) => s.weightGoalLbs;
 export const selectSavedRecipeIds = (s: AppState) => s.savedRecipeIds || [];
 export const selectCompletedExerciseLog = (s: AppState) => s.completedExerciseLog || [];
 export const selectNutritionPreferences = (s: AppState) => s.nutritionPreferences;

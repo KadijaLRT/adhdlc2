@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppStore, selectAdhdFocusModeEnabled } from '@/store/index';
 import { WORKOUT_EXERCISES } from '@/content/exercises';
+import { Heading } from '@/shared/components/Heading';
 
 const REST_COACHING_LINES = [
   'Take a drink.', 'A few deep breaths.', 'Shake it out.', 'Almost there.',
@@ -86,7 +87,7 @@ export default function WorkoutSession({ exerciseId, programId, queue }: { exerc
 
         {phase === 'set' && (
           <View className="flex-1 justify-center">
-            <Text className="text-slate-100 text-2xl font-semibold text-center mb-1">{exercise.name}</Text>
+            <Heading className="text-center mb-1">{exercise.name}</Heading>
             <Text className="text-slate-400 text-center mb-8">Set {currentSet} of {totalSets}</Text>
 
             {!adhdFocusModeEnabled && (
@@ -140,7 +141,7 @@ export default function WorkoutSession({ exerciseId, programId, queue }: { exerc
 
         {phase === 'done' && (
           <View className="flex-1 justify-center items-center">
-            <Text className="text-slate-100 text-2xl font-semibold text-center mb-2">Nice work.</Text>
+            <Heading className="text-center mb-2">Nice work.</Heading>
             <Text className="text-slate-400 text-center mb-10">All {totalSets} sets logged for {exercise.name}.</Text>
 
             {hasMoreInQueue ? (

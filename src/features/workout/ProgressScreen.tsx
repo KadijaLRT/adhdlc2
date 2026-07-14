@@ -1,6 +1,7 @@
 import { View, Text, ScrollView } from 'react-native';
 import { useAppStore, selectSetLogs, selectPersonalRecords } from '@/store/index';
 import { WORKOUT_EXERCISES } from '@/content/exercises';
+import { Heading, Subheading } from '@/shared/components/Heading';
 import {
   calculateWorkoutStreak,
   calculateTotalWorkouts,
@@ -35,7 +36,7 @@ export default function ProgressScreen() {
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
-        <Text className="text-slate-100 text-2xl font-semibold mb-1 mt-2">Progress</Text>
+        <Heading className="mb-1 mt-2">Progress</Heading>
         <Text className="text-slate-400 text-sm mb-6">
           Every number here only ever adds up. Nothing here can go backward.
         </Text>
@@ -49,7 +50,7 @@ export default function ProgressScreen() {
           <StatCard label="Volume lifted" value={`${totalVolume.toLocaleString()} lbs`} />
         </View>
 
-        <Text className="text-slate-100 text-lg font-semibold mb-3">Last 6 weeks</Text>
+        <Subheading className="mb-3">Last 6 weeks</Subheading>
         <View className="bg-slate-900 rounded-2xl p-4 mb-6 flex-row items-end gap-2" style={{ height: 140 }}>
           {(weeklyVolume || []).map((point) => (
             <View key={point.weekLabel} className="flex-1 items-center">
@@ -62,7 +63,7 @@ export default function ProgressScreen() {
           ))}
         </View>
 
-        <Text className="text-slate-100 text-lg font-semibold mb-3">Recent records</Text>
+        <Subheading className="mb-3">Recent records</Subheading>
         {topRecords.length === 0 ? (
           <Text className="text-slate-500 text-sm">Log a set to start building your records here.</Text>
         ) : (

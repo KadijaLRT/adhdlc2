@@ -8,6 +8,7 @@ import {
 } from '@/store/index';
 import { RECIPES } from '@/content/recipes';
 import { buildMergedGroceryList } from '@/content/groceryListBuilder';
+import { Heading } from '@/shared/components/Heading';
 
 export default function GroceryScreen() {
   const savedRecipeIds = useAppStore(selectSavedRecipeIds);
@@ -52,7 +53,7 @@ export default function GroceryScreen() {
     return (
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
         <View className="w-full max-w-md self-center">
-          <Text className="text-slate-100 text-2xl font-semibold mb-1 mt-2">Groceries</Text>
+          <Heading className="mb-1 mt-2">Groceries</Heading>
           <Text className="text-slate-400 text-sm">
             Save a few recipes and your grocery list builds itself here, grouped by aisle.
           </Text>
@@ -65,7 +66,7 @@ export default function GroceryScreen() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <View className="flex-row items-center justify-between mb-1 mt-2">
-          <Text className="text-slate-100 text-2xl font-semibold">Groceries</Text>
+          <Heading>Groceries</Heading>
           <Pressable onPress={() => setShoppingMode(!shoppingMode)}>
             <Text className="text-indigo-400 text-sm font-medium">
               {shoppingMode ? 'Exit shopping mode' : 'Shopping mode'}

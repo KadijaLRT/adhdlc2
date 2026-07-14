@@ -1,0 +1,54 @@
+import { View, Text, Pressable } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { useAppStore, selectScheduleItems } from '@/store/index';
+
+function currentTimeString(): string {
+  const now = new Date();
+  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+}
+
+/**
+ * Everything hidden except the current item — no navigation, no list,
+ * no earlier/later context. Matches the document's "Right Now" and
+ * Focus-mode principle applied specifically to the schedule.
+ */
+export default function RightNowScreen() {
+  const router = useRouter();
+  const items = useAppStore(selectScheduleItems);
+  const toggleScheduleItemDone = useAppStore((s) => s.toggleScheduleItemDone);
+
+  const now = currentTimeString();
+  const current = (items || []).find((i) => !i.isDone && i.time >= now) || (items || []).find((i) => !i.isDone);
+
+  const handleComplete = () => {
+    if (current) toggleScheduleItemDone(current.id);
+    router?.back?.();
+  };
+
+  if (!current) {
+    return (
+      <SafeAreaView className="flex-1 bg-slate-950 items-center justify-center px-8">
+        <Text className="text-slate-300 text-center text-lg">Nothing scheduled right now.</Text>
+        <Pressable onPress={() => router?.back?.()} className="mt-4">
+          <Text className="text-indigo-400">Back to schedule</Text>
+        </Pressable>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView className="flex-1 bg-slate-950">
+      <View className="flex-1 items-center justify-center px-8">
+        <Text className="text-slate-500 text-sm uppercase tracking-wider mb-3">Right now</Text>
+        <Text className="text-slate-50 text-3xl font-semibold text-center mb-10">{current.label}</Text>
+        <Pressable onPress={handleComplete} className="bg-emerald-500 rounded-full py-4 px-12 mb-4 active:bg-emerald-400">
+          <Text className="text-slate-950 font-semibold text-lg">Done</Text>
+        </Pressable>
+        <Pressable onPress={() => router?.back?.()} className="py-2">
+          <Text className="text-slate-600 text-sm">Back to full schedule</Text>
+        </Pressable>
+      </View>
+    </SafeAreaView>
+  );
+}

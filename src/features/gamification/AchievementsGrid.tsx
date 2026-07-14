@@ -6,7 +6,7 @@ export default function AchievementsGrid() {
   const milestones = useAppStore(selectMilestones);
   return (
     <View className="w-full">
-      <Text className="text-slate-100 text-lg font-semibold mb-4">Your Milestones</Text>
+      <Subheading className="mb-4">Your Milestones</Subheading>
       <View className="flex-col md:flex-row flex-wrap gap-3">
         {(MILESTONE_DEFINITIONS || []).map((definition) => {
           const progress = (milestones || []).find((m) => m.trackedEvent === definition.trackedEvent);

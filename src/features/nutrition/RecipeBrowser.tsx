@@ -4,6 +4,7 @@ import { useAppStore, selectSavedRecipeIds, selectNutritionPreferences, selectNu
 import PersonalizeNutritionCard from './PersonalizeNutritionCard';
 import { RECIPES, type Recipe } from '@/content/recipes';
 import { useRouter } from 'expo-router';
+import { Heading } from '@/shared/components/Heading';
 
 const CUISINES = ['all', 'jamaican', 'american', 'southern', 'italian', 'mexican', 'caribbean', 'japanese'];
 const MEAL_TYPES = ['all', 'breakfast', 'lunch', 'dinner'];
@@ -52,7 +53,7 @@ export default function RecipeBrowser() {
   return (
     <View className="flex-1">
       <View className="px-4 pt-4 w-full max-w-md self-center">
-        <Text className="text-slate-100 text-2xl font-semibold mb-1">Recipes</Text>
+        <Heading className="mb-1">Recipes</Heading>
         <Text className="text-slate-400 text-sm mb-4">Simple, high-protein meals, browsable by cuisine and time of day.</Text>
 
         {!nutritionCardDismissed && <PersonalizeNutritionCard />}

@@ -5,6 +5,7 @@ import { useAppStore, selectSavedRecipeIds, selectEnergyLevel, selectWellnessPre
 import { RECIPES } from '@/content/recipes';
 import { getMealSuggestions } from '@/content/mealSuggestions';
 import { buildMergedGroceryList } from '@/content/groceryListBuilder';
+import { Heading, Subheading } from '@/shared/components/Heading';
 
 /**
  * Leads with an actual recommendation and this week's real grocery
@@ -29,13 +30,13 @@ export default function MealsHub() {
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
-        <Text className="text-slate-100 text-2xl font-semibold mb-1 mt-2">Meals</Text>
+        <Heading className="mb-1 mt-2">Meals</Heading>
         <Text className="text-slate-400 text-sm mb-6">What should I eat right now?</Text>
 
         {suggestion && (
           <View className="bg-indigo-600/10 border-2 border-indigo-500 rounded-2xl p-5 mb-4">
             <Text className="text-indigo-200 text-xs uppercase tracking-wider mb-1">Suggested for your energy today</Text>
-            <Text className="text-slate-100 text-lg font-semibold mb-1">{suggestion.title}</Text>
+            <Subheading className="mb-1">{suggestion.title}</Subheading>
             <Text className="text-slate-400 text-xs">{suggestion.prepMinutes} min · {(suggestion.ingredients || []).join(', ')}</Text>
           </View>
         )}

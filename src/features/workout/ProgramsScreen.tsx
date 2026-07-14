@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useAppStore, selectActiveProgramId, selectFitnessPreferences } from '@/store/index';
 import { PROGRAMS } from '@/content/programs';
 import { buildProgramSessionExerciseIds, getCurrentProgramWeek, getSessionsThisWeek } from './buildProgramSession';
+import { Heading, Subheading } from '@/shared/components/Heading';
 
 export default function ProgramsScreen() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function ProgramsScreen() {
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
-        <Text className="text-slate-100 text-2xl font-semibold mb-1 mt-2">Programs</Text>
+        <Heading className="mb-1 mt-2">Programs</Heading>
         <Text className="text-slate-400 text-sm mb-6">
           Pick a plan once, then just show up. No re-deciding every session.
         </Text>
@@ -40,7 +41,7 @@ export default function ProgramsScreen() {
         {activeProgram && (
           <View className="bg-indigo-600/10 border-2 border-indigo-500 rounded-2xl p-4 mb-6">
             <Text className="text-indigo-200 text-xs uppercase tracking-wider mb-1">Active program</Text>
-            <Text className="text-slate-100 text-lg font-semibold mb-1">{activeProgram.emoji} {activeProgram.title}</Text>
+            <Subheading className="mb-1">{activeProgram.emoji} {activeProgram.title}</Subheading>
             <Text className="text-slate-400 text-xs mb-3">
               Week {currentWeek} of {activeProgram.durationWeeks} · {sessionsThisWeek} of {activeProgram.daysPerWeek} sessions this week
             </Text>

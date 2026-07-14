@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppStore } from '@/store/index';
 import { STUCK_PROMPTS, getRandomPrompt } from '@/content/stuckPrompts';
+import { Heading } from '@/shared/components/Heading';
 
 type Room = 'eat' | 'work' | 'gym';
 const ROOM_LABELS: Record<Room, string> = { eat: 'Eating', work: 'Work', gym: 'Gym' };
@@ -38,7 +39,7 @@ export default function StuckFlow() {
     <SafeAreaView className="flex-1 bg-slate-950">
       <View className="flex-1 w-full max-w-md self-center px-6 pt-safe pb-safe justify-center">
         <View className="mb-10">
-          <Text className="text-slate-100 text-2xl font-semibold">I&apos;m feeling stuck</Text>
+          <Heading>I&apos;m feeling stuck</Heading>
           <Text className="text-slate-400 text-base mt-1">No pressure. Just one small thing.</Text>
         </View>
         <View className="bg-slate-900 rounded-2xl p-8 mb-8 items-center">

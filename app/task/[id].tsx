@@ -11,6 +11,7 @@ import {
   type TaskCategory,
 } from '@/store/index';
 import { avivaBrain } from '@/core/ai/AvivaBrain';
+import { Heading } from '@/shared/components/Heading';
 
 export default function TaskDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -68,7 +69,7 @@ export default function TaskDetailScreen() {
     <SafeAreaView className="flex-1 bg-slate-950">
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
         <View className="w-full max-w-md self-center">
-          <Text className="text-slate-100 text-2xl font-semibold mb-2">{task?.title || 'Untitled task'}</Text>
+          <Heading className="mb-2">{task?.title || 'Untitled task'}</Heading>
 
           {(task?.realMinutes || task?.estimatedMinutes) && (
             <Text className="text-slate-500 text-sm mb-4">

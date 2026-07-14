@@ -3,6 +3,7 @@ import { View, Text, Pressable, TextInput, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAppStore, selectTasks, selectEnergyLevel, type TaskCategory, type TaskPriority } from '@/store/index';
 import { suggestNextTask } from './suggestNextTask';
+import { Heading } from '@/shared/components/Heading';
 
 const CATEGORY_OPTIONS: { id: TaskCategory; label: string; emoji: string }[] = [
   { id: 'general', label: 'All', emoji: '📋' },
@@ -65,7 +66,7 @@ export default function TasksScreen() {
 
   return (
     <View className="flex-1 w-full max-w-md self-center px-4 pt-safe">
-      <Text className="text-slate-100 text-2xl font-semibold mb-1 mt-2">Tasks</Text>
+      <Heading className="mb-1 mt-2">Tasks</Heading>
 
       {totalCount > 0 && (
         <View className="mb-4">

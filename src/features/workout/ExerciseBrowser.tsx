@@ -5,6 +5,7 @@ import { useAppStore, selectCompletedExerciseLog, selectFitnessPreferences, sele
 import PersonalizeFitnessCard from './PersonalizeFitnessCard';
 import { pickStartSomewhereExercise } from './pickStartSomewhere';
 import { WORKOUT_EXERCISES, type Exercise } from '@/content/exercises';
+import { Heading } from '@/shared/components/Heading';
 
 export default function ExerciseBrowser() {
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function ExerciseBrowser() {
   return (
     <View className="flex-1">
       <View className="px-4 pt-4 w-full max-w-md self-center">
-        <Text className="text-slate-100 text-2xl font-semibold mb-1">Workout</Text>
+        <Heading className="mb-1">Workout</Heading>
         <Text className="text-slate-400 text-sm mb-4">Pick a muscle group. Do as much or as little as feels right today.</Text>
 
         {!fitnessCardDismissed && <PersonalizeFitnessCard />}
