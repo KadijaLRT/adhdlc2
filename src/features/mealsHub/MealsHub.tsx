@@ -1,0 +1,56 @@
+import { useMemo } from 'react';
+import { View, Text, Pressable, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useAppStore, selectSavedRecipeIds, selectEnergyLevel, selectWellnessPreferences } from '@/store/index';
+import { RECIPES } from '@/content/recipes';
+import { getMealSuggestions } from '@/content/mealSuggestions';
+import { buildMergedGroceryList } from '@/content/groceryListBuilder';
+
+/**
+ * Leads with an actual recommendation and this week's real grocery
+ * count, not a menu of "Recipes" / "Groceries" buttons — matching the
+ * document's "every screen should be immediately useful" principle.
+ */
+export default function MealsHub() {
+  const router = useRouter();
+  const savedRecipeIds = useAppStore(selectSavedRecipeIds);
+  const energyLevel = useAppStore(selectEnergyLevel);
+  const wellnessPreferences = useAppStore(selectWellnessPreferences);
+
+  const savedRecipes = useMemo(() => (RECIPES || []).filter((r) => (savedRecipeIds || []).includes(r.id)), [savedRecipeIds]);
+
+  const suggestion = useMemo(() => {
+    const matches = getMealSuggestions(energyLevel, wellnessPreferences?.bloodTypeEnabled ? wellnessPreferences?.bloodType : null);
+    return matches[0] || null;
+  }, [energyLevel, wellnessPreferences]);
+
+  const groceryCount = useMemo(() => buildMergedGroceryList(savedRecipes, []).length, [savedRecipes]);
+
+  return (
+    <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
+      <View className="w-full max-w-md self-center">
+        <Text className="text-slate-100 text-2xl font-semibold mb-1 mt-2">Meals</Text>
+        <Text className="text-slate-400 text-sm mb-6">What should I eat right now?</Text>
+
+        {suggestion && (
+          <View className="bg-indigo-600/10 border-2 border-indigo-500 rounded-2xl p-5 mb-4">
+            <Text className="text-indigo-200 text-xs uppercase tracking-wider mb-1">Suggested for your energy today</Text>
+            <Text className="text-slate-100 text-lg font-semibold mb-1">{suggestion.title}</Text>
+            <Text className="text-slate-400 text-xs">{suggestion.prepMinutes} min · {(suggestion.ingredients || []).join(', ')}</Text>
+          </View>
+        )}
+
+        <View className="gap-3">
+          <Pressable onPress={() => router?.push?.('/nutrition/recipes')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-100 text-sm">🍎 Browse recipes</Text>
+            <Text className="text-slate-500 text-xs">{savedRecipes.length} saved</Text>
+          </Pressable>
+          <Pressable onPress={() => router?.push?.('/nutrition/groceries')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-100 text-sm">🛒 This week's groceries</Text>
+            <Text className="text-slate-500 text-xs">{groceryCount} items</Text>
+          </Pressable>
+        </View>
+      </View>
+    </ScrollView>
+  );
+}

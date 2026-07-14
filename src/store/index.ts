@@ -1,0 +1,80 @@
+import { create } from 'zustand';
+import { createUiSlice, type UiSlice } from './slices/uiSlice';
+import { createTaskSlice, type TaskSlice } from './slices/taskSlice';
+import { createStreakSlice, type StreakSlice } from './slices/streakSlice';
+import { createMilestoneSlice, type MilestoneSlice } from './slices/milestoneSlice';
+import { createEnergySlice, type EnergySlice } from './slices/energySlice';
+import { createStressSlice, type StressSlice } from './slices/stressSlice';
+import { createCycleSlice, type CycleSlice } from './slices/cycleSlice';
+import { createWellnessSlice, type WellnessSlice } from './slices/wellnessSlice';
+import { createProfileSlice, type ProfileSlice } from './slices/profileSlice';
+import { createHydrationSlice, type HydrationSlice } from './slices/hydrationSlice';
+import { createNutritionFitnessSlice, type NutritionFitnessSlice } from './slices/nutritionFitnessSlice';
+import { createWorkoutSlice, type WorkoutSlice } from './slices/workoutSlice';
+import { createProgramSlice, type ProgramSlice } from './slices/programSlice';
+import { createGrocerySlice, type GrocerySlice } from './slices/grocerySlice';
+import { createRoutineSlice, type RoutineSlice } from './slices/routineSlice';
+import { createRpgSlice, type RpgSlice } from './slices/rpgSlice';
+
+export * from './slices/types';
+
+export type AppState = UiSlice & TaskSlice & StreakSlice & MilestoneSlice &
+  EnergySlice & StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & NutritionFitnessSlice & WorkoutSlice & ProgramSlice & GrocerySlice & RoutineSlice & RpgSlice;
+
+// Combined store. To add a new domain: create slices/xSlice.ts exporting
+// createXSlice + XSlice, spread it in here, add its storage keys to
+// core/storage/types.ts + sqliteRepository.ts + webRepository.ts, and
+// (if it needs to survive a restart) add it to hydrationSlice.ts. No
+// existing slice file ever needs to change.
+export const useAppStore = create<AppState>()((...args) => ({
+  ...createUiSlice(...args),
+  ...createTaskSlice(...args),
+  ...createStreakSlice(...args),
+  ...createMilestoneSlice(...args),
+  ...createEnergySlice(...args),
+  ...createStressSlice(...args),
+  ...createCycleSlice(...args),
+  ...createWellnessSlice(...args),
+  ...createProfileSlice(...args),
+  ...createHydrationSlice(...args),
+  ...createNutritionFitnessSlice(...args),
+  ...createWorkoutSlice(...args),
+  ...createProgramSlice(...args),
+  ...createGrocerySlice(...args),
+  ...createRoutineSlice(...args),
+  ...createRpgSlice(...args),
+}));
+
+// Individual selectors — components should always select a single slice
+// of state, never the whole store, to avoid unnecessary re-renders.
+export const selectTheme = (s: AppState) => s.theme;
+export const selectEnergyLevel = (s: AppState) => s.energyLevel;
+export const selectIsOverwhelmed = (s: AppState) => s.isOverwhelmed;
+export const selectBodyDoublingRoom = (s: AppState) => s.bodyDoublingRoom;
+export const selectTasks = (s: AppState) => s.tasks || [];
+export const selectStreaks = (s: AppState) => s.streaks || [];
+export const selectMilestones = (s: AppState) => s.milestones || [];
+export const selectEnergyLogs = (s: AppState) => s.energyLogs || [];
+export const selectStressLogs = (s: AppState) => s.stressLogs || [];
+export const selectCycleTrackingEnabled = (s: AppState) => s.cycleTrackingEnabled;
+export const selectCycleLogs = (s: AppState) => s.cycleLogs || [];
+export const selectWellnessPreferences = (s: AppState) => s.wellnessPreferences;
+export const selectProfile = (s: AppState) => s.profile;
+export const selectIsHydrated = (s: AppState) => s.isHydrated;
+export const selectSavedRecipeIds = (s: AppState) => s.savedRecipeIds || [];
+export const selectCompletedExerciseLog = (s: AppState) => s.completedExerciseLog || [];
+export const selectNutritionPreferences = (s: AppState) => s.nutritionPreferences;
+export const selectNutritionCardDismissed = (s: AppState) => s.nutritionCardDismissed;
+export const selectFitnessPreferences = (s: AppState) => s.fitnessPreferences;
+export const selectFitnessCardDismissed = (s: AppState) => s.fitnessCardDismissed;
+export const selectSetLogs = (s: AppState) => s.setLogs || [];
+export const selectPersonalRecords = (s: AppState) => s.personalRecords || [];
+export const selectAdhdFocusModeEnabled = (s: AppState) => s.adhdFocusModeEnabled ?? true;
+export const selectActiveProgramId = (s: AppState) => s.activeProgramId;
+export const selectPantryItems = (s: AppState) => s.pantryItems || [];
+export const selectCheckedIngredients = (s: AppState) => s.checkedIngredients || [];
+export const selectRoutines = (s: AppState) => s.routines || [];
+export const selectTotalXp = (s: AppState) => s.totalXp || 0;
+export const selectCoins = (s: AppState) => s.coins || 0;
+export const selectSkillXp = (s: AppState) => s.skillXp;
+export const selectOwnedUnlockables = (s: AppState) => s.ownedUnlockables || [];

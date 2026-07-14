@@ -1,0 +1,51 @@
+import { View, Text, Switch, Pressable, ScrollView } from 'react-native';
+import { useAppStore, selectEnergyLevel, selectWellnessPreferences } from '@/store/index';
+import { getMealSuggestions } from '@/content/mealSuggestions';
+import { BLOOD_TYPE_DISCLAIMER, type BloodType } from '@/content/bloodTypeAffinities';
+
+const BLOOD_TYPES: BloodType[] = ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'];
+
+export default function MealPlanner() {
+  const energyLevel = useAppStore(selectEnergyLevel);
+  const wellnessPreferences = useAppStore(selectWellnessPreferences);
+  const setWellnessPreferences = useAppStore((s) => s.setWellnessPreferences);
+  const meals = getMealSuggestions(energyLevel, wellnessPreferences?.bloodTypeEnabled ? wellnessPreferences?.bloodType : null);
+
+  return (
+    <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, gap: 16 }}>
+      <View className="w-full max-w-md self-center gap-4">
+        <View className="bg-slate-900 rounded-2xl p-5">
+          <View className="flex-row items-center justify-between mb-1">
+            <Text className="text-slate-100 text-base font-semibold">Blood Type Lens</Text>
+            <Switch value={wellnessPreferences?.bloodTypeEnabled || false}
+              onValueChange={(v) => setWellnessPreferences({ bloodTypeEnabled: v })}
+              trackColor={{ false: '#334155', true: '#4f46e5' }} thumbColor="#e2e8f0" />
+          </View>
+          <Text className="text-slate-500 text-xs mb-3">{BLOOD_TYPE_DISCLAIMER}</Text>
+          {wellnessPreferences?.bloodTypeEnabled && (
+            <View className="flex-row flex-wrap gap-2">
+              {(BLOOD_TYPES || []).map((type) => {
+                const isActive = wellnessPreferences?.bloodType === type;
+                return (
+                  <Pressable key={type} onPress={() => setWellnessPreferences({ bloodType: type })}
+                    className={isActive ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-slate-800 border-2 border-transparent rounded-full py-2 px-4'}>
+                    <Text className={isActive ? 'text-indigo-200' : 'text-slate-300'}>{type}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
+        </View>
+        <View className="gap-3">
+          <Text className="text-slate-100 text-lg font-semibold">Today&apos;s suggestions</Text>
+          {(meals || []).map((meal) => (
+            <View key={meal.id} className="bg-slate-900 rounded-2xl p-4">
+              <Text className="text-slate-100 font-medium mb-1">{meal.title}</Text>
+              <Text className="text-slate-500 text-xs">{meal.prepMinutes} min · {(meal.ingredients || []).join(', ')}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+    </ScrollView>
+  );
+}

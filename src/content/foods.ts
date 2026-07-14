@@ -1,0 +1,92 @@
+export interface FoodItem {
+  id: string; name: string; brand: string; cal: number;
+  pro: string; carb: string; fat: string; fiber: string; serving: string;
+}
+
+export const FOOD_DB: FoodItem[] = [
+  // Proteins
+  {id:'f1',name:'Chicken Breast (grilled)',brand:'Whole food',cal:165,pro:'31',carb:'0',fat:'3.6',fiber:'0',serving:'3 oz (85g)'},
+  {id:'f2',name:'Chicken Thigh (cooked)',brand:'Whole food',cal:209,pro:'26',carb:'0',fat:'11',fiber:'0',serving:'3 oz (85g)'},
+  {id:'f3',name:'Ground Beef 80/20',brand:'Whole food',cal:215,pro:'22',carb:'0',fat:'14',fiber:'0',serving:'3 oz (85g)'},
+  {id:'f4',name:'Salmon (baked)',brand:'Whole food',cal:175,pro:'25',carb:'0',fat:'8',fiber:'0',serving:'3 oz (85g)'},
+  {id:'f5',name:'Shrimp (cooked)',brand:'Whole food',cal:84,pro:'18',carb:'0',fat:'0.9',fiber:'0',serving:'3 oz (85g)'},
+  {id:'f6',name:'Tuna (canned in water)',brand:'Whole food',cal:109,pro:'25',carb:'0',fat:'0.5',fiber:'0',serving:'3 oz (85g)'},
+  {id:'f7',name:'Eggs (large)',brand:'Whole food',cal:72,pro:'6',carb:'0.4',fat:'5',fiber:'0',serving:'1 egg'},
+  {id:'f8',name:'Egg Whites',brand:'Whole food',cal:17,pro:'3.6',carb:'0.2',fat:'0',fiber:'0',serving:'1 large'},
+  {id:'f9',name:'Turkey Breast (deli)',brand:'Whole food',cal:60,pro:'12',carb:'1',fat:'0.5',fiber:'0',serving:'2 oz (57g)'},
+  {id:'f10',name:'Tilapia (baked)',brand:'Whole food',cal:109,pro:'22',carb:'0',fat:'2.3',fiber:'0',serving:'3 oz (85g)'},
+  {id:'f11',name:'Lamb Chop (grilled)',brand:'Whole food',cal:244,pro:'21',carb:'0',fat:'17',fiber:'0',serving:'3 oz (85g)'},
+  {id:'f12',name:'Beef Sirloin (grilled)',brand:'Whole food',cal:207,pro:'26',carb:'0',fat:'11',fiber:'0',serving:'3 oz (85g)'},
+  // Dairy & Eggs
+  {id:'f13',name:'Greek Yogurt (plain, 0%)',brand:'Whole food',cal:59,pro:'10',carb:'3.6',fat:'0.4',fiber:'0',serving:'100g'},
+  {id:'f14',name:'Cottage Cheese (1%)',brand:'Whole food',cal:72,pro:'12',carb:'2.7',fat:'1',fiber:'0',serving:'\u00BD cup'},
+  {id:'f15',name:'Whole Milk',brand:'Whole food',cal:149,pro:'8',carb:'12',fat:'8',fiber:'0',serving:'1 cup (240ml)'},
+  {id:'f16',name:'Cheddar Cheese',brand:'Whole food',cal:113,pro:'7',carb:'0.4',fat:'9',fiber:'0',serving:'1 oz (28g)'},
+  {id:'f17',name:'Mozzarella (part-skim)',brand:'Whole food',cal:72,pro:'7',carb:'1',fat:'4.5',fiber:'0',serving:'1 oz (28g)'},
+  {id:'f18',name:'Butter',brand:'Whole food',cal:102,pro:'0.1',carb:'0',fat:'11.5',fiber:'0',serving:'1 tbsp'},
+  // Grains & Starches
+  {id:'f19',name:'White Rice (cooked)',brand:'Whole food',cal:206,pro:'4.3',carb:'45',fat:'0.4',fiber:'0.6',serving:'1 cup'},
+  {id:'f20',name:'Brown Rice (cooked)',brand:'Whole food',cal:218,pro:'4.5',carb:'46',fat:'1.6',fiber:'3.5',serving:'1 cup'},
+  {id:'f21',name:'Pasta (cooked)',brand:'Whole food',cal:220,pro:'8',carb:'43',fat:'1.3',fiber:'2.5',serving:'1 cup'},
+  {id:'f22',name:'Oatmeal (cooked)',brand:'Whole food',cal:166,pro:'5.9',carb:'28',fat:'3.6',fiber:'4',serving:'1 cup'},
+  {id:'f23',name:'Whole Wheat Bread',brand:'Whole food',cal:81,pro:'4',carb:'15',fat:'1',fiber:'1.9',serving:'1 slice'},
+  {id:'f24',name:'White Bread',brand:'Whole food',cal:79,pro:'2.7',carb:'15',fat:'1',fiber:'0.6',serving:'1 slice'},
+  {id:'f25',name:'Quinoa (cooked)',brand:'Whole food',cal:222,pro:'8',carb:'39',fat:'3.5',fiber:'5',serving:'1 cup'},
+  {id:'f26',name:'Sweet Potato (baked)',brand:'Whole food',cal:103,pro:'2.3',carb:'24',fat:'0.1',fiber:'3.8',serving:'medium (130g)'},
+  {id:'f27',name:'White Potato (baked)',brand:'Whole food',cal:161,pro:'4.3',carb:'37',fat:'0.2',fiber:'3.8',serving:'medium (173g)'},
+  {id:'f28',name:'Corn Tortilla',brand:'Whole food',cal:52,pro:'1.4',carb:'11',fat:'0.7',fiber:'1.4',serving:'1 tortilla (26g)'},
+  {id:'f29',name:'Flour Tortilla (10")',brand:'Whole food',cal:218,pro:'5.7',carb:'37',fat:'5',fiber:'2.2',serving:'1 large'},
+  // Vegetables
+  {id:'f30',name:'Spinach (raw)',brand:'Whole food',cal:7,pro:'0.9',carb:'1.1',fat:'0.1',fiber:'0.7',serving:'1 cup (30g)'},
+  {id:'f31',name:'Broccoli (cooked)',brand:'Whole food',cal:55,pro:'3.7',carb:'11',fat:'0.6',fiber:'5.1',serving:'1 cup'},
+  {id:'f32',name:'Mixed Salad Greens',brand:'Whole food',cal:9,pro:'0.7',carb:'1.5',fat:'0.2',fiber:'1',serving:'2 cups'},
+  {id:'f33',name:'Bell Pepper (raw)',brand:'Whole food',cal:31,pro:'1',carb:'7.5',fat:'0.3',fiber:'2.5',serving:'1 medium'},
+  {id:'f34',name:'Onion (raw)',brand:'Whole food',cal:44,pro:'1.2',carb:'10',fat:'0.1',fiber:'1.9',serving:'medium (110g)'},
+  {id:'f35',name:'Garlic',brand:'Whole food',cal:13,pro:'0.6',carb:'3',fat:'0',fiber:'0.2',serving:'3 cloves'},
+  {id:'f36',name:'Tomato (raw)',brand:'Whole food',cal:22,pro:'1.1',carb:'4.8',fat:'0.2',fiber:'1.5',serving:'1 medium'},
+  {id:'f37',name:'Avocado',brand:'Whole food',cal:234,pro:'2.9',carb:'12',fat:'21',fiber:'10',serving:'1 whole'},
+  {id:'f38',name:'Cucumber',brand:'Whole food',cal:16,pro:'0.7',carb:'3.8',fat:'0.1',fiber:'0.5',serving:'1 cup sliced'},
+  {id:'f39',name:'Plantain (ripe, fried)',brand:'Whole food',cal:214,pro:'1.6',carb:'38',fat:'7',fiber:'2.3',serving:'\u00BD cup'},
+  {id:'f40',name:'Ackee (canned)',brand:'Whole food',cal:151,pro:'2.9',carb:'9.5',fat:'15',fiber:'3',serving:'\u00BD cup'},
+  {id:'f41',name:'Callaloo / Spinach (cooked)',brand:'Whole food',cal:41,pro:'5.3',carb:'7',fat:'0.5',fiber:'4',serving:'1 cup'},
+  // Fruits
+  {id:'f42',name:'Banana',brand:'Whole food',cal:105,pro:'1.3',carb:'27',fat:'0.4',fiber:'3.1',serving:'1 medium'},
+  {id:'f43',name:'Apple',brand:'Whole food',cal:95,pro:'0.5',carb:'25',fat:'0.3',fiber:'4.4',serving:'1 medium'},
+  {id:'f44',name:'Mango',brand:'Whole food',cal:99,pro:'1.4',carb:'25',fat:'0.6',fiber:'2.6',serving:'1 cup diced'},
+  {id:'f45',name:'Mixed Berries (frozen)',brand:'Whole food',cal:70,pro:'1',carb:'17',fat:'0.4',fiber:'4',serving:'1 cup'},
+  {id:'f46',name:'Orange',brand:'Whole food',cal:62,pro:'1.2',carb:'15',fat:'0.2',fiber:'3.1',serving:'1 medium'},
+  // Legumes
+  {id:'f47',name:'Black Beans (cooked)',brand:'Whole food',cal:227,pro:'15',carb:'41',fat:'0.9',fiber:'15',serving:'1 cup'},
+  {id:'f48',name:'Kidney Beans (cooked)',brand:'Whole food',cal:225,pro:'15',carb:'40',fat:'0.9',fiber:'11',serving:'1 cup'},
+  {id:'f49',name:'Chickpeas (cooked)',brand:'Whole food',cal:269,pro:'15',carb:'45',fat:'4.2',fiber:'12',serving:'1 cup'},
+  {id:'f50',name:'Lentils (cooked)',brand:'Whole food',cal:230,pro:'18',carb:'40',fat:'0.8',fiber:'15.6',serving:'1 cup'},
+  // Fats & Oils
+  {id:'f51',name:'Olive Oil',brand:'Whole food',cal:119,pro:'0',carb:'0',fat:'13.5',fiber:'0',serving:'1 tbsp'},
+  {id:'f52',name:'Coconut Oil',brand:'Whole food',cal:121,pro:'0',carb:'0',fat:'13.5',fiber:'0',serving:'1 tbsp'},
+  {id:'f53',name:'Almond Butter',brand:'Whole food',cal:98,pro:'3.4',carb:'3',fat:'9',fiber:'1.6',serving:'1 tbsp'},
+  {id:'f54',name:'Peanut Butter',brand:'Whole food',cal:94,pro:'4',carb:'3.1',fat:'8',fiber:'0.9',serving:'1 tbsp'},
+  {id:'f55',name:'Coconut Milk (canned)',brand:'Whole food',cal:445,pro:'4.6',carb:'6',fat:'48',fiber:'0',serving:'1 cup'},
+  // Snacks & Common Items
+  {id:'f56',name:'Almonds',brand:'Whole food',cal:164,pro:'6',carb:'6',fat:'14',fiber:'3.5',serving:'1 oz (28g)'},
+  {id:'f57',name:'Protein Shake (whey, vanilla)',brand:'Generic',cal:120,pro:'24',carb:'5',fat:'2',fiber:'0',serving:'1 scoop'},
+  {id:'f58',name:'Granola Bar',brand:'Generic',cal:193,pro:'4',carb:'29',fat:'7',fiber:'1.5',serving:'1 bar (47g)'},
+  {id:'f59',name:'Tortilla Chips',brand:'Generic',cal:140,pro:'2',carb:'18',fat:'7',fiber:'1',serving:'1 oz (28g)'},
+  {id:'f60',name:'Rice Cakes (plain)',brand:'Generic',cal:35,pro:'0.7',carb:'7.3',fat:'0.3',fiber:'0.4',serving:'1 cake'},
+  // Fast food staples
+  {id:'ff1',name:"McDonald's Big Mac",brand:"McDonald's",cal:550,pro:'25',carb:'46',fat:'30',fiber:'3',serving:'1 burger'},
+  {id:'ff2',name:"McDonald's Large Fries",brand:"McDonald's",cal:490,pro:'7',carb:'66',fat:'23',fiber:'6',serving:'1 large'},
+  {id:'ff3',name:"McDonald's Egg McMuffin",brand:"McDonald's",cal:310,pro:'17',carb:'30',fat:'12',fiber:'2',serving:'1 sandwich'},
+  {id:'ff4',name:"Chipotle Chicken Burrito Bowl",brand:'Chipotle',cal:665,pro:'52',carb:'54',fat:'17',fiber:'11',serving:'1 bowl'},
+  {id:'ff5',name:"Chipotle Chips & Guacamole",brand:'Chipotle',cal:770,pro:'10',carb:'88',fat:'44',fiber:'15',serving:'1 order'},
+  {id:'ff6',name:'Subway 6in Turkey Breast',brand:'Subway',cal:280,pro:'18',carb:'46',fat:'4',fiber:'3',serving:'6 inch'},
+  {id:'ff7',name:"Popeyes Chicken Sandwich",brand:'Popeyes',cal:700,pro:'28',carb:'50',fat:'42',fiber:'3',serving:'1 sandwich'},
+  {id:'ff8',name:"Wendy's Dave's Single",brand:"Wendy's",cal:570,pro:'30',carb:'40',fat:'30',fiber:'2',serving:'1 burger'},
+  {id:'ff9',name:'KFC Original Recipe Breast',brand:'KFC',cal:400,pro:'38',carb:'12',fat:'23',fiber:'0',serving:'1 piece'},
+  {id:'ff10',name:'Taco Bell Crunchwrap Supreme',brand:'Taco Bell',cal:530,pro:'17',carb:'73',fat:'19',fiber:'5',serving:'1 item'},
+  // Caribbean & Jamaican staples
+  {id:'j1',name:'Jerk Chicken (homemade)',brand:'Jamaican',cal:280,pro:'32',carb:'6',fat:'14',fiber:'0.5',serving:'2 thighs'},
+  {id:'j2',name:'Rice & Peas',brand:'Jamaican',cal:220,pro:'5',carb:'44',fat:'2.5',fiber:'3',serving:'1 cup'},
+  {id:'j3',name:'Ackee & Saltfish',brand:'Jamaican',cal:340,pro:'21',carb:'9',fat:'25',fiber:'2',serving:'1 serving'},
+  {id:'j4',name:'Festival (Jamaican dumpling)',brand:'Jamaican',cal:180,pro:'3',carb:'34',fat:'4',fiber:'1',serving:'2 pieces'},
+  {id:'j5',name:'Plantains (fried)',brand:'Caribbean',cal:214,pro:'1.6',carb:'38',fat:'7',fiber:'2.3',serving:'\u00BD cup'},
+];

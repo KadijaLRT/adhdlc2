@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "ADHD Life Coach",
+    "slug": "adhd-life-coach",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "adhdlifecoach",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "splash": { "image": "./assets/splash.png", "resizeMode": "contain", "backgroundColor": "#0f172a" },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.adhdlifecoach.app",
+      "infoPlist": { "UIViewControllerBasedStatusBarAppearance": true }
+    },
+    "android": {
+      "package": "com.adhdlifecoach.app",
+      "adaptiveIcon": { "foregroundImage": "./assets/adaptive-icon.png", "backgroundColor": "#0f172a" }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png",
+      "name": "ADHD Life Coach",
+      "shortName": "Aviva",
+      "display": "standalone",
+      "orientation": "portrait",
+      "backgroundColor": "#0f172a",
+      "themeColor": "#0f172a",
+      "meta": {
+        "apple-mobile-web-app-capable": "yes",
+        "apple-mobile-web-app-status-bar-style": "black-translucent",
+        "apple-mobile-web-app-title": "Aviva"
+      }
+    },
+    "plugins": ["expo-router"],
+    "experiments": { "typedRoutes": true }
+  }
+}
