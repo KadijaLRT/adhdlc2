@@ -106,12 +106,15 @@ project's own code.
 Already applied in this project:
 - `package.json` pins `metro` and its related packages via `"overrides"`
   to `0.80.9`, the version Expo SDK 52 actually expects.
-- `"engines": { "node": "20.x" }` plus a `.nvmrc`, since Vercel's default
-  Node version can be much newer than what Expo/Metro is tested against.
+- `"engines": { "node": "24.x" }` plus a `.nvmrc`, matching Vercel's
+  current recommended Node version (Vercel deprecated 20.x; deployments
+  created after 2026-10-01 require 24.x). This also happens to satisfy
+  `@supabase/supabase-js`'s own `>=22.0.0` engine requirement, which
+  the older 20.x pin did not.
 
 If the error still occurs after redeploying:
 1. In the Vercel project's settings, explicitly set the Node.js Version
-   to 20.x (Project Settings → General → Node.js Version), since
+   to 24.x (Project Settings → General → Node.js Version), since
    `package.json engines` is a hint, not a guarantee Vercel will honor it
    for the build image.
 2. Clear Vercel's build cache before redeploying (Deployments → the

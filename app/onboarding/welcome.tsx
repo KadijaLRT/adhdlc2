@@ -13,14 +13,17 @@ export default function WelcomeScreen() {
     <SafeAreaView className="flex-1 bg-slate-950">
       <View className="flex-1 w-full max-w-md self-center px-6 pt-safe pb-safe justify-center">
         <Text accessibilityRole="header" className="text-slate-100 text-3xl font-semibold mb-3">
-          I&apos;m Aviva, your ADHD Life Coach.
+          Hi, I'm your coach 👋
         </Text>
-        <Text className="text-slate-400 text-lg leading-7 mb-10">
-          I don&apos;t judge. I just support. Let&apos;s take a minute to get to know each other.
+        <Text className="text-slate-400 text-lg leading-7 mb-2">
+          About 2 minutes to set up. No wrong answers. You can change anything later.
         </Text>
-        <Pressable onPress={handleContinue} accessibilityRole="button" accessibilityLabel="Continue to calibration"
+        <Text className="text-slate-500 text-sm mb-10">
+          The more you share, the more personalized everything gets. But you can skip anything.
+        </Text>
+        <Pressable onPress={handleContinue} accessibilityRole="button" accessibilityLabel="Continue"
           className="bg-indigo-600 rounded-full py-4 active:bg-indigo-500">
-          <Text className="text-white text-lg text-center font-semibold">Let&apos;s begin</Text>
+          <Text className="text-white text-lg text-center font-semibold">Let's begin</Text>
         </Pressable>
       </View>
     </SafeAreaView>

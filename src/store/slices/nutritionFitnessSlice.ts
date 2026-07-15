@@ -4,11 +4,24 @@ import { getRepository } from '@/core/storage';
 export interface NutritionPreferences {
   allergies: string[];
   dietaryRestrictions: string[];
+  foodsLoved?: string[];
+  foodsAvoided?: string[];
 }
+
+export type Gender = 'female' | 'male' | 'non_binary' | null;
+export type WeightGoalDirection = 'gain' | 'maintain' | 'lose';
+export type BodyType = 'naturally_lean' | 'athletic_build' | 'naturally_curvy' | 'stocky_build';
+export type ActivityLevel = 'mostly_sitting' | 'somewhat_active' | 'active' | 'very_active';
 
 export interface FitnessPreferences {
   equipment: string[];
   primaryGoal: 'strength' | 'endurance' | 'mobility' | 'general' | null;
+  gender?: Gender;
+  weightGoalDirections?: WeightGoalDirection[];
+  bodyType?: BodyType;
+  activityLevel?: ActivityLevel;
+  exerciseGoals?: string[];
+  focusAreas?: string[];
 }
 
 export interface NutritionFitnessState {

@@ -26,7 +26,16 @@ export interface CycleLogEntry {
 export interface WellnessPreferences {
   bloodTypeEnabled: boolean; bloodType: BloodType | null; cannabisModuleEnabled: boolean;
 }
+export type ReminderStyle = 'consequence' | 'loud' | 'gentle';
+export type CoachingStyle = 'gentle' | 'funny' | 'reality_check' | 'friend' | 'scientific';
+export type AgeBracket = 'middle_school' | 'high_school' | 'college' | 'adult' | 'midlife_adult' | 'senior';
+
 export interface UserProfile {
   timezone: string; energyBaseline: EnergyLevel; stressThreshold: EnergyLevel;
   biggestHurdle: string; onboardingCompletedAt: string;
+  displayName?: string; ageBracket?: AgeBracket;
+  selectedModules?: string[];
+  adhdSymptoms?: string[]; brainTypes?: string[];
+  supportMethods?: string[]; priorities?: string[];
+  reminderStyle?: ReminderStyle; coachingStyle?: CoachingStyle;
 }

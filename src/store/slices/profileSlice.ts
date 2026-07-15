@@ -5,6 +5,7 @@ import type { UserProfile } from './types';
 export interface ProfileSlice {
   profile: UserProfile | null;
   setProfile: (profile: UserProfile) => Promise<void>;
+  clearProfile: () => Promise<void>;
 }
 
 // The app never requires an account. This is always the real, immediate,
@@ -17,5 +18,15 @@ export const createProfileSlice: StateCreator<ProfileSlice> = (set) => ({
     set({ profile });
     const repo = await getRepository();
     await repo.saveProfile(profile);
+  },
+
+  // Lets someone re-run onboarding intentionally (e.g. to update answers
+  // from scratch) without needing to manually clear browser storage.
+  // Only clears the profile itself — tasks, streaks, and everything else
+  // built up in the app stay exactly as they were.
+  clearProfile: async () => {
+    set({ profile: null });
+    const repo = await getRepository();
+    await repo.saveProfile(null as unknown as UserProfile);
   },
 });

@@ -22,6 +22,7 @@ import { createBodyProgressSlice, type BodyProgressSlice } from './slices/bodyPr
 import { createMomentumSlice, type MomentumSlice } from './slices/momentumSlice';
 
 export * from './slices/types';
+export type { NutritionPreferences, FitnessPreferences, Gender, WeightGoalDirection, BodyType, ActivityLevel } from './slices/nutritionFitnessSlice';
 
 export type AppState = UiSlice & TaskSlice & StreakSlice & MilestoneSlice &
   EnergySlice & StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & NutritionFitnessSlice & WorkoutSlice & ProgramSlice & GrocerySlice & RoutineSlice & RpgSlice & ReflectionSlice & ScheduleSlice & SchoolSlice & BodyProgressSlice & MomentumSlice;

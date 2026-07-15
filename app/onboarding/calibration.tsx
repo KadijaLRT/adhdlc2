@@ -1,32 +1,79 @@
-import { View, Text, TextInput, Pressable } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useOnboardingStore } from '@/store/useOnboardingStore';
+import type { AgeBracket } from '@/store/index';
+import { OnboardingStepHeader, OnboardingProgressBar } from '@/features/onboarding/OnboardingStepHeader';
+
+const AGE_BRACKETS: { id: AgeBracket; label: string; range: string }[] = [
+  { id: 'middle_school', label: 'Middle School', range: '12–13' },
+  { id: 'high_school', label: 'High School', range: '14–17' },
+  { id: 'college', label: 'College', range: '18–22' },
+  { id: 'adult', label: 'Adult', range: '23–39' },
+  { id: 'midlife_adult', label: 'Midlife Adult', range: '40–59' },
+  { id: 'senior', label: 'Senior', range: '60+' },
+];
 
 export default function CalibrationScreen() {
   const router = useRouter();
+  const displayName = useOnboardingStore((s) => s.displayName);
+  const ageBracket = useOnboardingStore((s) => s.ageBracket);
   const biggestHurdle = useOnboardingStore((s) => s.biggestHurdle);
-  const setBiggestHurdle = useOnboardingStore((s) => s.setBiggestHurdle);
+  const setField = useOnboardingStore((s) => s.setField);
+
   const handleContinue = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router?.push?.('/onboarding/baseline');
+    router?.push?.('/onboarding/modules');
   };
+
   return (
     <SafeAreaView className="flex-1 bg-slate-950">
-      <View className="flex-1 w-full max-w-md self-center px-6 pt-safe pb-safe justify-center">
-        <Text accessibilityRole="header" className="text-slate-100 text-2xl font-semibold mb-3">
-          What&apos;s the biggest hurdle today?
-        </Text>
-        <Text className="text-slate-400 text-base mb-6">No wrong answer. Just whatever comes to mind.</Text>
-        <TextInput value={biggestHurdle} onChangeText={setBiggestHurdle} placeholder="Getting started on anything..."
-          placeholderTextColor="#64748b" multiline accessibilityLabel="Describe your biggest hurdle today"
-          className="bg-slate-900 text-slate-100 rounded-xl p-4 min-h-[100px] mb-8 text-lg" />
-        <Pressable onPress={handleContinue} accessibilityRole="button" accessibilityLabel="Continue to baseline setup"
-          className="bg-indigo-600 rounded-full py-4 active:bg-indigo-500">
-          <Text className="text-white text-lg text-center font-semibold">Continue</Text>
-        </Pressable>
-      </View>
+      <OnboardingProgressBar step={1} total={7} />
+      <ScrollView contentContainerStyle={{ padding: 24 }}>
+        <View className="w-full max-w-md self-center">
+          <OnboardingStepHeader step={1} total={7} />
+          <Text className="text-slate-100 text-2xl font-semibold mb-2">What should I call you?</Text>
+          <TextInput
+            value={displayName}
+            onChangeText={(v) => setField('displayName', v)}
+            placeholder="Your name"
+            placeholderTextColor="#64748b"
+            className="bg-slate-900 text-slate-100 rounded-xl px-4 py-3 mb-6 text-lg"
+          />
+
+          <Text className="text-slate-100 text-base font-medium mb-3">Where are you in life right now?</Text>
+          <View className="flex-row flex-wrap gap-2 mb-6">
+            {(AGE_BRACKETS || []).map((bracket) => {
+              const isActive = ageBracket === bracket.id;
+              return (
+                <Pressable
+                  key={bracket.id}
+                  onPress={() => setField('ageBracket', bracket.id)}
+                  className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3 w-[31%]' : 'bg-slate-900 border-2 border-transparent rounded-xl p-3 w-[31%]'}
+                >
+                  <Text className={isActive ? 'text-emerald-300 text-sm font-medium' : 'text-slate-300 text-sm font-medium'}>{bracket.label}</Text>
+                  <Text className="text-slate-500 text-xs">{bracket.range}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+
+          <Text className="text-slate-100 text-base font-medium mb-2">What's the biggest hurdle today?</Text>
+          <TextInput
+            value={biggestHurdle}
+            onChangeText={(v) => setField('biggestHurdle', v)}
+            placeholder="Getting started on anything..."
+            placeholderTextColor="#64748b"
+            multiline
+            className="bg-slate-900 text-slate-100 rounded-xl p-4 min-h-[80px] mb-8 text-base"
+          />
+
+          <Pressable onPress={handleContinue} className="bg-emerald-500 rounded-full py-4 active:bg-emerald-400">
+            <Text className="text-slate-950 text-lg text-center font-semibold">Continue →</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

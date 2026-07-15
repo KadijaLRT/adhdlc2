@@ -31,6 +31,7 @@ export default function ProfileScreen() {
   const skillXp = useAppStore((s) => s.skillXp);
   const ownedUnlockables = useAppStore((s) => s.ownedUnlockables);
   const purchaseUnlockable = useAppStore((s) => s.purchaseUnlockable);
+  const clearProfile = useAppStore((s) => s.clearProfile);
   const streaks = useAppStore(selectStreaks);
   const milestones = useAppStore(selectMilestones);
   const tasks = useAppStore(selectTasks);
@@ -50,6 +51,11 @@ export default function ProfileScreen() {
     const progress = (milestones || []).find((m) => m.trackedEvent === def.trackedEvent);
     return sum + getUnlockedTiers(def, progress?.count || 0).length;
   }, 0);
+
+  const handleResetOnboarding = async () => {
+    await clearProfile();
+    router?.replace?.('/onboarding/welcome');
+  };
 
   const handleExportData = async () => {
     const exportPayload = {
