@@ -16,7 +16,7 @@ function Ring({ label, percent, color }: { label: string; percent: number; color
         <View className="absolute w-20 h-20 rounded-full border-4" style={{ borderColor: color, opacity: clamped / 100 }} />
         <Text className="text-slate-900 text-sm font-semibold">{clamped}%</Text>
       </View>
-      <Text className="text-slate-400 text-xs">{label}</Text>
+      <Text className="text-slate-500 text-xs">{label}</Text>
     </View>
   );
 }

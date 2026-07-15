@@ -33,7 +33,7 @@ export default function CoachScreen() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Chat with Aviva</Heading>
-        <Text className="text-slate-400 text-sm mb-4">Pick a specialist, or just ask and I&apos;ll route it for you.</Text>
+        <Text className="text-slate-500 text-sm mb-4">Pick a specialist, or just ask and I&apos;ll route it for you.</Text>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
           <View className="flex-row gap-2">
@@ -41,7 +41,7 @@ export default function CoachScreen() {
               onPress={() => setSelectedAgentId(null)}
               className={selectedAgentId === null ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-white border-2 border-transparent rounded-full py-2 px-4'}
             >
-              <Text className={selectedAgentId === null ? 'text-indigo-200 text-xs' : 'text-slate-700 text-xs'}>Auto</Text>
+              <Text className={selectedAgentId === null ? 'text-indigo-700 text-xs' : 'text-slate-700 text-xs'}>Auto</Text>
             </Pressable>
             {(AGENTS || []).map((agent) => (
               <Pressable
@@ -49,7 +49,7 @@ export default function CoachScreen() {
                 onPress={() => setSelectedAgentId(agent.id)}
                 className={selectedAgentId === agent.id ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-white border-2 border-transparent rounded-full py-2 px-4'}
               >
-                <Text className={selectedAgentId === agent.id ? 'text-indigo-200 text-xs' : 'text-slate-700 text-xs'}>{agent.label}</Text>
+                <Text className={selectedAgentId === agent.id ? 'text-indigo-700 text-xs' : 'text-slate-700 text-xs'}>{agent.label}</Text>
               </Pressable>
             ))}
           </View>
@@ -70,7 +70,7 @@ export default function CoachScreen() {
 
         {reply && (
           <View className="bg-white rounded-2xl p-4">
-            <Text className="text-indigo-300 text-xs uppercase tracking-wider mb-2">{reply.agentLabel}</Text>
+            <Text className="text-indigo-700 text-xs uppercase tracking-wider mb-2">{reply.agentLabel}</Text>
             <Text className="text-slate-900 mb-3">{reply.message}</Text>
             <Text className="text-slate-500 text-xs">{reply.reasoning}</Text>
           </View>

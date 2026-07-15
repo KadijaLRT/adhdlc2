@@ -17,8 +17,8 @@ import { calculateWorkoutStreak, calculateTotalVolume } from '@/features/workout
 function StatTile({ label, value }: { label: string; value: string }) {
   return (
     <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 flex-1 min-w-[45%]">
-      <Text className="text-amber-300 text-xl font-bold mb-1">{value}</Text>
-      <Text className="text-slate-400 text-xs">{label}</Text>
+      <Text className="text-amber-700 text-xl font-bold mb-1">{value}</Text>
+      <Text className="text-slate-500 text-xs">{label}</Text>
     </View>
   );
 }
@@ -80,7 +80,7 @@ export default function ProfileScreen() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">You</Heading>
-        <Text className="text-slate-400 text-sm mb-4">
+        <Text className="text-slate-500 text-sm mb-4">
           {profile?.biggestHurdle ? `Working on: ${profile.biggestHurdle}` : 'Your progress, all in one place.'}
         </Text>
 
@@ -98,7 +98,7 @@ export default function ProfileScreen() {
             <View key={skill.id} className="bg-white dark:bg-slate-900 rounded-xl p-3 w-[31%] items-center">
               <Text className="text-xl mb-1">{skill.emoji}</Text>
               <Text className="text-slate-700 dark:text-slate-300 text-xs text-center">{skill.label}</Text>
-              <Text className="text-amber-300 text-sm font-semibold mt-1">{skillXp?.[skill.id] || 0}</Text>
+              <Text className="text-amber-700 text-sm font-semibold mt-1">{skillXp?.[skill.id] || 0}</Text>
             </View>
           ))}
         </View>
@@ -114,7 +114,7 @@ export default function ProfileScreen() {
                   <Text className="text-slate-900 dark:text-slate-100">{item.label}</Text>
                 </View>
                 {owned ? (
-                  <Text className="text-emerald-400 text-sm font-medium">Owned</Text>
+                  <Text className="text-emerald-700 text-sm font-medium">Owned</Text>
                 ) : (
                   <Pressable
                     onPress={() => purchaseUnlockable(item.id, item.cost)}

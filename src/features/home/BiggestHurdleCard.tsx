@@ -69,7 +69,7 @@ export default function BiggestHurdleCard() {
       <Text className="text-slate-500 text-xs mb-3">I'll turn it into a small first step.</Text>
 
       {done ? (
-        <Text className="text-emerald-400 text-sm">Added to your tasks ✓</Text>
+        <Text className="text-emerald-700 text-sm">Added to your tasks ✓</Text>
       ) : (
         <View className="flex-row gap-2">
           <TextInput

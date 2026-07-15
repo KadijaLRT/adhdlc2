@@ -22,7 +22,7 @@ export default function CycleTracking() {
         <Switch value={cycleTrackingEnabled} onValueChange={setCycleTrackingEnabled}
           trackColor={{ false: '#334155', true: '#4f46e5' }} thumbColor="#e2e8f0" />
       </View>
-      <Text className="text-slate-400 text-xs mb-4">Optional. Off by default. Only you can see this.</Text>
+      <Text className="text-slate-500 text-xs mb-4">Optional. Off by default. Only you can see this.</Text>
       {cycleTrackingEnabled && (
         <View className="flex-row flex-wrap gap-2">
           {(PHASE_OPTIONS || []).map((option) => {
@@ -30,7 +30,7 @@ export default function CycleTracking() {
             return (
               <Pressable key={option.phase} onPress={() => logCycleForToday(option.phase)}
                 className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-full py-2 px-4' : 'bg-stone-100 border-2 border-transparent rounded-full py-2 px-4 active:border-stone-300'}>
-                <Text className={isActive ? 'text-emerald-300 text-sm font-medium' : 'text-slate-700 text-sm font-medium'}>{option.label}</Text>
+                <Text className={isActive ? 'text-emerald-700 text-sm font-medium' : 'text-slate-700 text-sm font-medium'}>{option.label}</Text>
               </Pressable>
             );
           })}

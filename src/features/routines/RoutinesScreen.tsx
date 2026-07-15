@@ -37,11 +37,11 @@ export default function RoutinesScreen() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Routines</Heading>
-        <Text className="text-slate-400 text-sm mb-6">Missing a day never breaks anything. It just waits for you.</Text>
+        <Text className="text-slate-500 text-sm mb-6">Missing a day never breaks anything. It just waits for you.</Text>
 
         {recoveryMessage && (
           <View className="bg-emerald-400/10 border-2 border-emerald-400 rounded-2xl p-4 mb-4">
-            <Text className="text-emerald-300 text-sm font-medium">🎉 {recoveryMessage}</Text>
+            <Text className="text-emerald-700 text-sm font-medium">🎉 {recoveryMessage}</Text>
           </View>
         )}
 
@@ -82,7 +82,7 @@ export default function RoutinesScreen() {
                     <Text className="text-slate-600 text-xs">Remove</Text>
                   </Pressable>
                 </View>
-                <Text className="text-slate-400 text-xs mb-3">
+                <Text className="text-slate-500 text-xs mb-3">
                   {streak?.count || 0} completions{streak?.isFrozen ? ' · frozen today' : ''}
                   {streak ? ` · ${streak.freezesAvailable} freeze${streak.freezesAvailable === 1 ? '' : 's'} left` : ''}
                 </Text>
@@ -92,7 +92,7 @@ export default function RoutinesScreen() {
                     disabled={doneToday}
                     className={doneToday ? 'flex-1 bg-emerald-500/20 rounded-full py-3 items-center' : 'flex-1 bg-emerald-500 rounded-full py-3 items-center active:bg-emerald-400'}
                   >
-                    <Text className={doneToday ? 'text-emerald-300 font-semibold' : 'text-white font-semibold'}>
+                    <Text className={doneToday ? 'text-emerald-700 font-semibold' : 'text-white font-semibold'}>
                       {doneToday ? 'Done today ✓' : 'Mark done today'}
                     </Text>
                   </Pressable>

@@ -49,7 +49,7 @@ export default function BrainDumpSheet({ visible, onClose }: { visible: boolean;
       <View className="flex-1 justify-end bg-black/50">
         <View className="bg-stone-50 rounded-t-3xl p-6 pb-safe max-h-[85%]">
           <Text className="text-slate-900 text-xl font-semibold mb-1">Brain Dump</Text>
-          <Text className="text-slate-400 text-sm mb-4">Type whatever&apos;s in your head. Aviva will sort it out.</Text>
+          <Text className="text-slate-500 text-sm mb-4">Type whatever&apos;s in your head. Aviva will sort it out.</Text>
           <TextInput value={text} onChangeText={setText} placeholder="everything is chaos..." placeholderTextColor="#64748b" multiline
             className="bg-white text-slate-900 rounded-xl p-4 min-h-[100px] mb-4" />
           {!result && (
@@ -59,7 +59,7 @@ export default function BrainDumpSheet({ visible, onClose }: { visible: boolean;
           )}
           {result && (
             <ScrollView className="mb-4 max-h-64">
-              <Text className="text-emerald-300 text-sm mb-3">{result?.reasoning || ''}</Text>
+              <Text className="text-emerald-700 text-sm mb-3">{result?.reasoning || ''}</Text>
               {(result?.items || []).map((item) => (
                 <View key={item.id} className="bg-white rounded-xl p-3 mb-2">
                   <Text className="text-slate-900">{item.text}</Text>

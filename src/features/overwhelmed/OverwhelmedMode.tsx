@@ -69,14 +69,14 @@ export default function OverwhelmedMode() {
         {phase === 'main' && (
           <View className="w-full max-w-sm gap-4">
             <View className="bg-white rounded-2xl p-5 items-center">
-              <Text className="text-slate-400 text-xs uppercase tracking-wider mb-2">One tiny step</Text>
+              <Text className="text-slate-500 text-xs uppercase tracking-wider mb-2">One tiny step</Text>
               <Text className="text-slate-900 text-lg text-center font-medium">
                 {tinyStep || 'Just sit here for a moment. That counts too.'}
               </Text>
             </View>
 
             <View className="bg-white rounded-2xl p-5 items-center">
-              <Text className="text-slate-400 text-xs uppercase tracking-wider mb-2">💧 Water</Text>
+              <Text className="text-slate-500 text-xs uppercase tracking-wider mb-2">💧 Water</Text>
               <Text className="text-slate-700 text-sm text-center">Take a sip, right now if you can.</Text>
             </View>
 
@@ -103,7 +103,7 @@ export default function OverwhelmedMode() {
             )}
 
             <Pressable onPress={() => router?.push?.('/stuck')} className="border-2 border-amber-400 rounded-xl py-3 items-center">
-              <Text className="text-amber-300 text-sm font-medium">Try a guided micro-step</Text>
+              <Text className="text-amber-700 text-sm font-medium">Try a guided micro-step</Text>
             </Pressable>
 
             <Pressable onPress={() => router?.back?.()} className="py-3">

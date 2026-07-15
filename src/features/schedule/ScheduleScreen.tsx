@@ -72,7 +72,7 @@ export default function ScheduleScreen() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Schedule</Heading>
-        <Text className="text-slate-400 text-sm mb-6">What's next, not just what's stored.</Text>
+        <Text className="text-slate-500 text-sm mb-6">What's next, not just what's stored.</Text>
 
         {nextUp && (
           <Pressable onPress={() => router?.push?.('/schedule/right-now')} className="bg-indigo-600 rounded-2xl p-5 mb-4 active:bg-indigo-500">
@@ -82,7 +82,7 @@ export default function ScheduleScreen() {
         )}
 
         <Pressable onPress={() => setShowBehindOptions(!showBehindOptions)} className="border-2 border-amber-400 rounded-xl py-3 mb-2 items-center">
-          <Text className="text-amber-300 text-sm font-medium">I&apos;m running behind</Text>
+          <Text className="text-amber-700 text-sm font-medium">I&apos;m running behind</Text>
         </Pressable>
         {showBehindOptions && (
           <View className="flex-row gap-2 mb-4">
@@ -100,7 +100,7 @@ export default function ScheduleScreen() {
 
         {(items || []).length === 0 && (
           <Pressable onPress={handlePopulateFromToday} className="border-2 border-indigo-500 rounded-xl py-3 mb-4 items-center">
-            <Text className="text-indigo-300 text-sm font-medium">Fill in today's tasks and routines</Text>
+            <Text className="text-indigo-700 text-sm font-medium">Fill in today's tasks and routines</Text>
           </Pressable>
         )}
 

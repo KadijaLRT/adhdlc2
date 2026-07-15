@@ -58,7 +58,7 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
   if (!course) {
     return (
       <View className="flex-1 items-center justify-center px-8">
-        <Text className="text-slate-400 text-center">This course isn&apos;t here anymore.</Text>
+        <Text className="text-slate-500 text-center">This course isn&apos;t here anymore.</Text>
       </View>
     );
   }
@@ -110,7 +110,7 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
             className="bg-stone-100 text-slate-900 rounded-xl p-3 min-h-[80px] mb-2"
           />
           <Pressable onPress={handleGenerateFlashcards} disabled={generatingCards} className="border-2 border-indigo-500 rounded-xl py-2 items-center mb-2">
-            {generatingCards ? <ActivityIndicator color="#818cf8" /> : <Text className="text-indigo-300 text-sm font-medium">Generate flashcards</Text>}
+            {generatingCards ? <ActivityIndicator color="#818cf8" /> : <Text className="text-indigo-700 text-sm font-medium">Generate flashcards</Text>}
           </Pressable>
           {flashcards?.cards?.length ? (
             <View className="gap-2">

@@ -14,8 +14,8 @@ import {
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <View className="bg-white rounded-2xl p-4 flex-1">
-      <Text className="text-amber-300 text-2xl font-bold mb-1">{value}</Text>
-      <Text className="text-slate-400 text-xs">{label}</Text>
+      <Text className="text-amber-700 text-2xl font-bold mb-1">{value}</Text>
+      <Text className="text-slate-500 text-xs">{label}</Text>
     </View>
   );
 }
@@ -37,7 +37,7 @@ export default function ProgressScreen() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Progress</Heading>
-        <Text className="text-slate-400 text-sm mb-6">
+        <Text className="text-slate-500 text-sm mb-6">
           Every number here only ever adds up. Nothing here can go backward.
         </Text>
 
@@ -73,7 +73,7 @@ export default function ProgressScreen() {
               return (
                 <View key={record.exerciseId} className="bg-white rounded-xl p-3 flex-row items-center justify-between">
                   <Text className="text-slate-800 text-sm">{exercise?.name || record.exerciseId}</Text>
-                  <Text className="text-emerald-400 text-sm font-medium">
+                  <Text className="text-emerald-700 text-sm font-medium">
                     {record.bestWeight} lbs × {record.bestReps}
                   </Text>
                 </View>

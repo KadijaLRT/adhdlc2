@@ -84,12 +84,12 @@ export default function TasksScreen() {
           onPress={() => router?.push?.(`/task/${suggested.id}`)}
           className="bg-indigo-600/10 border-2 border-indigo-500 rounded-2xl p-4 mb-4"
         >
-          <Text className="text-indigo-300 text-xs uppercase tracking-wider mb-1">Today's focus</Text>
+          <Text className="text-indigo-700 text-xs uppercase tracking-wider mb-1">Today's focus</Text>
           <Text className="text-slate-900 text-lg font-medium mb-1">
             {PRIORITY_DOT[suggested.priority || 'nice']} {suggested.title}
           </Text>
           {(suggested.estimatedMinutes || suggested.realMinutes) && (
-            <Text className="text-slate-400 text-xs">
+            <Text className="text-slate-500 text-xs">
               About {suggested.realMinutes || suggested.estimatedMinutes} min
             </Text>
           )}
@@ -140,7 +140,7 @@ export default function TasksScreen() {
               onPress={() => setSelectedCategory(item.id)}
               className={isActive ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-white border-2 border-transparent rounded-full py-2 px-4'}
             >
-              <Text className={isActive ? 'text-indigo-200 text-xs' : 'text-slate-700 text-xs'}>{item.emoji} {item.label}</Text>
+              <Text className={isActive ? 'text-indigo-700 text-xs' : 'text-slate-700 text-xs'}>{item.emoji} {item.label}</Text>
             </Pressable>
           );
         }}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -6,7 +6,7 @@ import {
   selectGymName, selectSetLogs, selectWeekdayAssignment,
 } from '@/store/index';
 import { PROGRAMS } from '@/content/programs';
-import { buildProgramSessionExerciseIds, getCurrentProgramWeek, getSessionsThisWeek } from './buildProgramSession';
+import { getCurrentProgramWeek, getSessionsThisWeek } from './buildProgramSession';
 import { buildWeeklySplit, getAvailableDayLetters, type WeeklySplitDay } from './buildWeeklySplit';
 import { getWeightProgressLabel } from './weightProgress';
 import { WORKOUT_EXERCISES } from '@/content/exercises';
@@ -43,21 +43,21 @@ function GymSelectorCard() {
   }
 
   return (
-    <Pressable onPress={() => { setDraft(gymName); setEditing(true); }} className="bg-purple-400/10 border-2 border-purple-400 rounded-2xl p-4 mb-4 flex-row items-center justify-between">
+    <Pressable onPress={() => { setDraft(gymName); setEditing(true); }} className="bg-purple-50 border-2 border-purple-400 rounded-2xl p-4 mb-4 flex-row items-center justify-between">
       <View>
-        <Text className="text-purple-300 font-semibold">{gymName || 'No gym set'}</Text>
+        <Text className="text-purple-700 font-semibold">{gymName || 'No gym set'}</Text>
         <Text className="text-slate-500 text-xs">Tap to change</Text>
       </View>
-      <Text className="text-slate-500 text-xs">📍 typed manually — no live location search yet</Text>
     </Pressable>
   );
 }
 
 function DayStrip({
-  days, selectedIndex, onSelect, editing, onCycleDay,
+  days, activeIndex, editing, onCycleDay, onJumpTo,
 }: {
-  days: WeeklySplitDay[]; selectedIndex: number; onSelect: (i: number) => void;
+  days: WeeklySplitDay[]; activeIndex: number;
   editing: boolean; onCycleDay: (weekdayIndex: number, current: string | null) => void;
+  onJumpTo: (index: number) => void;
 }) {
   return (
     <FlatList
@@ -67,14 +67,14 @@ function DayStrip({
       keyExtractor={(d) => d.weekdayLabel}
       contentContainerStyle={{ gap: 8, marginBottom: 16 }}
       renderItem={({ item, index }) => {
-        const isActive = index === selectedIndex;
+        const isActive = index === activeIndex;
         return (
           <Pressable
-            onPress={() => (editing ? onCycleDay(index, item.dayLetter) : onSelect(index))}
-            className={isActive ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-2xl p-3 items-center w-20' : editing ? 'bg-amber-400/10 border-2 border-amber-400 rounded-2xl p-3 items-center w-20' : 'bg-white border-2 border-transparent rounded-2xl p-3 items-center w-20'}
+            onPress={() => (editing ? onCycleDay(index, item.dayLetter) : onJumpTo(index))}
+            className={isActive ? 'bg-indigo-600/10 border-2 border-indigo-500 rounded-2xl p-3 items-center w-20' : editing ? 'bg-amber-50 border-2 border-amber-400 rounded-2xl p-3 items-center w-20' : 'bg-white border-2 border-transparent rounded-2xl p-3 items-center w-20'}
           >
-            <Text className={isActive ? 'text-indigo-300 text-xs font-bold' : 'text-slate-400 text-xs font-bold'}>{item.weekdayLabel}</Text>
-            <Text className={isActive ? 'text-indigo-200 text-sm font-semibold mt-1' : 'text-slate-700 text-sm mt-1'}>
+            <Text className={isActive ? 'text-indigo-700 text-xs font-bold' : 'text-slate-500 text-xs font-bold'}>{item.weekdayLabel}</Text>
+            <Text className={isActive ? 'text-indigo-700 text-sm font-semibold mt-1' : 'text-slate-700 text-sm mt-1'}>
               {item.isRestDay ? 'Rest' : `Day ${item.dayLetter}`}
             </Text>
           </Pressable>
@@ -84,13 +84,20 @@ function DayStrip({
   );
 }
 
-function DayCard({ day, onStart }: { day: WeeklySplitDay; onStart: () => void }) {
+function DayCard({
+  day, onStart, onLayout,
+}: {
+  day: WeeklySplitDay; onStart: () => void; onLayout: (y: number) => void;
+}) {
   const router = useRouter();
   const setLogs = useAppStore(selectSetLogs);
 
   if (day.isRestDay) {
     return (
-      <View className="bg-white rounded-2xl p-6 mb-6 items-center">
+      <View
+        onLayout={(e) => onLayout(e.nativeEvent.layout.y)}
+        className="bg-white rounded-2xl p-6 mb-4 items-center"
+      >
         <Text className="text-2xl mb-2">😌</Text>
         <Text className="text-slate-900 text-lg font-semibold mb-1">Rest day</Text>
         <Text className="text-slate-500 text-sm text-center">Recovery is part of the program, not a break from it.</Text>
@@ -99,9 +106,12 @@ function DayCard({ day, onStart }: { day: WeeklySplitDay; onStart: () => void })
   }
 
   return (
-    <View className="bg-white rounded-2xl p-4 mb-6">
-      <View className="bg-indigo-600/20 self-start rounded-full px-3 py-1 mb-2">
-        <Text className="text-indigo-300 text-xs font-bold">DAY {day.dayLetter}</Text>
+    <View
+      onLayout={(e) => onLayout(e.nativeEvent.layout.y)}
+      className="bg-white rounded-2xl p-4 mb-4"
+    >
+      <View className="bg-indigo-600/10 self-start rounded-full px-3 py-1 mb-2">
+        <Text className="text-indigo-700 text-xs font-bold">DAY {day.dayLetter}</Text>
       </View>
       <Text className="text-slate-900 text-xl font-bold mb-1">{day.title}</Text>
       <Text className="text-slate-500 text-xs mb-1 capitalize">{day.muscleGroups.join(' & ')}</Text>
@@ -114,7 +124,7 @@ function DayCard({ day, onStart }: { day: WeeklySplitDay; onStart: () => void })
           return (
             <View key={id} className="flex-row items-center justify-between py-1">
               <Text className="text-slate-800 text-sm flex-1">{exercise?.icon} {exercise?.name || id}</Text>
-              {progressLabel && <Text className="text-emerald-400 text-xs font-semibold">{progressLabel}</Text>}
+              {progressLabel && <Text className="text-emerald-700 text-xs font-semibold">{progressLabel}</Text>}
             </View>
           );
         })}
@@ -146,6 +156,11 @@ export default function ProgramsScreen() {
   const weekdayAssignment = useAppStore(selectWeekdayAssignment);
   const setWeekdayAssignment = useAppStore((s) => s.setWeekdayAssignment);
   const [editingDays, setEditingDays] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const scrollRef = useRef<ScrollView>(null);
+  const cardOffsets = useRef<Record<number, number>>({});
+  const stripOffsetY = useRef(0);
 
   const activeProgram = PROGRAMS.find((p) => p.id === activeProgramId) || null;
 
@@ -155,20 +170,29 @@ export default function ProgramsScreen() {
   );
   const availableLetters = activeProgram ? getAvailableDayLetters(activeProgram) : [];
 
-  // getDay() is already Sunday-indexed (0=Sun...6=Sat), matching the
-  // array directly — no adjustment needed, unlike the earlier buggy
-  // Monday-first math this replaces.
-  const todayIndex = Math.min(new Date().getDay(), Math.max(weeklySplit.length - 1, 0));
-  const [selectedDayIndex, setSelectedDayIndex] = useState(todayIndex);
+  // getDay() is already Sunday-indexed (0=Sun...6=Sat), matching the array directly.
+  useMemo(() => {
+    const todayIndex = Math.min(new Date().getDay(), Math.max(weeklySplit.length - 1, 0));
+    setActiveIndex(todayIndex);
+  }, [weeklySplit.length]);
 
-  // Tapping a day while editing cycles it through Rest → A → B → ... →
-  // the last available letter → back to Rest. Persisted immediately so
-  // the change sticks without a separate "save" step.
   const handleCycleDay = (weekdayIndex: number, current: string | null) => {
     const options: (string | null)[] = [null, ...availableLetters];
     const currentPos = options.indexOf(current);
     const next = options[(currentPos + 1) % options.length];
     setWeekdayAssignment(weekdayIndex, next);
+  };
+
+  // Tapping a day in the strip scrolls the whole list down to that
+  // day's card, rather than replacing the view with only that card —
+  // every day stays reachable by normal scrolling, the strip is just a
+  // shortcut, matching a familiar week-planner layout.
+  const handleJumpTo = (index: number) => {
+    setActiveIndex(index);
+    const offset = cardOffsets.current[index];
+    if (offset !== undefined) {
+      scrollRef.current?.scrollTo({ y: stripOffsetY.current + offset - 12, animated: true });
+    }
   };
 
   const handleStartDay = (day: WeeklySplitDay) => {
@@ -182,25 +206,22 @@ export default function ProgramsScreen() {
 
   const currentWeek = activeProgram ? getCurrentProgramWeek(activeProgram, sessionsCompletedInProgram) : 0;
   const sessionsThisWeek = activeProgram ? getSessionsThisWeek(activeProgram, sessionsCompletedInProgram) : 0;
-  const selectedDay = weeklySplit[selectedDayIndex] || null;
 
   return (
-    <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
+    <ScrollView ref={scrollRef} className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Programs</Heading>
-        <Text className="text-slate-400 text-sm mb-4">
-          Pick a plan once, then just show up. No re-deciding every session.
-        </Text>
 
-        <GymSelectorCard />
-
-        {activeProgram && (
-          <>
-            <View className="flex-row items-center justify-between mb-3">
+        {/* Day strip is the second thing on screen, right after the
+            title — opens in view without scrolling past anything else,
+            per the requested layout. */}
+        {activeProgram && weeklySplit.length > 0 && (
+          <View onLayout={(e) => { stripOffsetY.current = e.nativeEvent.layout.y; }}>
+            <View className="flex-row items-center justify-between mb-2">
               <Subheading>{activeProgram.emoji} {activeProgram.title}</Subheading>
               <View className="flex-row gap-3">
                 <Pressable onPress={() => setEditingDays(!editingDays)}>
-                  <Text className={editingDays ? 'text-amber-600 text-xs font-semibold' : 'text-indigo-600 text-xs font-semibold'}>
+                  <Text className={editingDays ? 'text-amber-700 text-xs font-semibold' : 'text-indigo-600 text-xs font-semibold'}>
                     {editingDays ? 'Done editing' : 'Edit days'}
                   </Text>
                 </Pressable>
@@ -209,30 +230,41 @@ export default function ProgramsScreen() {
                 </Pressable>
               </View>
             </View>
-            <Text className="text-slate-500 text-xs mb-4">
+            <Text className="text-slate-500 text-xs mb-3">
               Week {currentWeek} of {activeProgram.durationWeeks} · {sessionsThisWeek} of {activeProgram.daysPerWeek} sessions this week
             </Text>
 
             {editingDays && (
-              <View className="bg-amber-400/10 border border-amber-400 rounded-xl p-3 mb-3">
-                <Text className="text-amber-700 text-xs">Tap a day to cycle it through Rest and your available training days.</Text>
+              <View className="bg-amber-50 border border-amber-400 rounded-xl p-3 mb-3">
+                <Text className="text-amber-800 text-xs">Tap a day to cycle it through Rest and your available training days.</Text>
               </View>
             )}
 
-            {weeklySplit.length > 0 && (
-              <>
-                <DayStrip
-                  days={weeklySplit}
-                  selectedIndex={selectedDayIndex}
-                  onSelect={setSelectedDayIndex}
-                  editing={editingDays}
-                  onCycleDay={handleCycleDay}
-                />
-                {!editingDays && selectedDay && <DayCard day={selectedDay} onStart={() => handleStartDay(selectedDay)} />}
-              </>
-            )}
-          </>
+            <DayStrip
+              days={weeklySplit}
+              activeIndex={activeIndex}
+              editing={editingDays}
+              onCycleDay={handleCycleDay}
+              onJumpTo={handleJumpTo}
+            />
+
+            {/* Every day's card, stacked and always scrollable — not
+                just the selected one. The strip jumps you here, it
+                doesn't hide the rest of the week. */}
+            {!editingDays && weeklySplit.map((day, index) => (
+              <DayCard
+                key={day.weekdayLabel}
+                day={day}
+                onStart={() => handleStartDay(day)}
+                onLayout={(y) => { cardOffsets.current[index] = y; }}
+              />
+            ))}
+          </View>
         )}
+
+        <View className="mt-2">
+          <GymSelectorCard />
+        </View>
 
         <Text className="text-slate-900 text-lg font-semibold mb-3">{activeProgram ? 'Switch program' : 'Choose a program'}</Text>
         <FlatList
@@ -247,7 +279,7 @@ export default function ProgramsScreen() {
               <Text className="text-slate-500 text-xs mb-3">
                 {item.daysPerWeek}x/week · {item.durationWeeks} weeks · {item.sessionExerciseCount} exercises per session
               </Text>
-              <Pressable onPress={() => startProgram(item.id)} className="bg-stone-100 rounded-full py-2 items-center active:bg-slate-700">
+              <Pressable onPress={() => startProgram(item.id)} className="bg-stone-100 rounded-full py-2 items-center active:bg-stone-200">
                 <Text className="text-slate-800 text-xs font-medium">Start this program</Text>
               </Pressable>
             </View>

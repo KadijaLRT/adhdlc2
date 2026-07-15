@@ -30,7 +30,7 @@ export default function MealPlanner() {
                 return (
                   <Pressable key={type} onPress={() => setWellnessPreferences({ bloodType: type })}
                     className={isActive ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-stone-100 border-2 border-transparent rounded-full py-2 px-4'}>
-                    <Text className={isActive ? 'text-indigo-200' : 'text-slate-700'}>{type}</Text>
+                    <Text className={isActive ? 'text-indigo-700' : 'text-slate-700'}>{type}</Text>
                   </Pressable>
                 );
               })}

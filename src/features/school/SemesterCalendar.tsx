@@ -32,13 +32,13 @@ export default function SemesterCalendar() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Semester</Heading>
-        <Text className="text-slate-400 text-sm mb-6">Everything due, at a glance.</Text>
+        <Text className="text-slate-500 text-sm mb-6">Everything due, at a glance.</Text>
 
         {grouped.size === 0 && <Text className="text-slate-500 text-center mt-6">Nothing on the calendar yet.</Text>}
 
         {Array.from(grouped.entries()).map(([month, items]) => (
           <View key={month} className="mb-5">
-            <Text className="text-slate-400 text-xs font-medium mb-2">
+            <Text className="text-slate-500 text-xs font-medium mb-2">
               {new Date(`${month}-01`).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
             </Text>
             <View className="gap-2">

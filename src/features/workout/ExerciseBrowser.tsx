@@ -39,7 +39,7 @@ export default function ExerciseBrowser() {
     <View className="flex-1">
       <View className="px-4 pt-4 w-full max-w-md self-center">
         <Heading className="mb-1">Workout</Heading>
-        <Text className="text-slate-400 text-sm mb-4">Pick a muscle group. Do as much or as little as feels right today.</Text>
+        <Text className="text-slate-500 text-sm mb-4">Pick a muscle group. Do as much or as little as feels right today.</Text>
 
         {!fitnessCardDismissed && <PersonalizeFitnessCard />}
 
@@ -72,7 +72,7 @@ export default function ExerciseBrowser() {
                 onPress={() => setSelectedGroup(item === 'all' ? null : item)}
                 className={isActive ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-white border-2 border-transparent rounded-full py-2 px-4'}
               >
-                <Text className={isActive ? 'text-indigo-200 text-xs capitalize' : 'text-slate-700 text-xs capitalize'}>{item}</Text>
+                <Text className={isActive ? 'text-indigo-700 text-xs capitalize' : 'text-slate-700 text-xs capitalize'}>{item}</Text>
               </Pressable>
             );
           }}
@@ -99,10 +99,10 @@ function ExerciseCard({ exercise, exerciseId, completedCount, onLogCompletion }:
     <View className="bg-white rounded-2xl p-4">
       <View className="flex-row items-center justify-between mb-1">
         <Text className="text-slate-900 font-medium flex-1">{exercise?.icon} {exercise?.name}</Text>
-        {completedCount > 0 && <Text className="text-emerald-400 text-xs">done {completedCount}×</Text>}
+        {completedCount > 0 && <Text className="text-emerald-700 text-xs">done {completedCount}×</Text>}
       </View>
       <Text className="text-slate-500 text-xs mb-2">{exercise?.muscle} · {exercise?.sets} sets · {exercise?.reps} reps · rest {exercise?.rest}s</Text>
-      <Text className="text-slate-400 text-xs mb-3">{exercise?.cues}</Text>
+      <Text className="text-slate-500 text-xs mb-3">{exercise?.cues}</Text>
       <Pressable onPress={() => router?.push?.(`/workout/session/${exerciseId}`)} className="bg-indigo-600 rounded-full py-2 items-center active:bg-indigo-500">
         <Text className="text-white text-xs font-semibold">Start guided session</Text>
       </Pressable>

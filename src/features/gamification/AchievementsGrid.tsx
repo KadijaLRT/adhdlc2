@@ -17,9 +17,9 @@ export default function AchievementsGrid() {
           return (
             <View key={definition.id} className="bg-white rounded-2xl p-5 w-full md:w-[48%]">
               <Text className="text-slate-900 text-base font-semibold mb-1">{definition.title}</Text>
-              <Text className="text-slate-400 text-xs mb-3">{definition.description}</Text>
-              <Text className="text-amber-300 text-2xl font-bold mb-1">{count}</Text>
-              {latest ? <Text className="text-emerald-400 text-sm mb-1">{latest.label} unlocked</Text>
+              <Text className="text-slate-500 text-xs mb-3">{definition.description}</Text>
+              <Text className="text-amber-700 text-2xl font-bold mb-1">{count}</Text>
+              {latest ? <Text className="text-emerald-700 text-sm mb-1">{latest.label} unlocked</Text>
                       : <Text className="text-slate-500 text-sm mb-1">Just getting started</Text>}
               {next ? <Text className="text-slate-500 text-xs">Next: {next.label} at {next.threshold}</Text>
                     : <Text className="text-slate-500 text-xs">All tiers unlocked</Text>}

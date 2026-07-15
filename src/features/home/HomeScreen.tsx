@@ -24,7 +24,7 @@ function StreakBadge() {
   const streaks = useAppStore(selectStreaks);
   const longest = Math.max(0, ...(streaks || []).map((s) => s.count || 0));
   if (longest < 2) return null;
-  return <Text className="text-emerald-400 text-xs font-medium">🔥 {longest}-day streak on one routine</Text>;
+  return <Text className="text-emerald-700 text-xs font-medium">🔥 {longest}-day streak on one routine</Text>;
 }
 
 export default function HomeScreen() {
@@ -61,12 +61,12 @@ export default function HomeScreen() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, gap: 14 }}>
       <View className="w-full max-w-md self-center gap-4">
         <Pressable onPress={() => router?.push?.('/overwhelmed')} className="bg-amber-400/10 border-2 border-amber-400 rounded-2xl py-3 items-center">
-          <Text className="text-amber-300 text-sm font-medium">I need a reset</Text>
+          <Text className="text-amber-700 text-sm font-medium">I need a reset</Text>
         </Pressable>
 
         <View>
           <Heading>Good day 👋</Heading>
-          <Text className="text-slate-400 text-sm">{todayLabel}</Text>
+          <Text className="text-slate-500 text-sm">{todayLabel}</Text>
           <StreakBadge />
         </View>
 
@@ -74,7 +74,7 @@ export default function HomeScreen() {
           <ReflectionCard />
         ) : (
           <View className="bg-white dark:bg-slate-900 rounded-2xl p-4">
-            <Text className="text-indigo-300 text-xs uppercase tracking-wider mb-1">Coach</Text>
+            <Text className="text-indigo-700 text-xs uppercase tracking-wider mb-1">Coach</Text>
             <Text className="text-slate-800 dark:text-slate-200 text-sm">{insight}</Text>
           </View>
         )}

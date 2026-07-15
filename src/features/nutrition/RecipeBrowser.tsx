@@ -54,7 +54,7 @@ export default function RecipeBrowser() {
     <View className="flex-1">
       <View className="px-4 pt-4 w-full max-w-md self-center">
         <Heading className="mb-1">Recipes</Heading>
-        <Text className="text-slate-400 text-sm mb-4">Simple, high-protein meals, browsable by cuisine and time of day.</Text>
+        <Text className="text-slate-500 text-sm mb-4">Simple, high-protein meals, browsable by cuisine and time of day.</Text>
 
         {!nutritionCardDismissed && <PersonalizeNutritionCard />}
 
@@ -77,7 +77,7 @@ export default function RecipeBrowser() {
               onPress={() => setMealType(item)}
               className={mealType === item ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-white border-2 border-transparent rounded-full py-2 px-4'}
             >
-              <Text className={mealType === item ? 'text-indigo-200 text-xs capitalize' : 'text-slate-700 text-xs capitalize'}>{item}</Text>
+              <Text className={mealType === item ? 'text-indigo-700 text-xs capitalize' : 'text-slate-700 text-xs capitalize'}>{item}</Text>
             </Pressable>
           )}
         />
@@ -92,14 +92,14 @@ export default function RecipeBrowser() {
               onPress={() => setCuisine(item)}
               className={cuisine === item ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-full py-2 px-4' : 'bg-white border-2 border-transparent rounded-full py-2 px-4'}
             >
-              <Text className={cuisine === item ? 'text-emerald-300 text-xs capitalize' : 'text-slate-700 text-xs capitalize'}>{item}</Text>
+              <Text className={cuisine === item ? 'text-emerald-700 text-xs capitalize' : 'text-slate-700 text-xs capitalize'}>{item}</Text>
             </Pressable>
           )}
         />
 
         {(savedRecipeIds || []).length > 0 && (
           <Pressable onPress={() => router?.push?.('/nutrition/groceries')} className="bg-amber-400/10 border-2 border-amber-400 rounded-xl py-3 mb-3 items-center">
-            <Text className="text-amber-300 font-medium">View grocery list ({savedRecipeIds.length} recipe{savedRecipeIds.length === 1 ? '' : 's'}) →</Text>
+            <Text className="text-amber-700 font-medium">View grocery list ({savedRecipeIds.length} recipe{savedRecipeIds.length === 1 ? '' : 's'}) →</Text>
           </Pressable>
         )}
       </View>
@@ -125,7 +125,7 @@ function RecipeCard({ recipe, isSaved, onToggleSave }: { recipe: Recipe; isSaved
         </Pressable>
       </View>
       <Text className="text-slate-500 text-xs mb-2 capitalize">{recipe?.c} · {recipe?.t} · {recipe?.prep} prep · {recipe?.cook} cook</Text>
-      <Text className="text-slate-400 text-xs">{recipe?.cal || 0} cal · {recipe?.pro} protein · {recipe?.carb} carb · {recipe?.fat} fat</Text>
+      <Text className="text-slate-500 text-xs">{recipe?.cal || 0} cal · {recipe?.pro} protein · {recipe?.carb} carb · {recipe?.fat} fat</Text>
     </View>
   );
 }

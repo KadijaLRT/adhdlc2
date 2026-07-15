@@ -35,7 +35,7 @@ export default function TaskDetailScreen() {
   if (!task) {
     return (
       <SafeAreaView className="flex-1 bg-stone-50 items-center justify-center px-8">
-        <Text className="text-slate-400 text-center">This task isn&apos;t here anymore.</Text>
+        <Text className="text-slate-500 text-center">This task isn&apos;t here anymore.</Text>
         <Pressable onPress={() => router?.back?.()} className="mt-4">
           <Text className="text-indigo-400">Go back</Text>
         </Pressable>
@@ -82,7 +82,7 @@ export default function TaskDetailScreen() {
             </Text>
           )}
 
-          <Text className="text-slate-400 text-xs font-medium mb-2">Priority</Text>
+          <Text className="text-slate-500 text-xs font-medium mb-2">Priority</Text>
           <View className="flex-row gap-2 mb-4">
             {(['nice', 'important', 'critical'] as TaskPriority[]).map((p) => {
               const isActive = (task?.priority || 'nice') === p;
@@ -99,7 +99,7 @@ export default function TaskDetailScreen() {
             })}
           </View>
 
-          <Text className="text-slate-400 text-xs font-medium mb-2">Category</Text>
+          <Text className="text-slate-500 text-xs font-medium mb-2">Category</Text>
           <View className="flex-row flex-wrap gap-2 mb-6">
             {(['general', 'home', 'work', 'school', 'health', 'errands', 'adhd'] as TaskCategory[]).map((cat) => {
               const isActive = (task?.category || 'general') === cat;
@@ -130,7 +130,7 @@ export default function TaskDetailScreen() {
               disabled={breakingDown}
               className="border-2 border-indigo-500 rounded-full py-4 mb-6 items-center"
             >
-              {breakingDown ? <ActivityIndicator color="#818cf8" /> : <Text className="text-indigo-300 font-semibold">Break this down for me</Text>}
+              {breakingDown ? <ActivityIndicator color="#818cf8" /> : <Text className="text-indigo-700 font-semibold">Break this down for me</Text>}
             </Pressable>
           ) : (
             <View className="gap-2 mb-6">

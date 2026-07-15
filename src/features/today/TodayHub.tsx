@@ -31,11 +31,11 @@ export default function TodayHub() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Today</Heading>
-        <Text className="text-slate-400 text-sm mb-6">One thing at a time.</Text>
+        <Text className="text-slate-500 text-sm mb-6">One thing at a time.</Text>
 
         {momentumToday > 0 && (
           <View className="bg-white dark:bg-slate-900 rounded-xl p-3 mb-4">
-            <Text className="text-slate-400 text-xs">
+            <Text className="text-slate-500 text-xs">
               {momentumToday} small step{momentumToday === 1 ? '' : 's'} today — opening a task, starting a session, all of it counts.
             </Text>
           </View>
@@ -74,7 +74,7 @@ export default function TodayHub() {
             <Text className="text-slate-500 text-xs">→</Text>
           </Pressable>
           <Pressable onPress={() => router?.push?.('/stuck')} className="bg-amber-400/10 border-2 border-amber-400 rounded-2xl p-4">
-            <Text className="text-amber-300 text-sm text-center font-medium">I&apos;m feeling stuck</Text>
+            <Text className="text-amber-700 text-sm text-center font-medium">I&apos;m feeling stuck</Text>
           </Pressable>
         </View>
       </View>

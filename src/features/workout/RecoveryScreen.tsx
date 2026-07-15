@@ -18,13 +18,13 @@ export default function RecoveryScreen() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Recovery</Heading>
-        <Text className="text-slate-400 text-sm mb-6">
+        <Text className="text-slate-500 text-sm mb-6">
           Staying consistent matters more than any single hard session.
         </Text>
 
         {suggestRestDay && (
           <View className="bg-emerald-400/10 border-2 border-emerald-400 rounded-2xl p-4 mb-6">
-            <Text className="text-emerald-300 text-sm">
+            <Text className="text-emerald-700 text-sm">
               You've shown up {streak} days in a row. A rest day today is a completely valid choice, not a step backward.
             </Text>
           </View>
@@ -47,7 +47,7 @@ export default function RecoveryScreen() {
                 {isExpanded && (
                   <View className="mt-3 gap-1">
                     {(routine.steps || []).map((step, index) => (
-                      <Text key={index} className="text-slate-400 text-sm">• {step}</Text>
+                      <Text key={index} className="text-slate-500 text-sm">• {step}</Text>
                     ))}
                   </View>
                 )}

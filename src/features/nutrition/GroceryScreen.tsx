@@ -54,7 +54,7 @@ export default function GroceryScreen() {
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
         <View className="w-full max-w-md self-center">
           <Heading className="mb-1 mt-2">Groceries</Heading>
-          <Text className="text-slate-400 text-sm">
+          <Text className="text-slate-500 text-sm">
             Save a few recipes and your grocery list builds itself here, grouped by aisle.
           </Text>
         </View>
@@ -73,7 +73,7 @@ export default function GroceryScreen() {
             </Text>
           </Pressable>
         </View>
-        <Text className="text-slate-400 text-sm mb-6">
+        <Text className="text-slate-500 text-sm mb-6">
           {groceryList.length} item{groceryList.length === 1 ? '' : 's'} from {savedRecipes.length} saved recipe{savedRecipes.length === 1 ? '' : 's'}
         </Text>
 
@@ -149,7 +149,7 @@ export default function GroceryScreen() {
           <View className="gap-4">
             {grouped.map(([category, items]) => (
               <View key={category}>
-                <Text className="text-slate-400 text-xs font-medium mb-2">{category} ({items.length})</Text>
+                <Text className="text-slate-500 text-xs font-medium mb-2">{category} ({items.length})</Text>
                 <View className="gap-2">
                   {items.map((item) => (
                     <View key={item.ingredient} className="bg-white rounded-xl p-3">

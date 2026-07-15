@@ -19,7 +19,7 @@ export default function AssignmentDetailScreen({ assignmentId }: { assignmentId:
   if (!assignment) {
     return (
       <View className="flex-1 items-center justify-center px-8">
-        <Text className="text-slate-400 text-center">This assignment isn&apos;t here anymore.</Text>
+        <Text className="text-slate-500 text-center">This assignment isn&apos;t here anymore.</Text>
       </View>
     );
   }
@@ -63,13 +63,13 @@ export default function AssignmentDetailScreen({ assignmentId }: { assignmentId:
 
         {(assignment.subSteps?.length || 0) === 0 ? (
           <Pressable onPress={handleBreakDown} disabled={breakingDown} className="border-2 border-indigo-500 rounded-full py-4 mb-6 items-center">
-            {breakingDown ? <ActivityIndicator color="#818cf8" /> : <Text className="text-indigo-300 font-semibold">Break this into steps</Text>}
+            {breakingDown ? <ActivityIndicator color="#818cf8" /> : <Text className="text-indigo-700 font-semibold">Break this into steps</Text>}
           </Pressable>
         ) : (
           <View className="gap-4 mb-6">
             {groupStepsByDate(assignment.subSteps || []).map((group) => (
               <View key={group.date}>
-                <Text className="text-slate-400 text-xs font-medium mb-2">
+                <Text className="text-slate-500 text-xs font-medium mb-2">
                   {group.date === new Date().toISOString().split('T')[0] ? 'Today' : group.date}
                 </Text>
                 <View className="gap-2">

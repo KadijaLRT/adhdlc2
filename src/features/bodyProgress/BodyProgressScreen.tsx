@@ -73,21 +73,21 @@ export default function BodyProgressScreen() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Progress</Heading>
-        <Text className="text-slate-400 text-sm mb-6">Trends matter more than any single day.</Text>
+        <Text className="text-slate-500 text-sm mb-6">Trends matter more than any single day.</Text>
 
         <View className="bg-white rounded-2xl p-4 mb-4">
           <Text className="text-slate-700 text-sm font-medium mb-3">Weight trend</Text>
           <View className="flex-row flex-wrap gap-3 mb-3">
             <View className="flex-1 min-w-[45%]">
-              <Text className="text-amber-300 text-xl font-bold">{latest !== null ? `${latest} lb` : '—'}</Text>
+              <Text className="text-amber-700 text-xl font-bold">{latest !== null ? `${latest} lb` : '—'}</Text>
               <Text className="text-slate-500 text-xs">Today</Text>
             </View>
             <View className="flex-1 min-w-[45%]">
-              <Text className="text-amber-300 text-xl font-bold">{sevenDayAvg !== null ? sevenDayAvg.toFixed(1) : '—'}</Text>
+              <Text className="text-amber-700 text-xl font-bold">{sevenDayAvg !== null ? sevenDayAvg.toFixed(1) : '—'}</Text>
               <Text className="text-slate-500 text-xs">7-day average</Text>
             </View>
             <View className="flex-1 min-w-[45%]">
-              <Text className={thirtyDayChange !== null && thirtyDayChange < 0 ? 'text-emerald-400 text-xl font-bold' : 'text-slate-800 text-xl font-bold'}>
+              <Text className={thirtyDayChange !== null && thirtyDayChange < 0 ? 'text-emerald-700 text-xl font-bold' : 'text-slate-800 text-xl font-bold'}>
                 {thirtyDayChange !== null ? `${thirtyDayChange > 0 ? '+' : ''}${thirtyDayChange.toFixed(1)} lb` : '—'}
               </Text>
               <Text className="text-slate-500 text-xs">30-day change</Text>
@@ -103,7 +103,7 @@ export default function BodyProgressScreen() {
             if (!rate) return null;
             return (
               <View className={rate.isAggressive || rate.isPastDate ? 'bg-amber-400/10 border-2 border-amber-400 rounded-xl p-3 mb-4' : 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3 mb-4'}>
-                <Text className={rate.isAggressive || rate.isPastDate ? 'text-amber-300 text-xs font-medium mb-1' : 'text-emerald-300 text-xs font-medium mb-1'}>
+                <Text className={rate.isAggressive || rate.isPastDate ? 'text-amber-700 text-xs font-medium mb-1' : 'text-emerald-700 text-xs font-medium mb-1'}>
                   Your goal date · {weightGoalDate}
                 </Text>
                 <Text className="text-slate-700 text-sm">{describeRigor(rate)}</Text>
@@ -156,7 +156,7 @@ export default function BodyProgressScreen() {
                   onPress={() => setSelectedSite(site.id)}
                   className={isActive ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-xl p-2 items-center w-[30%]' : 'bg-stone-100 border-2 border-transparent rounded-xl p-2 items-center w-[30%]'}
                 >
-                  <Text className={isActive ? 'text-indigo-200 text-xs' : 'text-slate-700 text-xs'}>{site.label}</Text>
+                  <Text className={isActive ? 'text-indigo-700 text-xs' : 'text-slate-700 text-xs'}>{site.label}</Text>
                   <Text className="text-slate-500 text-xs mt-1">{latestForSite ? `${latestForSite.inches}"` : '—'}</Text>
                 </Pressable>
               );

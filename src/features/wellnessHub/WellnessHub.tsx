@@ -23,7 +23,7 @@ export default function WellnessHub() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Wellness</Heading>
-        <Text className="text-slate-400 text-sm mb-6">How do you feel right now?</Text>
+        <Text className="text-slate-500 text-sm mb-6">How do you feel right now?</Text>
 
         <View className="flex-row gap-2 mb-6">
           {(MOOD_OPTIONS || []).map((option) => {
@@ -35,7 +35,7 @@ export default function WellnessHub() {
                 className={isActive ? 'flex-1 bg-indigo-600/20 border-2 border-indigo-400 rounded-2xl py-4 items-center' : 'flex-1 bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl py-4 items-center'}
               >
                 <Text className="text-2xl mb-1">{option.emoji}</Text>
-                <Text className={isActive ? 'text-indigo-200 text-xs' : 'text-slate-700 dark:text-slate-300 text-xs'}>{option.label}</Text>
+                <Text className={isActive ? 'text-indigo-700 text-xs' : 'text-slate-700 dark:text-slate-300 text-xs'}>{option.label}</Text>
               </Pressable>
             );
           })}

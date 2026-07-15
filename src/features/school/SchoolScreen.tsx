@@ -56,7 +56,7 @@ export default function SchoolScreen() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Study</Heading>
-        <Text className="text-slate-400 text-sm mb-6">What should I study next?</Text>
+        <Text className="text-slate-500 text-sm mb-6">What should I study next?</Text>
 
         {suggested && (
           <Pressable onPress={() => router?.push?.(`/school/assignment/${suggested.id}`)} className="bg-indigo-600 rounded-2xl p-5 mb-4 active:bg-indigo-500">
@@ -64,7 +64,7 @@ export default function SchoolScreen() {
               Recommended {daysUntil(suggested.dueDate) <= 0 ? '· due now' : `· due in ${daysUntil(suggested.dueDate)} day${daysUntil(suggested.dueDate) === 1 ? '' : 's'}`}
             </Text>
             <Text className="text-white text-lg font-semibold mb-1">{suggested.title}</Text>
-            {suggested.estimatedMinutes && <Text className="text-indigo-200 text-xs">About {suggested.estimatedMinutes} min</Text>}
+            {suggested.estimatedMinutes && <Text className="text-indigo-700 text-xs">About {suggested.estimatedMinutes} min</Text>}
           </Pressable>
         )}
 

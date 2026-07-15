@@ -6,7 +6,7 @@ export function OnboardingStepHeader({ step, total }: { step: number; total: num
   return (
     <View className="flex-row items-center justify-between mb-6">
       <Pressable onPress={() => router?.back?.()}>
-        <Text className="text-slate-400 text-sm">← Back</Text>
+        <Text className="text-slate-500 text-sm">← Back</Text>
       </Pressable>
       <Text className="text-slate-500 text-sm">Step {step} of {total}</Text>
     </View>
@@ -18,7 +18,7 @@ export function OnboardingBackOnlyHeader() {
   return (
     <View className="flex-row items-center mb-6">
       <Pressable onPress={() => router?.back?.()}>
-        <Text className="text-slate-400 text-sm">← Back</Text>
+        <Text className="text-slate-500 text-sm">← Back</Text>
       </Pressable>
     </View>
   );

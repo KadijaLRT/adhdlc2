@@ -19,7 +19,7 @@ export default function WeeklyChallengeCard() {
   return (
     <View className="bg-white rounded-2xl p-5 w-full">
       <Text className="text-slate-900 text-base font-semibold mb-1">This Week</Text>
-      <Text className="text-slate-400 text-xs mb-4">Cumulative progress, no penalty for a slow day.</Text>
+      <Text className="text-slate-500 text-xs mb-4">Cumulative progress, no penalty for a slow day.</Text>
       <View className="h-3 bg-stone-100 rounded-full overflow-hidden mb-2">
         <View className="h-3 bg-indigo-500 rounded-full" style={{ width: `${percent}%` }} />
       </View>

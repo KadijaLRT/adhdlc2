@@ -29,7 +29,7 @@ export default function StrainMatcher() {
                 return (
                   <Pressable key={effect} onPress={() => setSelectedEffect(effect)}
                     className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-full py-2 px-4' : 'bg-stone-100 border-2 border-transparent rounded-full py-2 px-4'}>
-                    <Text className={isActive ? 'text-emerald-300' : 'text-slate-700'}>{effect}</Text>
+                    <Text className={isActive ? 'text-emerald-700' : 'text-slate-700'}>{effect}</Text>
                   </Pressable>
                 );
               })}

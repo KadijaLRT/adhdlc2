@@ -28,7 +28,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             <Text className="text-slate-900 text-2xl font-semibold mb-3 text-center">
               Something didn&apos;t load right.
             </Text>
-            <Text className="text-slate-400 text-base mb-8 text-center">
+            <Text className="text-slate-500 text-base mb-8 text-center">
               That&apos;s on us, not you. Your data is safe. Let&apos;s try again.
             </Text>
             <Pressable

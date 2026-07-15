@@ -50,7 +50,7 @@ export default function WorkoutSession({ exerciseId, programId, queue }: { exerc
   if (!exercise) {
     return (
       <SafeAreaView className="flex-1 bg-stone-50 items-center justify-center px-8">
-        <Text className="text-slate-400 text-center">Couldn&apos;t find that exercise.</Text>
+        <Text className="text-slate-500 text-center">Couldn&apos;t find that exercise.</Text>
         <Pressable onPress={() => router?.back?.()} className="mt-4">
           <Text className="text-indigo-400">Go back</Text>
         </Pressable>
@@ -81,14 +81,14 @@ export default function WorkoutSession({ exerciseId, programId, queue }: { exerc
 
         {recordBanner && (
           <View className="bg-amber-400/10 border border-amber-400 rounded-xl p-3 mb-4">
-            <Text className="text-amber-300 text-center text-sm font-medium">{recordBanner}</Text>
+            <Text className="text-amber-700 text-center text-sm font-medium">{recordBanner}</Text>
           </View>
         )}
 
         {phase === 'set' && (
           <View className="flex-1 justify-center">
             <Heading className="text-center mb-1">{exercise.name}</Heading>
-            <Text className="text-slate-400 text-center mb-8">Set {currentSet} of {totalSets}</Text>
+            <Text className="text-slate-500 text-center mb-8">Set {currentSet} of {totalSets}</Text>
 
             {!adhdFocusModeEnabled && (
               <Text className="text-slate-500 text-xs text-center mb-8">{exercise.cues}</Text>
@@ -96,7 +96,7 @@ export default function WorkoutSession({ exerciseId, programId, queue }: { exerc
 
             <View className="flex-row gap-3 mb-8">
               <View className="flex-1">
-                <Text className="text-slate-400 text-xs mb-1 text-center">Weight</Text>
+                <Text className="text-slate-500 text-xs mb-1 text-center">Weight</Text>
                 <TextInput
                   value={weight}
                   onChangeText={setWeight}
@@ -107,7 +107,7 @@ export default function WorkoutSession({ exerciseId, programId, queue }: { exerc
                 />
               </View>
               <View className="flex-1">
-                <Text className="text-slate-400 text-xs mb-1 text-center">Reps</Text>
+                <Text className="text-slate-500 text-xs mb-1 text-center">Reps</Text>
                 <TextInput
                   value={reps}
                   onChangeText={setReps}
@@ -142,7 +142,7 @@ export default function WorkoutSession({ exerciseId, programId, queue }: { exerc
         {phase === 'done' && (
           <View className="flex-1 justify-center items-center">
             <Heading className="text-center mb-2">Nice work.</Heading>
-            <Text className="text-slate-400 text-center mb-10">All {totalSets} sets logged for {exercise.name}.</Text>
+            <Text className="text-slate-500 text-center mb-10">All {totalSets} sets logged for {exercise.name}.</Text>
 
             {hasMoreInQueue ? (
               <Pressable

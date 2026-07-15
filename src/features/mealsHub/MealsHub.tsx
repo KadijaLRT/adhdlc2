@@ -31,13 +31,13 @@ export default function MealsHub() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Meals</Heading>
-        <Text className="text-slate-400 text-sm mb-6">What should I eat right now?</Text>
+        <Text className="text-slate-500 text-sm mb-6">What should I eat right now?</Text>
 
         {suggestion && (
           <View className="bg-indigo-600/10 border-2 border-indigo-500 rounded-2xl p-5 mb-4">
-            <Text className="text-indigo-200 text-xs uppercase tracking-wider mb-1">Suggested for your energy today</Text>
+            <Text className="text-indigo-700 text-xs uppercase tracking-wider mb-1">Suggested for your energy today</Text>
             <Subheading className="mb-1">{suggestion.title}</Subheading>
-            <Text className="text-slate-400 text-xs">{suggestion.prepMinutes} min · {(suggestion.ingredients || []).join(', ')}</Text>
+            <Text className="text-slate-500 text-xs">{suggestion.prepMinutes} min · {(suggestion.ingredients || []).join(', ')}</Text>
           </View>
         )}
 

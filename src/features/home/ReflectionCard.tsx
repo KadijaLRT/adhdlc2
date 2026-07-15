@@ -24,7 +24,7 @@ export default function ReflectionCard() {
 
   return (
     <View className="bg-white rounded-2xl p-5">
-      <Text className="text-indigo-300 text-xs uppercase tracking-wider mb-1">Evening check-in</Text>
+      <Text className="text-indigo-700 text-xs uppercase tracking-wider mb-1">Evening check-in</Text>
       <Text className="text-slate-900 text-base font-medium mb-3">How was today?</Text>
 
       <TextInput
@@ -40,7 +40,7 @@ export default function ReflectionCard() {
         onPress={handleSave}
         className={saved ? 'bg-emerald-500/20 rounded-full py-3 items-center' : 'bg-indigo-600 rounded-full py-3 items-center active:bg-indigo-500'}
       >
-        <Text className={saved ? 'text-emerald-300 font-medium' : 'text-white font-semibold'}>
+        <Text className={saved ? 'text-emerald-700 font-medium' : 'text-white font-semibold'}>
           {saved ? 'Saved ✓' : 'Save'}
         </Text>
       </Pressable>

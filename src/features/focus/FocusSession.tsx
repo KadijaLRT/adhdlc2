@@ -66,7 +66,7 @@ export default function FocusSession({ taskTitle, durationMinutes }: FocusSessio
           <>
             <Animated.View style={{ transform: [{ scale: pulse }] }} className="w-32 h-32 rounded-full bg-indigo-600/20 border-2 border-indigo-500 mb-8" />
             <Text className="text-slate-900 text-xl text-center font-medium mb-2">Getting settled...</Text>
-            <Text className="text-slate-400 text-center">{taskTitle || 'Just this, for now.'}</Text>
+            <Text className="text-slate-500 text-center">{taskTitle || 'Just this, for now.'}</Text>
           </>
         )}
 
@@ -85,7 +85,7 @@ export default function FocusSession({ taskTitle, durationMinutes }: FocusSessio
         {phase === 'ended' && (
           <>
             <Heading className="text-center mb-2">That&apos;s time in.</Heading>
-            <Text className="text-slate-400 text-center mb-10">Whatever you got done counts. No pressure either way.</Text>
+            <Text className="text-slate-500 text-center mb-10">Whatever you got done counts. No pressure either way.</Text>
             <Pressable onPress={handleLogSession} className="bg-indigo-600 rounded-full py-4 px-10 mb-3 active:bg-indigo-500">
               <Text className="text-white font-semibold">Log this session</Text>
             </Pressable>
