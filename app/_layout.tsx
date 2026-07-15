@@ -1,3 +1,4 @@
+import '../global.css';
 import { useEffect, useState } from 'react';
 import { Stack, usePathname } from 'expo-router';
 import { View } from 'react-native';
