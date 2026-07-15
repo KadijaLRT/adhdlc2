@@ -158,7 +158,7 @@ export default function WorkoutSession({ exerciseId, programId, queue }: { exerc
                 <Text className="text-white font-semibold">Next exercise ({(queue || []).length} left)</Text>
               </Pressable>
             ) : (
-              <Pressable onPress={() => router?.replace?.('/fitness/programs')} className="bg-emerald-500 rounded-full py-4 px-10 active:bg-emerald-400">
+              <Pressable onPress={() => router?.replace?.('/fitness/workouts')} className="bg-emerald-500 rounded-full py-4 px-10 active:bg-emerald-400">
                 <Text className="text-white font-semibold">{programId ? "Finish today's session" : 'Done'}</Text>
               </Pressable>
             )}

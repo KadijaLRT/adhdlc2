@@ -16,6 +16,7 @@ import {
   projectGoalDate,
 } from './bodyTrendCalculations';
 import { calculateRequiredRate, describeRigor } from './requiredRate';
+import AppleHealthImportCard from '@/features/settings/AppleHealthImportCard';
 
 const MEASUREMENT_SITES: { id: MeasurementSite; label: string }[] = [
   { id: 'chest', label: 'Chest' },
@@ -73,6 +74,8 @@ export default function BodyProgressScreen() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Progress</Heading>
+
+        <AppleHealthImportCard />
         <Text className="text-slate-500 text-sm mb-6">Trends matter more than any single day.</Text>
 
         <View className="bg-white rounded-2xl p-4 mb-4">

@@ -1,18 +1,19 @@
 import { useMemo, useState } from 'react';
 import { View, Text, Pressable, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAppStore, selectCompletedExerciseLog, selectFitnessPreferences, selectFitnessCardDismissed } from '@/store/index';
-import PersonalizeFitnessCard from './PersonalizeFitnessCard';
-import { pickStartSomewhereExercise } from './pickStartSomewhere';
+import { useAppStore, selectCompletedExerciseLog, selectFitnessPreferences } from '@/store/index';
 import { WORKOUT_EXERCISES, type Exercise } from '@/content/exercises';
 import { Heading } from '@/shared/components/Heading';
 
+// Secondary screen reached from "Browse all exercises" on the Workouts
+// landing page. The Start Somewhere button and Programs/Progress/
+// Recovery links live there now, not here, to avoid duplicating the
+// same actions across two screens.
 export default function ExerciseBrowser() {
   const router = useRouter();
   const completedLog = useAppStore(selectCompletedExerciseLog);
   const logExerciseCompletion = useAppStore((s) => s.logExerciseCompletion);
   const fitnessPreferences = useAppStore(selectFitnessPreferences);
-  const fitnessCardDismissed = useAppStore(selectFitnessCardDismissed);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
 
   const entries = useMemo(() => Object.entries(WORKOUT_EXERCISES || {}), []);
@@ -30,34 +31,11 @@ export default function ExerciseBrowser() {
 
   const filtered = filteredByEquipment.filter(([, ex]) => !selectedGroup || ex.group === selectedGroup);
 
-  const handleStartSomewhere = () => {
-    const picked = pickStartSomewhereExercise(fitnessPreferences);
-    if (picked) router?.push?.(`/workout/session/${picked.id}`);
-  };
-
   return (
     <View className="flex-1">
       <View className="px-4 pt-4 w-full max-w-md self-center">
-        <Heading className="mb-1">Workout</Heading>
+        <Heading className="mb-1">Browse Exercises</Heading>
         <Text className="text-slate-500 text-sm mb-4">Pick a muscle group. Do as much or as little as feels right today.</Text>
-
-        {!fitnessCardDismissed && <PersonalizeFitnessCard />}
-
-        <Pressable onPress={handleStartSomewhere} className="bg-indigo-600 rounded-2xl py-4 mb-3 items-center active:bg-indigo-500">
-          <Text className="text-white font-semibold text-base">Don't overthink it — Start Somewhere</Text>
-        </Pressable>
-
-        <View className="flex-row gap-2 mb-3">
-          <Pressable onPress={() => router?.push?.('/fitness/programs')} className="flex-1 bg-white rounded-xl py-3 items-center">
-            <Text className="text-slate-700 text-sm">🏋️ Programs</Text>
-          </Pressable>
-          <Pressable onPress={() => router?.push?.('/fitness/progress')} className="flex-1 bg-white rounded-xl py-3 items-center">
-            <Text className="text-slate-700 text-sm">📈 Progress</Text>
-          </Pressable>
-          <Pressable onPress={() => router?.push?.('/fitness/recovery')} className="flex-1 bg-white rounded-xl py-3 items-center">
-            <Text className="text-slate-700 text-sm">🧘 Recovery</Text>
-          </Pressable>
-        </View>
 
         <FlatList
           horizontal
