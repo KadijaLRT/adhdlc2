@@ -5,14 +5,34 @@
     "noUncheckedIndexedAccess": true,
     "baseUrl": ".",
     "paths": {
-      "@/core/*": ["src/core/*"],
-      "@/store/*": ["src/store/*"],
-      "@/features/*": ["src/features/*"],
-      "@/content/*": ["src/content/*"],
-      "@/shared/*": ["src/shared/*"],
-      "@/app/*": ["app/*"]
+      "@/core/*": [
+        "src/core/*"
+      ],
+      "@/store/*": [
+        "src/store/*"
+      ],
+      "@/features/*": [
+        "src/features/*"
+      ],
+      "@/content/*": [
+        "src/content/*"
+      ],
+      "@/shared/*": [
+        "src/shared/*"
+      ],
+      "@/app/*": [
+        "app/*"
+      ]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "nativewind-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

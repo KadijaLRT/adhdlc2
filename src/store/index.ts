@@ -19,11 +19,12 @@ import { createReflectionSlice, type ReflectionSlice } from './slices/reflection
 import { createScheduleSlice, type ScheduleSlice } from './slices/scheduleSlice';
 import { createSchoolSlice, type SchoolSlice } from './slices/schoolSlice';
 import { createBodyProgressSlice, type BodyProgressSlice } from './slices/bodyProgressSlice';
+import { createMomentumSlice, type MomentumSlice } from './slices/momentumSlice';
 
 export * from './slices/types';
 
 export type AppState = UiSlice & TaskSlice & StreakSlice & MilestoneSlice &
-  EnergySlice & StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & NutritionFitnessSlice & WorkoutSlice & ProgramSlice & GrocerySlice & RoutineSlice & RpgSlice & ReflectionSlice & ScheduleSlice & SchoolSlice & BodyProgressSlice;
+  EnergySlice & StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & NutritionFitnessSlice & WorkoutSlice & ProgramSlice & GrocerySlice & RoutineSlice & RpgSlice & ReflectionSlice & ScheduleSlice & SchoolSlice & BodyProgressSlice & MomentumSlice;
 
 // Combined store. To add a new domain: create slices/xSlice.ts exporting
 // createXSlice + XSlice, spread it in here, add its storage keys to
@@ -51,6 +52,7 @@ export const useAppStore = create<AppState>()((...args) => ({
   ...createScheduleSlice(...args),
   ...createSchoolSlice(...args),
   ...createBodyProgressSlice(...args),
+  ...createMomentumSlice(...args),
 }));
 
 // Individual selectors — components should always select a single slice
@@ -76,6 +78,7 @@ export const selectAssignments = (s: AppState) => s.assignments || [];
 export const selectWeightLog = (s: AppState) => s.weightLog || [];
 export const selectMeasurementLog = (s: AppState) => s.measurementLog || [];
 export const selectWeightGoalLbs = (s: AppState) => s.weightGoalLbs;
+export const selectMomentumLog = (s: AppState) => s.momentumLog || [];
 export const selectSavedRecipeIds = (s: AppState) => s.savedRecipeIds || [];
 export const selectCompletedExerciseLog = (s: AppState) => s.completedExerciseLog || [];
 export const selectNutritionPreferences = (s: AppState) => s.nutritionPreferences;

@@ -13,6 +13,7 @@ export default function RoutinesScreen() {
   const recordRoutineCompletion = useAppStore((s) => s.recordRoutineCompletion);
   const useStreakFreeze = useAppStore((s) => s.useStreakFreeze);
 
+  const [recoveryMessage, setRecoveryMessage] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const [newEmoji, setNewEmoji] = useState(EMOJI_OPTIONS[0]);
 
@@ -24,11 +25,25 @@ export default function RoutinesScreen() {
 
   const today = new Date().toISOString().split('T')[0];
 
+  const handleComplete = async (routineTitle: string, routineId: string) => {
+    const { isRecovery } = await recordRoutineCompletion(routineId);
+    if (isRecovery) {
+      setRecoveryMessage(`Nice recovery on ${routineTitle}. Coming back matters more than never missing.`);
+      setTimeout(() => setRecoveryMessage(null), 4000);
+    }
+  };
+
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Routines</Heading>
         <Text className="text-slate-400 text-sm mb-6">Missing a day never breaks anything. It just waits for you.</Text>
+
+        {recoveryMessage && (
+          <View className="bg-emerald-400/10 border-2 border-emerald-400 rounded-2xl p-4 mb-4">
+            <Text className="text-emerald-300 text-sm font-medium">🎉 {recoveryMessage}</Text>
+          </View>
+        )}
 
         <View className="bg-slate-900 rounded-2xl p-4 mb-6">
           <Text className="text-slate-300 text-sm font-medium mb-2">New routine</Text>
@@ -73,7 +88,7 @@ export default function RoutinesScreen() {
                 </Text>
                 <View className="flex-row gap-2">
                   <Pressable
-                    onPress={() => recordRoutineCompletion(routine.id)}
+                    onPress={() => handleComplete(routine.title, routine.id)}
                     disabled={doneToday}
                     className={doneToday ? 'flex-1 bg-emerald-500/20 rounded-full py-3 items-center' : 'flex-1 bg-emerald-500 rounded-full py-3 items-center active:bg-emerald-400'}
                   >

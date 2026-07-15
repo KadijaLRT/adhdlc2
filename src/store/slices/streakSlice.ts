@@ -6,7 +6,7 @@ import type { RpgSlice } from './rpgSlice';
 
 export interface StreakSlice {
   streaks: RoutineStreak[];
-  recordRoutineCompletion: (routineId: string) => Promise<void>;
+  recordRoutineCompletion: (routineId: string) => Promise<{ isRecovery: boolean }>;
   useStreakFreeze: (routineId: string) => Promise<void>;
 }
 
@@ -17,8 +17,16 @@ async function persist(streaks: RoutineStreak[]) {
 
 function today(): string { return new Date().toISOString().split('T')[0]; }
 
+function daysBetween(dateA: string, dateB: string): number {
+  const a = new Date(dateA).getTime();
+  const b = new Date(dateB).getTime();
+  return Math.round(Math.abs(a - b) / (1000 * 60 * 60 * 24));
+}
+
 // Forgiving system: a missed day never resets count to zero, it simply
 // does not increment. Streaks degrade gracefully, never punitively.
+// Coming back after a real gap is treated as its own moment worth
+// celebrating, not just a routine completion like any other.
 export const createStreakSlice: StateCreator<
   StreakSlice & MilestoneSlice & RpgSlice, [], [], StreakSlice
 > = (set, get) => ({
@@ -26,6 +34,8 @@ export const createStreakSlice: StateCreator<
 
   recordRoutineCompletion: async (routineId) => {
     const existing = (get().streaks || []).find((s) => s.routineId === routineId);
+    const isRecovery = !!(existing?.lastCompletedDate && daysBetween(existing.lastCompletedDate, today()) >= 2);
+
     const next = existing
       ? (get().streaks || []).map((s) => s.routineId === routineId
           ? { ...s, count: s.count + 1, lastCompletedDate: today(), isFrozen: false } : s)
@@ -33,7 +43,8 @@ export const createStreakSlice: StateCreator<
     set({ streaks: next });
     await persist(next);
     await get().incrementMilestone('routine_completed');
-    await get().awardProgress('confidence', 8, 4);
+    await get().awardProgress('confidence', isRecovery ? 12 : 8, 4);
+    return { isRecovery };
   },
 
   useStreakFreeze: async (routineId) => {

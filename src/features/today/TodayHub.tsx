@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAppStore, selectTasks, selectRoutines, selectStreaks, selectEnergyLevel } from '@/store/index';
+import { useAppStore, selectTasks, selectRoutines, selectStreaks, selectEnergyLevel, selectMomentumLog } from '@/store/index';
 import { suggestNextTask } from '@/features/tasks/suggestNextTask';
 import { Heading } from '@/shared/components/Heading';
 
@@ -17,9 +17,11 @@ export default function TodayHub() {
   const routines = useAppStore(selectRoutines);
   const streaks = useAppStore(selectStreaks);
   const energyLevel = useAppStore(selectEnergyLevel);
+  const momentumLog = useAppStore(selectMomentumLog);
 
   const suggested = suggestNextTask(tasks, energyLevel);
   const today = new Date().toISOString().split('T')[0];
+  const momentumToday = (momentumLog || []).filter((m) => m.date === today).length;
   const pendingRoutineCount = (routines || []).filter((r) => {
     const streak = (streaks || []).find((s) => s.routineId === r.id);
     return streak?.lastCompletedDate !== today;
@@ -30,6 +32,14 @@ export default function TodayHub() {
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Today</Heading>
         <Text className="text-slate-400 text-sm mb-6">One thing at a time.</Text>
+
+        {momentumToday > 0 && (
+          <View className="bg-slate-900 rounded-xl p-3 mb-4">
+            <Text className="text-slate-400 text-xs">
+              {momentumToday} small step{momentumToday === 1 ? '' : 's'} today — opening a task, starting a session, all of it counts.
+            </Text>
+          </View>
+        )}
 
         {suggested ? (
           <Pressable onPress={() => router?.push?.(`/task/${suggested.id}`)} className="bg-indigo-600 rounded-2xl p-5 mb-4 active:bg-indigo-500">

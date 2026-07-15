@@ -57,6 +57,10 @@ export default function HomeScreen() {
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, gap: 14 }}>
       <View className="w-full max-w-md self-center gap-4">
+        <Pressable onPress={() => router?.push?.('/overwhelmed')} className="bg-amber-400/10 border-2 border-amber-400 rounded-2xl py-3 items-center">
+          <Text className="text-amber-300 text-sm font-medium">I'm overwhelmed right now</Text>
+        </Pressable>
+
         <View>
           <Heading>Good day 👋</Heading>
           <Text className="text-slate-400 text-sm">{todayLabel}</Text>

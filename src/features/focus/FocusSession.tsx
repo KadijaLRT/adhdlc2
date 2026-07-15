@@ -15,6 +15,7 @@ type Phase = 'settling' | 'running' | 'ended';
 export default function FocusSession({ taskTitle, durationMinutes }: FocusSessionProps) {
   const router = useRouter();
   const incrementMilestone = useAppStore((s) => s.incrementMilestone);
+  const logMomentum = useAppStore((s) => s.logMomentum);
   const awardProgress = useAppStore((s) => s.awardProgress);
   const [phase, setPhase] = useState<Phase>('settling');
   const [secondsLeft, setSecondsLeft] = useState((durationMinutes || 5) * 60);
@@ -28,7 +29,7 @@ export default function FocusSession({ taskTitle, durationMinutes }: FocusSessio
         Animated.timing(pulse, { toValue: 1, duration: 2000, useNativeDriver: true }),
       ])
     ).start();
-    const settleTimer = setTimeout(() => setPhase('running'), 6000);
+    const settleTimer = setTimeout(() => { setPhase('running'); logMomentum('started_session'); }, 6000);
     return () => clearTimeout(settleTimer);
   }, [phase]);
 

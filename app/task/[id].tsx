@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, Pressable, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -23,9 +23,14 @@ export default function TaskDetailScreen() {
   const toggleSubStep = useAppStore((s) => s.toggleSubStep);
   const updateTask = useAppStore((s) => s.updateTask);
   const removeTask = useAppStore((s) => s.removeTask);
+  const logMomentum = useAppStore((s) => s.logMomentum);
   const [breakingDown, setBreakingDown] = useState(false);
 
   const task = (tasks || []).find((t) => t.id === id);
+
+  useEffect(() => {
+    if (task) logMomentum('opened_task');
+  }, [id]);
 
   if (!task) {
     return (

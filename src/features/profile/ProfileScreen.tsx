@@ -13,8 +13,6 @@ import {
 import { MILESTONE_DEFINITIONS, getUnlockedTiers } from '@/content/milestoneDefinitions';
 import { SKILLS, UNLOCKABLES, xpToLevel, xpForNextLevel } from '@/content/rpgCatalog';
 import { calculateWorkoutStreak, calculateTotalVolume } from '@/features/workout/progressCalculations';
-import { selectTotalXp, selectCoins, selectSkillXp, selectOwnedUnlockables } from '@/store/index';
-import { SKILLS, UNLOCKABLES, xpToLevel, xpForNextLevel } from '@/content/rpgCatalog';
 
 function StatTile({ label, value }: { label: string; value: string }) {
   return (
@@ -38,20 +36,15 @@ export default function ProfileScreen() {
   const tasks = useAppStore(selectTasks);
   const savedRecipeIds = useAppStore(selectSavedRecipeIds);
   const setLogs = useAppStore(selectSetLogs);
-  const totalXp = useAppStore(selectTotalXp);
-  const coins = useAppStore(selectCoins);
-  const skillXp = useAppStore(selectSkillXp);
-  const ownedUnlockables = useAppStore(selectOwnedUnlockables);
-  const purchaseUnlockable = useAppStore((s) => s.purchaseUnlockable);
 
   const longestStreak = Math.max(0, ...(streaks || []).map((s) => s.count || 0));
   const tasksCompleted = (tasks || []).filter((t) => t.isComplete).length;
   const workoutStreak = calculateWorkoutStreak(setLogs);
   const totalVolume = calculateTotalVolume(setLogs);
 
-  const level = xpToLevel(totalXp);
+  const level = xpToLevel(totalXp || 0);
   const nextLevelXp = xpForNextLevel(level);
-  const levelProgressPercent = Math.min((totalXp / nextLevelXp) * 100, 100);
+  const levelProgressPercent = Math.min(((totalXp || 0) / nextLevelXp) * 100, 100);
 
   const unlockedMilestoneCount = (MILESTONE_DEFINITIONS || []).reduce((sum, def) => {
     const progress = (milestones || []).find((m) => m.trackedEvent === def.trackedEvent);
@@ -86,11 +79,11 @@ export default function ProfileScreen() {
         </Text>
 
         <View className="bg-slate-900 rounded-2xl p-4 mb-6">
-          <Text className="text-slate-100 text-base font-semibold mb-1">Level {level} · {coins} coins</Text>
+          <Text className="text-slate-100 text-base font-semibold mb-1">Level {level} · {coins || 0} coins</Text>
           <View className="h-2 bg-slate-800 rounded-full overflow-hidden mb-2">
             <View className="h-2 bg-amber-400 rounded-full" style={{ width: `${levelProgressPercent}%` }} />
           </View>
-          <Text className="text-slate-500 text-xs">{totalXp} / {nextLevelXp} XP to level {level + 1}</Text>
+          <Text className="text-slate-500 text-xs">{totalXp || 0} / {nextLevelXp} XP to level {level + 1}</Text>
         </View>
 
         <Subheading className="mb-3">Skills</Subheading>
@@ -119,10 +112,10 @@ export default function ProfileScreen() {
                 ) : (
                   <Pressable
                     onPress={() => purchaseUnlockable(item.id, item.cost)}
-                    disabled={coins < item.cost}
-                    className={coins < item.cost ? 'bg-slate-800 rounded-full py-2 px-4' : 'bg-indigo-600 rounded-full py-2 px-4 active:bg-indigo-500'}
+                    disabled={(coins || 0) < item.cost}
+                    className={(coins || 0) < item.cost ? 'bg-slate-800 rounded-full py-2 px-4' : 'bg-indigo-600 rounded-full py-2 px-4 active:bg-indigo-500'}
                   >
-                    <Text className={coins < item.cost ? 'text-slate-600 text-xs' : 'text-white text-xs font-semibold'}>{item.cost} coins</Text>
+                    <Text className={(coins || 0) < item.cost ? 'text-slate-600 text-xs' : 'text-white text-xs font-semibold'}>{item.cost} coins</Text>
                   </Pressable>
                 )}
               </View>
@@ -162,32 +155,6 @@ export default function ProfileScreen() {
             <Text className="text-slate-200 text-sm">📏 Weight & measurements</Text>
             <Text className="text-slate-600 text-xs">→</Text>
           </Pressable>
-        </View>
-
-        <Subheading className="mb-3">Shop</Subheading>
-        <View className="gap-2 mb-6">
-          {(UNLOCKABLES || []).map((item) => {
-            const owned = (ownedUnlockables || []).includes(item.id);
-            return (
-              <View key={item.id} className="bg-slate-900 rounded-xl p-4 flex-row items-center justify-between">
-                <View className="flex-row items-center gap-3">
-                  <Text className="text-xl">{item.emoji}</Text>
-                  <Text className="text-slate-100">{item.label}</Text>
-                </View>
-                {owned ? (
-                  <Text className="text-emerald-400 text-sm font-medium">Owned</Text>
-                ) : (
-                  <Pressable
-                    onPress={() => purchaseUnlockable(item.id, item.cost)}
-                    disabled={(coins || 0) < item.cost}
-                    className={(coins || 0) < item.cost ? 'bg-slate-800 rounded-full py-2 px-4' : 'bg-indigo-600 rounded-full py-2 px-4 active:bg-indigo-500'}
-                  >
-                    <Text className={(coins || 0) < item.cost ? 'text-slate-600 text-xs' : 'text-white text-xs font-semibold'}>{item.cost} coins</Text>
-                  </Pressable>
-                )}
-              </View>
-            );
-          })}
         </View>
 
         <Subheading className="mb-3">Your data</Subheading>
