@@ -48,14 +48,14 @@ export default function ExerciseBrowser() {
         </Pressable>
 
         <View className="flex-row gap-2 mb-3">
-          <Pressable onPress={() => router?.push?.('/fitness/programs')} className="flex-1 bg-slate-900 rounded-xl py-3 items-center">
-            <Text className="text-slate-300 text-sm">🏋️ Programs</Text>
+          <Pressable onPress={() => router?.push?.('/fitness/programs')} className="flex-1 bg-white rounded-xl py-3 items-center">
+            <Text className="text-slate-700 text-sm">🏋️ Programs</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/fitness/progress')} className="flex-1 bg-slate-900 rounded-xl py-3 items-center">
-            <Text className="text-slate-300 text-sm">📈 Progress</Text>
+          <Pressable onPress={() => router?.push?.('/fitness/progress')} className="flex-1 bg-white rounded-xl py-3 items-center">
+            <Text className="text-slate-700 text-sm">📈 Progress</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/fitness/recovery')} className="flex-1 bg-slate-900 rounded-xl py-3 items-center">
-            <Text className="text-slate-300 text-sm">🧘 Recovery</Text>
+          <Pressable onPress={() => router?.push?.('/fitness/recovery')} className="flex-1 bg-white rounded-xl py-3 items-center">
+            <Text className="text-slate-700 text-sm">🧘 Recovery</Text>
           </Pressable>
         </View>
 
@@ -70,9 +70,9 @@ export default function ExerciseBrowser() {
             return (
               <Pressable
                 onPress={() => setSelectedGroup(item === 'all' ? null : item)}
-                className={isActive ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-slate-900 border-2 border-transparent rounded-full py-2 px-4'}
+                className={isActive ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-white border-2 border-transparent rounded-full py-2 px-4'}
               >
-                <Text className={isActive ? 'text-indigo-200 text-xs capitalize' : 'text-slate-300 text-xs capitalize'}>{item}</Text>
+                <Text className={isActive ? 'text-indigo-200 text-xs capitalize' : 'text-slate-700 text-xs capitalize'}>{item}</Text>
               </Pressable>
             );
           }}
@@ -96,9 +96,9 @@ export default function ExerciseBrowser() {
 function ExerciseCard({ exercise, exerciseId, completedCount, onLogCompletion }: { exercise: Exercise; exerciseId: string; completedCount: number; onLogCompletion: () => void }) {
   const router = useRouter();
   return (
-    <View className="bg-slate-900 rounded-2xl p-4">
+    <View className="bg-white rounded-2xl p-4">
       <View className="flex-row items-center justify-between mb-1">
-        <Text className="text-slate-100 font-medium flex-1">{exercise?.icon} {exercise?.name}</Text>
+        <Text className="text-slate-900 font-medium flex-1">{exercise?.icon} {exercise?.name}</Text>
         {completedCount > 0 && <Text className="text-emerald-400 text-xs">done {completedCount}×</Text>}
       </View>
       <Text className="text-slate-500 text-xs mb-2">{exercise?.muscle} · {exercise?.sets} sets · {exercise?.reps} reps · rest {exercise?.rest}s</Text>

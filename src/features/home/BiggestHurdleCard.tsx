@@ -64,8 +64,8 @@ export default function BiggestHurdleCard() {
   };
 
   return (
-    <View className="bg-slate-900 rounded-2xl p-4">
-      <Text className="text-slate-100 text-sm font-medium mb-1">What's the biggest hurdle today?</Text>
+    <View className="bg-white rounded-2xl p-4">
+      <Text className="text-slate-900 text-sm font-medium mb-1">What's the biggest hurdle today?</Text>
       <Text className="text-slate-500 text-xs mb-3">I'll turn it into a small first step.</Text>
 
       {done ? (
@@ -78,7 +78,7 @@ export default function BiggestHurdleCard() {
             placeholder="Getting started on anything..."
             placeholderTextColor="#64748b"
             onSubmitEditing={handleSubmit}
-            className="flex-1 bg-slate-800 text-slate-100 rounded-xl px-3 py-2"
+            className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-3 py-2"
           />
           <Pressable onPress={handleSubmit} disabled={loading} className="bg-indigo-600 rounded-xl px-4 justify-center">
             {loading ? <ActivityIndicator color="#fff" size="small" /> : <Text className="text-white text-sm font-semibold">Go</Text>}

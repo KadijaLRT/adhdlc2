@@ -10,6 +10,7 @@ import type { WellnessSlice } from './wellnessSlice';
 import type { ProfileSlice } from './profileSlice';
 import type { RoutineSlice } from './routineSlice';
 import type { RpgSlice } from './rpgSlice';
+import type { SettingsSlice } from './settingsSlice';
 import type { ReflectionSlice } from './reflectionSlice';
 import type { ScheduleSlice } from './scheduleSlice';
 import type { SchoolSlice } from './schoolSlice';
@@ -26,7 +27,7 @@ export interface HydrationSlice {
 }
 
 type FullState = TaskSlice & StreakSlice & MilestoneSlice & EnergySlice &
-  StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & RoutineSlice & RpgSlice & ReflectionSlice & ScheduleSlice & SchoolSlice & BodyProgressSlice & MomentumSlice &
+  StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & RoutineSlice & RpgSlice & SettingsSlice & ReflectionSlice & ScheduleSlice & SchoolSlice & BodyProgressSlice & MomentumSlice &
   NutritionFitnessSlice & WorkoutSlice & ProgramSlice & GrocerySlice;
 
 // The only place that reads every domain's storage at once. Adding a new
@@ -40,12 +41,12 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
       const repo = await getRepository();
       const [
         tasks, streaks, milestones, energyLogs, cycleLogs, stressLogs,
-        wellnessPreferences, profile, routines, rpgState, reflectionState,
+        wellnessPreferences, profile, routines, rpgState, settingsState, reflectionState,
         nutritionFitnessState, workoutState, programState, groceryState, scheduleState, schoolState, bodyProgressState, momentumState,
       ] = await Promise.all([
           repo.getTasks(), repo.getStreaks(), repo.getMilestones(),
           repo.getEnergyLogs(), repo.getCycleLogs(), repo.getStressLogs(),
-          repo.getWellnessPreferences(), repo.getProfile(), repo.getRoutines(), repo.getRpgState(), repo.getReflectionState(),
+          repo.getWellnessPreferences(), repo.getProfile(), repo.getRoutines(), repo.getRpgState(), repo.getSettingsState(), repo.getReflectionState(),
           repo.getNutritionFitnessState(), repo.getWorkoutState(), repo.getProgramState(), repo.getGroceryState(), repo.getScheduleState(), repo.getSchoolState(), repo.getBodyProgressState(), repo.getMomentumState(),
         ]);
       set((state) => ({
@@ -63,6 +64,10 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
         coins: rpgState?.coins ?? state.coins,
         skillXp: rpgState?.skillXp ?? state.skillXp,
         ownedUnlockables: rpgState?.ownedUnlockables ?? state.ownedUnlockables,
+        textSize: settingsState?.textSize ?? state.textSize,
+        reduceMotion: settingsState?.reduceMotion ?? state.reduceMotion,
+        highContrast: settingsState?.highContrast ?? state.highContrast,
+        dyslexiaFont: settingsState?.dyslexiaFont ?? state.dyslexiaFont,
         reflections: reflectionState?.reflections ?? state.reflections,
         scheduleItems: scheduleState?.scheduleItems ?? state.scheduleItems,
         runningBehindMinutes: scheduleState?.runningBehindMinutes ?? state.runningBehindMinutes,
@@ -71,6 +76,7 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
         weightLog: bodyProgressState?.weightLog ?? state.weightLog,
         measurementLog: bodyProgressState?.measurementLog ?? state.measurementLog,
         weightGoalLbs: bodyProgressState?.weightGoalLbs ?? state.weightGoalLbs,
+        weightGoalDate: bodyProgressState?.weightGoalDate ?? state.weightGoalDate,
         momentumLog: momentumState?.momentumLog ?? state.momentumLog,
 
         savedRecipeIds: nutritionFitnessState?.savedRecipeIds ?? state.savedRecipeIds,
@@ -83,6 +89,8 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
         setLogs: workoutState?.setLogs ?? state.setLogs,
         personalRecords: workoutState?.personalRecords ?? state.personalRecords,
         adhdFocusModeEnabled: workoutState?.adhdFocusModeEnabled ?? state.adhdFocusModeEnabled,
+        gymName: workoutState?.gymName ?? state.gymName,
+        weekdayAssignment: workoutState?.weekdayAssignment ?? state.weekdayAssignment,
 
         activeProgramId: programState?.activeProgramId ?? state.activeProgramId,
         programStartedAt: programState?.programStartedAt ?? state.programStartedAt,

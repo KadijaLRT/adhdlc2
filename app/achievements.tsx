@@ -4,7 +4,7 @@ import AchievementsGrid from '@/features/gamification/AchievementsGrid';
 
 export default function AchievementsScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-slate-950">
+    <SafeAreaView className="flex-1 bg-stone-50">
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
         <AchievementsGrid />
       </ScrollView>

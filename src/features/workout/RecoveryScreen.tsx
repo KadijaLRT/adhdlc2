@@ -38,10 +38,10 @@ export default function RecoveryScreen() {
               <Pressable
                 key={routine.id}
                 onPress={() => setExpandedId(isExpanded ? null : routine.id)}
-                className="bg-slate-900 rounded-2xl p-4"
+                className="bg-white rounded-2xl p-4"
               >
                 <View className="flex-row items-center justify-between">
-                  <Text className="text-slate-100 font-medium">{routine.title}</Text>
+                  <Text className="text-slate-900 font-medium">{routine.title}</Text>
                   <Text className="text-slate-500 text-xs">{routine.durationMinutes} min</Text>
                 </View>
                 {isExpanded && (
@@ -58,20 +58,20 @@ export default function RecoveryScreen() {
 
         <Subheading className="mb-3">Good to know</Subheading>
         <View className="gap-2">
-          <View className="bg-slate-900 rounded-xl p-4">
-            <Text className="text-slate-300 text-xs font-medium mb-1">💧 Hydration</Text>
+          <View className="bg-white rounded-xl p-4">
+            <Text className="text-slate-700 text-xs font-medium mb-1">💧 Hydration</Text>
             <Text className="text-slate-500 text-sm">{RECOVERY_TIPS.hydration}</Text>
           </View>
-          <View className="bg-slate-900 rounded-xl p-4">
-            <Text className="text-slate-300 text-xs font-medium mb-1">😴 Sleep</Text>
+          <View className="bg-white rounded-xl p-4">
+            <Text className="text-slate-700 text-xs font-medium mb-1">😴 Sleep</Text>
             <Text className="text-slate-500 text-sm">{RECOVERY_TIPS.sleep}</Text>
           </View>
-          <View className="bg-slate-900 rounded-xl p-4">
-            <Text className="text-slate-300 text-xs font-medium mb-1">🩹 Soreness</Text>
+          <View className="bg-white rounded-xl p-4">
+            <Text className="text-slate-700 text-xs font-medium mb-1">🩹 Soreness</Text>
             <Text className="text-slate-500 text-sm">{RECOVERY_TIPS.soreness}</Text>
           </View>
-          <View className="bg-slate-900 rounded-xl p-4">
-            <Text className="text-slate-300 text-xs font-medium mb-1">🛌 Rest days</Text>
+          <View className="bg-white rounded-xl p-4">
+            <Text className="text-slate-700 text-xs font-medium mb-1">🛌 Rest days</Text>
             <Text className="text-slate-500 text-sm">{RECOVERY_TIPS.restDays}</Text>
           </View>
         </View>

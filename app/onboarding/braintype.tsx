@@ -17,6 +17,11 @@ const BRAIN_TYPES = [
   { id: 'multi_tasker', label: 'The Multi-Tasker', emoji: '🔀', traits: 'Easily distracted · Task-switching · Energy bursts' },
   { id: 'sensory_sensitive', label: 'The Sensory Sensitive', emoji: '🎧', traits: 'Sensitivity · Overwhelm · Need for quiet' },
   { id: 'hyperfocused_achiever', label: 'The Hyperfocused Achiever', emoji: '🎯', traits: 'Hyperfocus · Flow state · Tunnel vision' },
+  { id: 'time_crunched_planner', label: 'The Time-Crunched Planner', emoji: '⏱️', traits: 'Procrastination · Last minute · Stress' },
+  { id: 'social_charmer', label: 'The Social Charmer', emoji: '🐸', traits: 'Talkative · Interrupting · Social energy' },
+  { id: 'masked_regulator', label: 'The Masked Regulator', emoji: '🎭', traits: 'Internal struggle · Coping strategies · Burnout' },
+  { id: 'emotional_feeler', label: 'The Emotional Feeler', emoji: '💗', traits: 'Intense emotions · Rejection sensitivity · Mood swings' },
+  { id: 'combined_type', label: 'The Combined Type', emoji: '🐉', traits: 'Mixed traits · Unpredictable · Adaptable' },
 ];
 
 export default function BrainTypeScreen() {
@@ -27,12 +32,12 @@ export default function BrainTypeScreen() {
   const handleContinue = () => router?.push?.('/onboarding/support');
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-950">
+    <SafeAreaView className="flex-1 bg-stone-50">
       <OnboardingProgressBar step={3} total={7} />
       <ScrollView contentContainerStyle={{ padding: 24 }}>
         <View className="w-full max-w-md self-center">
           <OnboardingStepHeader step={3} total={7} />
-          <Text className="text-slate-100 text-2xl font-semibold mb-2">Which ones sound like your brain?</Text>
+          <Text className="text-slate-900 text-2xl font-semibold mb-2">Which ones sound like your brain?</Text>
           <Text className="text-slate-400 text-sm mb-6">Most people are a mix. Pick as many as feel right. These are relatable descriptions, not clinical categories.</Text>
 
           <View className="gap-2 mb-8">
@@ -42,10 +47,10 @@ export default function BrainTypeScreen() {
                 <Pressable
                   key={type.id}
                   onPress={() => toggleInList('brainTypes', type.id)}
-                  className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-4' : 'bg-slate-900 border-2 border-transparent rounded-xl p-4'}
+                  className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-4' : 'bg-white border-2 border-transparent rounded-xl p-4'}
                 >
                   <Text className="text-lg mb-1">{type.emoji}</Text>
-                  <Text className={isActive ? 'text-emerald-300 font-medium mb-1' : 'text-slate-100 font-medium mb-1'}>{type.label}</Text>
+                  <Text className={isActive ? 'text-emerald-300 font-medium mb-1' : 'text-slate-900 font-medium mb-1'}>{type.label}</Text>
                   <Text className="text-slate-500 text-xs">{type.traits}</Text>
                 </Pressable>
               );
@@ -53,7 +58,7 @@ export default function BrainTypeScreen() {
           </View>
 
           <Pressable onPress={handleContinue} className="bg-emerald-500 rounded-full py-4 active:bg-emerald-400">
-            <Text className="text-slate-950 text-lg text-center font-semibold">Continue →</Text>
+            <Text className="text-white text-lg text-center font-semibold">Continue →</Text>
           </Pressable>
         </View>
       </ScrollView>

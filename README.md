@@ -126,3 +126,28 @@ If the error still occurs after redeploying:
    `npm ls metro` locally after `npm install` and adjust the override to
    match whatever version is listed in Expo's own `package-lock.json` for
    SDK 52.
+
+## Deployment note: onboarding kept restarting
+
+If completing onboarding, navigating around, then returning to the app
+(closing/reopening the tab, a PWA relaunch, or any full page reload)
+sent you back to onboarding even though you'd already finished it —
+this was a real bug in `vercel.json`, now fixed.
+
+**Root cause**: the old config had a blanket rewrite
+(`"source": "/(.*)", "destination": "/index.html"`) that sent *every*
+URL, including ones with their own real static file already generated
+by Expo Router's static export (`tasks.html`, `profile.html`, etc.), to
+`index.html` — which is `app/index.tsx`, the screen that decides
+"onboarding or home?" based on whether a profile exists. Any full page
+reload of any route re-ran that redirect logic instead of loading the
+actual page, and if it ran before the app's local data had finished
+loading, it could send you to onboarding.
+
+**Fix applied**: `vercel.json` now uses `"cleanUrls": true` so Vercel
+serves each route's real static file directly (e.g. `/tasks` →
+`tasks.html`), and only the genuinely dynamic routes (`/task/:id`,
+`/workout/session/:exerciseId`, `/school/course/:courseId`,
+`/school/assignment/:assignmentId`) get an explicit rewrite to their
+pattern file, since those don't have one static file per possible ID.
+The root `/` route is no longer hijacking every other path.

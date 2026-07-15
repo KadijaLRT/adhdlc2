@@ -5,10 +5,10 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "scheme": "adhdlifecoach",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "icon": "./assets/icon.png",
-    "splash": { "image": "./assets/splash.png", "resizeMode": "contain", "backgroundColor": "#0f172a" },
+    "splash": { "image": "./assets/splash.png", "resizeMode": "contain", "backgroundColor": "#fafaf9" },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
@@ -17,7 +17,7 @@
     },
     "android": {
       "package": "com.adhdlifecoach.app",
-      "adaptiveIcon": { "foregroundImage": "./assets/adaptive-icon.png", "backgroundColor": "#0f172a" }
+      "adaptiveIcon": { "foregroundImage": "./assets/adaptive-icon.png", "backgroundColor": "#fafaf9" }
     },
     "web": {
       "bundler": "metro",
@@ -27,8 +27,8 @@
       "shortName": "Aviva",
       "display": "standalone",
       "orientation": "portrait",
-      "backgroundColor": "#0f172a",
-      "themeColor": "#0f172a",
+      "backgroundColor": "#fafaf9",
+      "themeColor": "#fafaf9",
       "meta": {
         "apple-mobile-web-app-capable": "yes",
         "apple-mobile-web-app-status-bar-style": "black-translucent",

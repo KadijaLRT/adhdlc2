@@ -15,8 +15,8 @@ export default function AchievementsGrid() {
           const next = getNextTier(definition, count);
           const latest = unlocked[unlocked.length - 1] || null;
           return (
-            <View key={definition.id} className="bg-slate-900 rounded-2xl p-5 w-full md:w-[48%]">
-              <Text className="text-slate-100 text-base font-semibold mb-1">{definition.title}</Text>
+            <View key={definition.id} className="bg-white rounded-2xl p-5 w-full md:w-[48%]">
+              <Text className="text-slate-900 text-base font-semibold mb-1">{definition.title}</Text>
               <Text className="text-slate-400 text-xs mb-3">{definition.description}</Text>
               <Text className="text-amber-300 text-2xl font-bold mb-1">{count}</Text>
               {latest ? <Text className="text-emerald-400 text-sm mb-1">{latest.label} unlocked</Text>

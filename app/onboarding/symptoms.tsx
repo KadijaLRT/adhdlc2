@@ -31,12 +31,12 @@ export default function SymptomsScreen() {
   const handleContinue = () => router?.push?.('/onboarding/braintype');
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-950">
+    <SafeAreaView className="flex-1 bg-stone-50">
       <OnboardingProgressBar step={2} total={7} />
       <ScrollView contentContainerStyle={{ padding: 24 }}>
         <View className="w-full max-w-md self-center">
           <OnboardingStepHeader step={2} total={7} />
-          <Text className="text-slate-100 text-2xl font-semibold mb-2">What shows up for you?</Text>
+          <Text className="text-slate-900 text-2xl font-semibold mb-2">What shows up for you?</Text>
           <Text className="text-slate-400 text-sm mb-6">Pick whatever feels true. This shapes your reminders, coaching, and daily tips.</Text>
 
           <View className="flex-row flex-wrap gap-2 mb-4">
@@ -46,21 +46,21 @@ export default function SymptomsScreen() {
                 <Pressable
                   key={item.id}
                   onPress={() => toggleInList('adhdSymptoms', item.id)}
-                  className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3 w-[47%]' : 'bg-slate-900 border-2 border-transparent rounded-xl p-3 w-[47%]'}
+                  className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3 w-[47%]' : 'bg-white border-2 border-transparent rounded-xl p-3 w-[47%]'}
                 >
                   <Text className="text-lg mb-1">{item.emoji}</Text>
-                  <Text className={isActive ? 'text-emerald-300 text-sm font-medium' : 'text-slate-300 text-sm font-medium'}>{item.label}</Text>
+                  <Text className={isActive ? 'text-emerald-300 text-sm font-medium' : 'text-slate-700 text-sm font-medium'}>{item.label}</Text>
                 </Pressable>
               );
             })}
           </View>
 
-          <Pressable onPress={handleAll} className="border-2 border-slate-700 rounded-xl py-3 items-center mb-8">
-            <Text className="text-slate-300 text-sm">✨ All of the above</Text>
+          <Pressable onPress={handleAll} className="border-2 border-stone-300 rounded-xl py-3 items-center mb-8">
+            <Text className="text-slate-700 text-sm">✨ All of the above</Text>
           </Pressable>
 
           <Pressable onPress={handleContinue} className="bg-emerald-500 rounded-full py-4 active:bg-emerald-400">
-            <Text className="text-slate-950 text-lg text-center font-semibold">Continue →</Text>
+            <Text className="text-white text-lg text-center font-semibold">Continue →</Text>
           </Pressable>
         </View>
       </ScrollView>

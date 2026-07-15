@@ -15,9 +15,9 @@ export default function MealPlanner() {
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, gap: 16 }}>
       <View className="w-full max-w-md self-center gap-4">
-        <View className="bg-slate-900 rounded-2xl p-5">
+        <View className="bg-white rounded-2xl p-5">
           <View className="flex-row items-center justify-between mb-1">
-            <Text className="text-slate-100 text-base font-semibold">Blood Type Lens</Text>
+            <Text className="text-slate-900 text-base font-semibold">Blood Type Lens</Text>
             <Switch value={wellnessPreferences?.bloodTypeEnabled || false}
               onValueChange={(v) => setWellnessPreferences({ bloodTypeEnabled: v })}
               trackColor={{ false: '#334155', true: '#4f46e5' }} thumbColor="#e2e8f0" />
@@ -29,8 +29,8 @@ export default function MealPlanner() {
                 const isActive = wellnessPreferences?.bloodType === type;
                 return (
                   <Pressable key={type} onPress={() => setWellnessPreferences({ bloodType: type })}
-                    className={isActive ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-slate-800 border-2 border-transparent rounded-full py-2 px-4'}>
-                    <Text className={isActive ? 'text-indigo-200' : 'text-slate-300'}>{type}</Text>
+                    className={isActive ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-stone-100 border-2 border-transparent rounded-full py-2 px-4'}>
+                    <Text className={isActive ? 'text-indigo-200' : 'text-slate-700'}>{type}</Text>
                   </Pressable>
                 );
               })}
@@ -40,8 +40,8 @@ export default function MealPlanner() {
         <View className="gap-3">
           <Subheading>Today&apos;s suggestions</Subheading>
           {(meals || []).map((meal) => (
-            <View key={meal.id} className="bg-slate-900 rounded-2xl p-4">
-              <Text className="text-slate-100 font-medium mb-1">{meal.title}</Text>
+            <View key={meal.id} className="bg-white rounded-2xl p-4">
+              <Text className="text-slate-900 font-medium mb-1">{meal.title}</Text>
               <Text className="text-slate-500 text-xs">{meal.prepMinutes} min · {(meal.ingredients || []).join(', ')}</Text>
             </View>
           ))}

@@ -33,12 +33,12 @@ export default function ModulesScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-950">
+    <SafeAreaView className="flex-1 bg-stone-50">
       <OnboardingProgressBar step={2} total={7} />
       <ScrollView contentContainerStyle={{ padding: 24 }}>
         <View className="w-full max-w-md self-center">
           <OnboardingStepHeader step={2} total={7} />
-          <Text className="text-slate-100 text-2xl font-semibold mb-2">What would you like help with?</Text>
+          <Text className="text-slate-900 text-2xl font-semibold mb-2">What would you like help with?</Text>
           <Text className="text-slate-400 text-sm mb-6">Select all that apply. This decides which questions we ask next — nothing more than that.</Text>
 
           <View className="flex-row flex-wrap gap-2 mb-8">
@@ -48,17 +48,17 @@ export default function ModulesScreen() {
                 <Pressable
                   key={m.id}
                   onPress={() => toggleInList('selectedModules', m.id)}
-                  className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3 w-[47%]' : 'bg-slate-900 border-2 border-transparent rounded-xl p-3 w-[47%]'}
+                  className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3 w-[47%]' : 'bg-white border-2 border-transparent rounded-xl p-3 w-[47%]'}
                 >
                   <Text className="text-lg mb-1">{m.emoji}</Text>
-                  <Text className={isActive ? 'text-emerald-300 text-sm font-medium' : 'text-slate-300 text-sm font-medium'}>{m.label}</Text>
+                  <Text className={isActive ? 'text-emerald-300 text-sm font-medium' : 'text-slate-700 text-sm font-medium'}>{m.label}</Text>
                 </Pressable>
               );
             })}
           </View>
 
           <Pressable onPress={handleContinue} className="bg-emerald-500 rounded-full py-4 active:bg-emerald-400">
-            <Text className="text-slate-950 text-lg text-center font-semibold">Continue →</Text>
+            <Text className="text-white text-lg text-center font-semibold">Continue →</Text>
           </Pressable>
         </View>
       </ScrollView>

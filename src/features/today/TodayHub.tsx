@@ -34,7 +34,7 @@ export default function TodayHub() {
         <Text className="text-slate-400 text-sm mb-6">One thing at a time.</Text>
 
         {momentumToday > 0 && (
-          <View className="bg-slate-900 rounded-xl p-3 mb-4">
+          <View className="bg-white rounded-xl p-3 mb-4">
             <Text className="text-slate-400 text-xs">
               {momentumToday} small step{momentumToday === 1 ? '' : 's'} today — opening a task, starting a session, all of it counts.
             </Text>
@@ -47,30 +47,30 @@ export default function TodayHub() {
             <Text className="text-white text-lg font-semibold">{suggested.title}</Text>
           </Pressable>
         ) : (
-          <View className="bg-slate-900 rounded-2xl p-5 mb-4">
-            <Text className="text-slate-300 text-sm">Nothing urgent right now — a genuinely open moment.</Text>
+          <View className="bg-white rounded-2xl p-5 mb-4">
+            <Text className="text-slate-700 text-sm">Nothing urgent right now — a genuinely open moment.</Text>
           </View>
         )}
 
         <View className="gap-3">
-          <Pressable onPress={() => router?.push?.('/tasks')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-100 text-sm">✅ All tasks</Text>
+          <Pressable onPress={() => router?.push?.('/tasks')} className="bg-white rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-900 text-sm">✅ All tasks</Text>
             <Text className="text-slate-500 text-xs">{(tasks || []).filter((t) => !t.isComplete).length} open</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/focus-picker')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-100 text-sm">🎯 Start a focus session</Text>
+          <Pressable onPress={() => router?.push?.('/focus-picker')} className="bg-white rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-900 text-sm">🎯 Start a focus session</Text>
             <Text className="text-slate-500 text-xs">→</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/routines')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-100 text-sm">🔁 Routines</Text>
+          <Pressable onPress={() => router?.push?.('/routines')} className="bg-white rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-900 text-sm">🔁 Routines</Text>
             <Text className="text-slate-500 text-xs">{pendingRoutineCount > 0 ? `${pendingRoutineCount} left today` : 'all done'}</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/schedule')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-100 text-sm">🕐 Today's timeline</Text>
+          <Pressable onPress={() => router?.push?.('/schedule')} className="bg-white rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-900 text-sm">🕐 Today's timeline</Text>
             <Text className="text-slate-500 text-xs">→</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/school')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-100 text-sm">📖 Study</Text>
+          <Pressable onPress={() => router?.push?.('/school')} className="bg-white rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-900 text-sm">📖 Study</Text>
             <Text className="text-slate-500 text-xs">→</Text>
           </Pressable>
           <Pressable onPress={() => router?.push?.('/stuck')} className="bg-amber-400/10 border-2 border-amber-400 rounded-2xl p-4">

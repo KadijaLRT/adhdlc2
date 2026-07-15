@@ -36,13 +36,13 @@ export default function StuckFlow() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-950">
+    <SafeAreaView className="flex-1 bg-stone-50">
       <View className="flex-1 w-full max-w-md self-center px-6 pt-safe pb-safe justify-center">
         <View className="mb-10">
           <Heading>I&apos;m feeling stuck</Heading>
           <Text className="text-slate-400 text-base mt-1">No pressure. Just one small thing.</Text>
         </View>
-        <View className="bg-slate-900 rounded-2xl p-8 mb-8 items-center">
+        <View className="bg-white rounded-2xl p-8 mb-8 items-center">
           <Text className="text-indigo-300 text-xs uppercase tracking-wider mb-3">Try this micro step</Text>
           <Text className="text-slate-50 text-xl text-center font-medium">{currentPrompt?.text || 'Take a sip of water.'}</Text>
         </View>
@@ -56,8 +56,8 @@ export default function StuckFlow() {
               const isActive = bodyDoublingRoom === room;
               return (
                 <Pressable key={room} onPress={() => handleRoomSelect(room)}
-                  className={isActive ? 'border-2 border-emerald-400 bg-emerald-400/10 rounded-full py-3 px-5' : 'border-2 border-slate-700 rounded-full py-3 px-5 active:border-slate-500'}>
-                  <Text className={isActive ? 'text-emerald-300 font-medium' : 'text-slate-300 font-medium'}>
+                  className={isActive ? 'border-2 border-emerald-400 bg-emerald-400/10 rounded-full py-3 px-5' : 'border-2 border-stone-300 rounded-full py-3 px-5 active:border-slate-500'}>
+                  <Text className={isActive ? 'text-emerald-300 font-medium' : 'text-slate-700 font-medium'}>
                     {bodyDoublingRoom === room ? '🟢 ' : '⚪️ '}{ROOM_LABELS[room]}
                   </Text>
                 </Pressable>

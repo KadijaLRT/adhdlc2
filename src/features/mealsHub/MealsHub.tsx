@@ -42,12 +42,12 @@ export default function MealsHub() {
         )}
 
         <View className="gap-3">
-          <Pressable onPress={() => router?.push?.('/nutrition/recipes')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-100 text-sm">🍎 Browse recipes</Text>
+          <Pressable onPress={() => router?.push?.('/nutrition/recipes')} className="bg-white rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-900 text-sm">🍎 Browse recipes</Text>
             <Text className="text-slate-500 text-xs">{savedRecipes.length} saved</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/nutrition/groceries')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-100 text-sm">🛒 This week's groceries</Text>
+          <Pressable onPress={() => router?.push?.('/nutrition/groceries')} className="bg-white rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-900 text-sm">🛒 This week's groceries</Text>
             <Text className="text-slate-500 text-xs">{groceryCount} items</Text>
           </Pressable>
         </View>

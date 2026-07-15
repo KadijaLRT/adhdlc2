@@ -2,5 +2,11 @@
   "installCommand": "npm ci",
   "buildCommand": "npm run build:web",
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/task/:id", "destination": "/task/[id].html" },
+    { "source": "/workout/session/:exerciseId", "destination": "/workout/session/[exerciseId].html" },
+    { "source": "/school/course/:courseId", "destination": "/school/course/[courseId].html" },
+    { "source": "/school/assignment/:assignmentId", "destination": "/school/assignment/[assignmentId].html" }
+  ]
 }

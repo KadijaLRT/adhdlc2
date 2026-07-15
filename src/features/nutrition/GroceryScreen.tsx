@@ -78,8 +78,8 @@ export default function GroceryScreen() {
         </Text>
 
         {!shoppingMode && (
-          <Pressable onPress={() => setShowPantry(!showPantry)} className="bg-slate-900 rounded-2xl p-4 mb-4">
-            <Text className="text-slate-100 text-sm font-medium mb-1">
+          <Pressable onPress={() => setShowPantry(!showPantry)} className="bg-white rounded-2xl p-4 mb-4">
+            <Text className="text-slate-900 text-sm font-medium mb-1">
               🥫 Pantry ({(pantryItems || []).length} item{(pantryItems || []).length === 1 ? '' : 's'})
             </Text>
             <Text className="text-slate-500 text-xs">
@@ -89,7 +89,7 @@ export default function GroceryScreen() {
         )}
 
         {!shoppingMode && showPantry && (
-          <View className="bg-slate-900 rounded-2xl p-4 mb-4">
+          <View className="bg-white rounded-2xl p-4 mb-4">
             <View className="flex-row gap-2 mb-3">
               <TextInput
                 value={newPantryItem}
@@ -97,7 +97,7 @@ export default function GroceryScreen() {
                 placeholder="e.g. olive oil"
                 placeholderTextColor="#64748b"
                 onSubmitEditing={handleAddPantryItem}
-                className="flex-1 bg-slate-800 text-slate-100 rounded-xl px-3 py-2"
+                className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-3 py-2"
               />
               <Pressable onPress={handleAddPantryItem} className="bg-indigo-600 rounded-xl px-4 justify-center">
                 <Text className="text-white text-sm font-semibold">Add</Text>
@@ -105,8 +105,8 @@ export default function GroceryScreen() {
             </View>
             <View className="flex-row flex-wrap gap-2">
               {(pantryItems || []).map((item) => (
-                <Pressable key={item} onPress={() => removePantryItem(item)} className="bg-slate-800 rounded-full py-1.5 px-3">
-                  <Text className="text-slate-300 text-xs capitalize">{item} ✕</Text>
+                <Pressable key={item} onPress={() => removePantryItem(item)} className="bg-stone-100 rounded-full py-1.5 px-3">
+                  <Text className="text-slate-700 text-xs capitalize">{item} ✕</Text>
                 </Pressable>
               ))}
               {(pantryItems || []).length === 0 && (
@@ -130,12 +130,12 @@ export default function GroceryScreen() {
                   <Pressable
                     key={item.ingredient}
                     onPress={() => toggleCheckedIngredient(item.ingredient)}
-                    className="bg-slate-900 rounded-xl p-4 flex-row items-center gap-3"
+                    className="bg-white rounded-xl p-4 flex-row items-center gap-3"
                   >
-                    <View className={isChecked ? 'w-6 h-6 rounded-md bg-emerald-500 items-center justify-center' : 'w-6 h-6 rounded-md border-2 border-slate-600'}>
-                      {isChecked && <Text className="text-slate-950 text-xs">✓</Text>}
+                    <View className={isChecked ? 'w-6 h-6 rounded-md bg-emerald-500 items-center justify-center' : 'w-6 h-6 rounded-md border-2 border-stone-300'}>
+                      {isChecked && <Text className="text-white text-xs">✓</Text>}
                     </View>
-                    <Text className={isChecked ? 'text-slate-500 line-through text-lg capitalize' : 'text-slate-100 text-lg capitalize'}>
+                    <Text className={isChecked ? 'text-slate-500 line-through text-lg capitalize' : 'text-slate-900 text-lg capitalize'}>
                       {item.ingredient}
                     </Text>
                   </Pressable>
@@ -152,8 +152,8 @@ export default function GroceryScreen() {
                 <Text className="text-slate-400 text-xs font-medium mb-2">{category} ({items.length})</Text>
                 <View className="gap-2">
                   {items.map((item) => (
-                    <View key={item.ingredient} className="bg-slate-900 rounded-xl p-3">
-                      <Text className="text-slate-100 text-sm capitalize mb-1">{item.ingredient}</Text>
+                    <View key={item.ingredient} className="bg-white rounded-xl p-3">
+                      <Text className="text-slate-900 text-sm capitalize mb-1">{item.ingredient}</Text>
                       <Text className="text-slate-500 text-xs">Used for: {item.usedFor.join(', ')}</Text>
                     </View>
                   ))}

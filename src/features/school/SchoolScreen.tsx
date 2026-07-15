@@ -68,13 +68,13 @@ export default function SchoolScreen() {
           </Pressable>
         )}
 
-        <Pressable onPress={() => router?.push?.('/school/semester')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between mb-4">
-          <Text className="text-slate-100 text-sm">🗓️ Semester view</Text>
+        <Pressable onPress={() => router?.push?.('/school/semester')} className="bg-white rounded-2xl p-4 flex-row items-center justify-between mb-4">
+          <Text className="text-slate-900 text-sm">🗓️ Semester view</Text>
           <Text className="text-slate-500 text-xs">→</Text>
         </Pressable>
 
-        <Text className="text-slate-100 text-lg font-semibold mb-3">Courses</Text>
-        <View className="bg-slate-900 rounded-2xl p-4 mb-4">
+        <Text className="text-slate-900 text-lg font-semibold mb-3">Courses</Text>
+        <View className="bg-white rounded-2xl p-4 mb-4">
           <View className="flex-row gap-2 mb-3">
             {(COURSE_EMOJIS || []).map((emoji) => (
               <Pressable key={emoji} onPress={() => setNewCourseEmoji(emoji)} className={newCourseEmoji === emoji ? 'bg-indigo-600/30 rounded-lg p-2' : 'p-2'}>
@@ -89,7 +89,7 @@ export default function SchoolScreen() {
               placeholder="Biology, Algebra II..."
               placeholderTextColor="#64748b"
               onSubmitEditing={handleAddCourse}
-              className="flex-1 bg-slate-800 text-slate-100 rounded-xl px-4 py-3"
+              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-4 py-3"
             />
             <Pressable onPress={handleAddCourse} className="bg-indigo-600 rounded-xl px-5 justify-center">
               <Text className="text-white font-semibold">Add</Text>
@@ -103,8 +103,8 @@ export default function SchoolScreen() {
             const courseAssignments = (assignments || []).filter((a) => a.courseId === course.id);
             const openCount = courseAssignments.filter((a) => !a.isComplete).length;
             return (
-              <Pressable key={course.id} onPress={() => router?.push?.(`/school/course/${course.id}`)} className="bg-slate-900 rounded-xl p-4 flex-row items-center justify-between">
-                <Text className="text-slate-100 text-sm">{course.emoji} {course.name}</Text>
+              <Pressable key={course.id} onPress={() => router?.push?.(`/school/course/${course.id}`)} className="bg-white rounded-xl p-4 flex-row items-center justify-between">
+                <Text className="text-slate-900 text-sm">{course.emoji} {course.name}</Text>
                 <Text className="text-slate-500 text-xs">{openCount} open</Text>
               </Pressable>
             );

@@ -18,12 +18,13 @@ export interface BodyProgressState {
   weightLog: WeightEntry[];
   measurementLog: MeasurementEntry[];
   weightGoalLbs: number | null;
+  weightGoalDate: string | null; // ISO date
 }
 
 export interface BodyProgressSlice extends BodyProgressState {
   logWeight: (weightLbs: number) => Promise<void>;
   logMeasurement: (site: MeasurementSite, inches: number) => Promise<void>;
-  setWeightGoal: (goalLbs: number | null) => Promise<void>;
+  setWeightGoal: (goalLbs: number | null, goalDate?: string | null) => Promise<void>;
 }
 
 async function persist(state: BodyProgressState) {
@@ -36,6 +37,7 @@ function currentState(get: () => BodyProgressState): BodyProgressState {
     weightLog: get().weightLog || [],
     measurementLog: get().measurementLog || [],
     weightGoalLbs: get().weightGoalLbs ?? null,
+    weightGoalDate: get().weightGoalDate ?? null,
   };
 }
 
@@ -72,8 +74,8 @@ export const createBodyProgressSlice: StateCreator<BodyProgressSlice> = (set, ge
     await persist(nextState);
   },
 
-  setWeightGoal: async (weightGoalLbs) => {
-    const nextState = { ...currentState(get), weightGoalLbs };
+  setWeightGoal: async (weightGoalLbs, goalDate) => {
+    const nextState = { ...currentState(get), weightGoalLbs, weightGoalDate: goalDate ?? currentState(get).weightGoalDate };
     set(nextState);
     await persist(nextState);
   },

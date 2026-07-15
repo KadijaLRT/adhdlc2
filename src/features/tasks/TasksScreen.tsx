@@ -70,7 +70,7 @@ export default function TasksScreen() {
 
       {totalCount > 0 && (
         <View className="mb-4">
-          <View className="h-2 bg-slate-800 rounded-full overflow-hidden mb-1">
+          <View className="h-2 bg-stone-100 rounded-full overflow-hidden mb-1">
             <View className="h-2 bg-emerald-500 rounded-full" style={{ width: `${progressPercent}%` }} />
           </View>
           <Text className="text-slate-500 text-xs">
@@ -85,7 +85,7 @@ export default function TasksScreen() {
           className="bg-indigo-600/10 border-2 border-indigo-500 rounded-2xl p-4 mb-4"
         >
           <Text className="text-indigo-300 text-xs uppercase tracking-wider mb-1">Today's focus</Text>
-          <Text className="text-slate-100 text-lg font-medium mb-1">
+          <Text className="text-slate-900 text-lg font-medium mb-1">
             {PRIORITY_DOT[suggested.priority || 'nice']} {suggested.title}
           </Text>
           {(suggested.estimatedMinutes || suggested.realMinutes) && (
@@ -103,7 +103,7 @@ export default function TasksScreen() {
           placeholder="Add a task..."
           placeholderTextColor="#64748b"
           onSubmitEditing={handleAdd}
-          className="flex-1 bg-slate-900 text-slate-100 rounded-xl px-4 py-3"
+          className="flex-1 bg-white text-slate-900 rounded-xl px-4 py-3"
         />
         <Pressable onPress={handleAdd} className="bg-indigo-600 rounded-xl px-5 justify-center active:bg-indigo-500">
           <Text className="text-white font-semibold">Add</Text>
@@ -118,9 +118,9 @@ export default function TasksScreen() {
               <Pressable
                 key={p}
                 onPress={() => setNewTaskPriority(p)}
-                className={isActive ? 'bg-slate-800 border-2 border-indigo-400 rounded-full py-1.5 px-3' : 'bg-slate-900 border-2 border-transparent rounded-full py-1.5 px-3'}
+                className={isActive ? 'bg-stone-100 border-2 border-indigo-400 rounded-full py-1.5 px-3' : 'bg-white border-2 border-transparent rounded-full py-1.5 px-3'}
               >
-                <Text className="text-slate-300 text-xs">{PRIORITY_DOT[p]} {p}</Text>
+                <Text className="text-slate-700 text-xs">{PRIORITY_DOT[p]} {p}</Text>
               </Pressable>
             );
           })}
@@ -138,9 +138,9 @@ export default function TasksScreen() {
           return (
             <Pressable
               onPress={() => setSelectedCategory(item.id)}
-              className={isActive ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-slate-900 border-2 border-transparent rounded-full py-2 px-4'}
+              className={isActive ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-white border-2 border-transparent rounded-full py-2 px-4'}
             >
-              <Text className={isActive ? 'text-indigo-200 text-xs' : 'text-slate-300 text-xs'}>{item.emoji} {item.label}</Text>
+              <Text className={isActive ? 'text-indigo-200 text-xs' : 'text-slate-700 text-xs'}>{item.emoji} {item.label}</Text>
             </Pressable>
           );
         }}
@@ -158,18 +158,18 @@ export default function TasksScreen() {
         renderItem={({ item }) => (
           <Pressable
             onPress={() => router?.push?.(`/task/${item.id}`)}
-            className="bg-slate-900 rounded-xl p-4 flex-row items-center gap-3"
+            className="bg-white rounded-xl p-4 flex-row items-center gap-3"
           >
             <Pressable
               onPress={() => toggleTaskComplete(item.id)}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: item?.isComplete || false }}
-              className={item?.isComplete ? 'w-6 h-6 rounded-full bg-emerald-500 items-center justify-center' : 'w-6 h-6 rounded-full border-2 border-slate-600'}
+              className={item?.isComplete ? 'w-6 h-6 rounded-full bg-emerald-500 items-center justify-center' : 'w-6 h-6 rounded-full border-2 border-stone-300'}
             >
-              {item?.isComplete && <Text className="text-slate-950 text-xs">✓</Text>}
+              {item?.isComplete && <Text className="text-white text-xs">✓</Text>}
             </Pressable>
             <View className="flex-1">
-              <Text className={item?.isComplete ? 'text-slate-500 line-through' : 'text-slate-100'}>
+              <Text className={item?.isComplete ? 'text-slate-500 line-through' : 'text-slate-900'}>
                 {item?.priority ? `${PRIORITY_DOT[item.priority]} ` : ''}{item?.title || 'Untitled task'}
               </Text>
               {(item?.subSteps?.length || 0) > 0 && (

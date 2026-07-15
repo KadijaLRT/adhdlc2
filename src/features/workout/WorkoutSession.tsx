@@ -49,7 +49,7 @@ export default function WorkoutSession({ exerciseId, programId, queue }: { exerc
 
   if (!exercise) {
     return (
-      <SafeAreaView className="flex-1 bg-slate-950 items-center justify-center px-8">
+      <SafeAreaView className="flex-1 bg-stone-50 items-center justify-center px-8">
         <Text className="text-slate-400 text-center">Couldn&apos;t find that exercise.</Text>
         <Pressable onPress={() => router?.back?.()} className="mt-4">
           <Text className="text-indigo-400">Go back</Text>
@@ -71,7 +71,7 @@ export default function WorkoutSession({ exerciseId, programId, queue }: { exerc
   const coachingLine = REST_COACHING_LINES[restSecondsLeft % REST_COACHING_LINES.length];
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-950">
+    <SafeAreaView className="flex-1 bg-stone-50">
       <View className="flex-1 w-full max-w-md self-center px-6 pt-safe pb-safe">
         {!adhdFocusModeEnabled && (
           <Text className="text-slate-500 text-xs uppercase tracking-wider mb-2">
@@ -103,7 +103,7 @@ export default function WorkoutSession({ exerciseId, programId, queue }: { exerc
                   keyboardType="numeric"
                   placeholder="0"
                   placeholderTextColor="#64748b"
-                  className="bg-slate-900 text-slate-100 text-center text-xl rounded-xl py-3"
+                  className="bg-white text-slate-900 text-center text-xl rounded-xl py-3"
                 />
               </View>
               <View className="flex-1">
@@ -112,7 +112,7 @@ export default function WorkoutSession({ exerciseId, programId, queue }: { exerc
                   value={reps}
                   onChangeText={setReps}
                   keyboardType="numeric"
-                  className="bg-slate-900 text-slate-100 text-center text-xl rounded-xl py-3"
+                  className="bg-white text-slate-900 text-center text-xl rounded-xl py-3"
                 />
               </View>
             </View>
@@ -127,7 +127,7 @@ export default function WorkoutSession({ exerciseId, programId, queue }: { exerc
           <View className="flex-1 justify-center items-center">
             <Text className="text-slate-500 text-sm uppercase tracking-wider mb-4">Resting</Text>
             <Text className="text-slate-50 text-6xl font-bold mb-4">{restSecondsLeft}</Text>
-            <Text className="text-slate-300 mb-10">{coachingLine}</Text>
+            <Text className="text-slate-700 mb-10">{coachingLine}</Text>
             {!adhdFocusModeEnabled && (
               <Text className="text-slate-500 text-xs text-center">
                 Next: set {currentSet < totalSets ? currentSet + 1 : currentSet} of {totalSets}
@@ -159,7 +159,7 @@ export default function WorkoutSession({ exerciseId, programId, queue }: { exerc
               </Pressable>
             ) : (
               <Pressable onPress={() => router?.replace?.('/fitness/programs')} className="bg-emerald-500 rounded-full py-4 px-10 active:bg-emerald-400">
-                <Text className="text-slate-950 font-semibold">{programId ? "Finish today's session" : 'Done'}</Text>
+                <Text className="text-white font-semibold">{programId ? "Finish today's session" : 'Done'}</Text>
               </Pressable>
             )}
           </View>

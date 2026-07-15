@@ -34,7 +34,7 @@ export default function TaskDetailScreen() {
 
   if (!task) {
     return (
-      <SafeAreaView className="flex-1 bg-slate-950 items-center justify-center px-8">
+      <SafeAreaView className="flex-1 bg-stone-50 items-center justify-center px-8">
         <Text className="text-slate-400 text-center">This task isn&apos;t here anymore.</Text>
         <Pressable onPress={() => router?.back?.()} className="mt-4">
           <Text className="text-indigo-400">Go back</Text>
@@ -71,7 +71,7 @@ export default function TaskDetailScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-950">
+    <SafeAreaView className="flex-1 bg-stone-50">
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
         <View className="w-full max-w-md self-center">
           <Heading className="mb-2">{task?.title || 'Untitled task'}</Heading>
@@ -91,9 +91,9 @@ export default function TaskDetailScreen() {
                 <Pressable
                   key={p}
                   onPress={() => updateTask(task.id, { priority: p })}
-                  className={isActive ? 'flex-1 bg-slate-800 border-2 border-indigo-400 rounded-xl py-2 items-center' : 'flex-1 bg-slate-900 border-2 border-transparent rounded-xl py-2 items-center'}
+                  className={isActive ? 'flex-1 bg-stone-100 border-2 border-indigo-400 rounded-xl py-2 items-center' : 'flex-1 bg-white border-2 border-transparent rounded-xl py-2 items-center'}
                 >
-                  <Text className="text-slate-300 text-xs">{dot} {p}</Text>
+                  <Text className="text-slate-700 text-xs">{dot} {p}</Text>
                 </Pressable>
               );
             })}
@@ -107,9 +107,9 @@ export default function TaskDetailScreen() {
                 <Pressable
                   key={cat}
                   onPress={() => updateTask(task.id, { category: cat })}
-                  className={isActive ? 'bg-slate-800 border-2 border-indigo-400 rounded-full py-1.5 px-3' : 'bg-slate-900 border-2 border-transparent rounded-full py-1.5 px-3'}
+                  className={isActive ? 'bg-stone-100 border-2 border-indigo-400 rounded-full py-1.5 px-3' : 'bg-white border-2 border-transparent rounded-full py-1.5 px-3'}
                 >
-                  <Text className="text-slate-300 text-xs capitalize">{cat}</Text>
+                  <Text className="text-slate-700 text-xs capitalize">{cat}</Text>
                 </Pressable>
               );
             })}
@@ -119,7 +119,7 @@ export default function TaskDetailScreen() {
             onPress={() => toggleTaskComplete(task.id)}
             className={task?.isComplete ? 'bg-emerald-500 rounded-full py-4 mb-6' : 'bg-indigo-600 rounded-full py-4 mb-6 active:bg-indigo-500'}
           >
-            <Text className={task?.isComplete ? 'text-slate-950 text-center font-semibold' : 'text-white text-center font-semibold'}>
+            <Text className={task?.isComplete ? 'text-white text-center font-semibold' : 'text-white text-center font-semibold'}>
               {task?.isComplete ? 'Marked done ✓' : 'Done'}
             </Text>
           </Pressable>
@@ -134,13 +134,13 @@ export default function TaskDetailScreen() {
             </Pressable>
           ) : (
             <View className="gap-2 mb-6">
-              <Text className="text-slate-300 text-sm font-medium mb-1">Steps</Text>
+              <Text className="text-slate-700 text-sm font-medium mb-1">Steps</Text>
               {(task.subSteps || []).map((step) => (
-                <Pressable key={step.id} onPress={() => toggleSubStep(task.id, step.id)} className="bg-slate-900 rounded-xl p-4 flex-row items-center gap-3">
-                  <View className={step?.isComplete ? 'w-5 h-5 rounded-full bg-emerald-500 items-center justify-center' : 'w-5 h-5 rounded-full border-2 border-slate-600'}>
-                    {step?.isComplete && <Text className="text-slate-950 text-xs">✓</Text>}
+                <Pressable key={step.id} onPress={() => toggleSubStep(task.id, step.id)} className="bg-white rounded-xl p-4 flex-row items-center gap-3">
+                  <View className={step?.isComplete ? 'w-5 h-5 rounded-full bg-emerald-500 items-center justify-center' : 'w-5 h-5 rounded-full border-2 border-stone-300'}>
+                    {step?.isComplete && <Text className="text-white text-xs">✓</Text>}
                   </View>
-                  <Text className={step?.isComplete ? 'text-slate-500 line-through flex-1' : 'text-slate-100 flex-1'}>{step?.title || ''}</Text>
+                  <Text className={step?.isComplete ? 'text-slate-500 line-through flex-1' : 'text-slate-900 flex-1'}>{step?.title || ''}</Text>
                 </Pressable>
               ))}
             </View>

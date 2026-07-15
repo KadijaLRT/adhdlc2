@@ -22,6 +22,7 @@ interface OnboardingState {
   weightGoalDirections: WeightGoalDirection[];
   startingWeightLbs: string;
   goalWeightLbs: string;
+  goalDate: string;
   bodyType: BodyType | null;
   activityLevel: ActivityLevel | null;
   exerciseGoals: string[];
@@ -68,7 +69,7 @@ const DEFAULTS = {
   adhdSymptoms: [] as string[], brainTypes: [] as string[],
   supportMethods: [] as string[], priorities: [] as string[],
   gender: null as Gender, weightGoalDirections: [] as WeightGoalDirection[],
-  startingWeightLbs: '', goalWeightLbs: '', bodyType: null as BodyType | null, activityLevel: null as ActivityLevel | null,
+  startingWeightLbs: '', goalWeightLbs: '', goalDate: '', bodyType: null as BodyType | null, activityLevel: null as ActivityLevel | null,
   exerciseGoals: [] as string[], focusAreas: [] as string[],
   bloodType: null as BloodType | null, heightFt: '', heightIn: '',
   foodsLoved: '', foodsAvoided: '', allergies: '',

@@ -56,7 +56,7 @@ export default function AssignmentDetailScreen({ assignmentId }: { assignmentId:
           onPress={() => toggleAssignmentComplete(assignment.id)}
           className={assignment.isComplete ? 'bg-emerald-500 rounded-full py-4 mb-6' : 'bg-indigo-600 rounded-full py-4 mb-6 active:bg-indigo-500'}
         >
-          <Text className={assignment.isComplete ? 'text-slate-950 text-center font-semibold' : 'text-white text-center font-semibold'}>
+          <Text className={assignment.isComplete ? 'text-white text-center font-semibold' : 'text-white text-center font-semibold'}>
             {assignment.isComplete ? 'Marked done ✓' : 'Done'}
           </Text>
         </Pressable>
@@ -74,11 +74,11 @@ export default function AssignmentDetailScreen({ assignmentId }: { assignmentId:
                 </Text>
                 <View className="gap-2">
                   {group.steps.map((step) => (
-                    <Pressable key={step.id} onPress={() => toggleAssignmentSubStep(assignment.id, step.id)} className="bg-slate-900 rounded-xl p-4 flex-row items-center gap-3">
-                      <View className={step.isComplete ? 'w-5 h-5 rounded-full bg-emerald-500 items-center justify-center' : 'w-5 h-5 rounded-full border-2 border-slate-600'}>
-                        {step.isComplete && <Text className="text-slate-950 text-xs">✓</Text>}
+                    <Pressable key={step.id} onPress={() => toggleAssignmentSubStep(assignment.id, step.id)} className="bg-white rounded-xl p-4 flex-row items-center gap-3">
+                      <View className={step.isComplete ? 'w-5 h-5 rounded-full bg-emerald-500 items-center justify-center' : 'w-5 h-5 rounded-full border-2 border-stone-300'}>
+                        {step.isComplete && <Text className="text-white text-xs">✓</Text>}
                       </View>
-                      <Text className={step.isComplete ? 'text-slate-500 line-through flex-1' : 'text-slate-100 flex-1'}>{step.title}</Text>
+                      <Text className={step.isComplete ? 'text-slate-500 line-through flex-1' : 'text-slate-900 flex-1'}>{step.title}</Text>
                     </Pressable>
                   ))}
                 </View>

@@ -39,17 +39,17 @@ export default function CoachScreen() {
           <View className="flex-row gap-2">
             <Pressable
               onPress={() => setSelectedAgentId(null)}
-              className={selectedAgentId === null ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-slate-900 border-2 border-transparent rounded-full py-2 px-4'}
+              className={selectedAgentId === null ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-white border-2 border-transparent rounded-full py-2 px-4'}
             >
-              <Text className={selectedAgentId === null ? 'text-indigo-200 text-xs' : 'text-slate-300 text-xs'}>Auto</Text>
+              <Text className={selectedAgentId === null ? 'text-indigo-200 text-xs' : 'text-slate-700 text-xs'}>Auto</Text>
             </Pressable>
             {(AGENTS || []).map((agent) => (
               <Pressable
                 key={agent.id}
                 onPress={() => setSelectedAgentId(agent.id)}
-                className={selectedAgentId === agent.id ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-slate-900 border-2 border-transparent rounded-full py-2 px-4'}
+                className={selectedAgentId === agent.id ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-white border-2 border-transparent rounded-full py-2 px-4'}
               >
-                <Text className={selectedAgentId === agent.id ? 'text-indigo-200 text-xs' : 'text-slate-300 text-xs'}>{agent.label}</Text>
+                <Text className={selectedAgentId === agent.id ? 'text-indigo-200 text-xs' : 'text-slate-700 text-xs'}>{agent.label}</Text>
               </Pressable>
             ))}
           </View>
@@ -61,7 +61,7 @@ export default function CoachScreen() {
           placeholder="What's on your mind?"
           placeholderTextColor="#64748b"
           multiline
-          className="bg-slate-900 text-slate-100 rounded-xl p-4 min-h-[80px] mb-4"
+          className="bg-white text-slate-900 rounded-xl p-4 min-h-[80px] mb-4"
         />
 
         <Pressable onPress={handleAsk} disabled={loading} className="bg-indigo-600 rounded-full py-4 mb-6 active:bg-indigo-500">
@@ -69,9 +69,9 @@ export default function CoachScreen() {
         </Pressable>
 
         {reply && (
-          <View className="bg-slate-900 rounded-2xl p-4">
+          <View className="bg-white rounded-2xl p-4">
             <Text className="text-indigo-300 text-xs uppercase tracking-wider mb-2">{reply.agentLabel}</Text>
-            <Text className="text-slate-100 mb-3">{reply.message}</Text>
+            <Text className="text-slate-900 mb-3">{reply.message}</Text>
             <Text className="text-slate-500 text-xs">{reply.reasoning}</Text>
           </View>
         )}

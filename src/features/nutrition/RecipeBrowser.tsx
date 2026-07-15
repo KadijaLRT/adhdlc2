@@ -63,7 +63,7 @@ export default function RecipeBrowser() {
           onChangeText={setSearch}
           placeholder="Search recipes..."
           placeholderTextColor="#64748b"
-          className="bg-slate-900 text-slate-100 rounded-xl px-4 py-3 mb-3"
+          className="bg-white text-slate-900 rounded-xl px-4 py-3 mb-3"
         />
 
         <FlatList
@@ -75,9 +75,9 @@ export default function RecipeBrowser() {
           renderItem={({ item }) => (
             <Pressable
               onPress={() => setMealType(item)}
-              className={mealType === item ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-slate-900 border-2 border-transparent rounded-full py-2 px-4'}
+              className={mealType === item ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-2 px-4' : 'bg-white border-2 border-transparent rounded-full py-2 px-4'}
             >
-              <Text className={mealType === item ? 'text-indigo-200 text-xs capitalize' : 'text-slate-300 text-xs capitalize'}>{item}</Text>
+              <Text className={mealType === item ? 'text-indigo-200 text-xs capitalize' : 'text-slate-700 text-xs capitalize'}>{item}</Text>
             </Pressable>
           )}
         />
@@ -90,9 +90,9 @@ export default function RecipeBrowser() {
           renderItem={({ item }) => (
             <Pressable
               onPress={() => setCuisine(item)}
-              className={cuisine === item ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-full py-2 px-4' : 'bg-slate-900 border-2 border-transparent rounded-full py-2 px-4'}
+              className={cuisine === item ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-full py-2 px-4' : 'bg-white border-2 border-transparent rounded-full py-2 px-4'}
             >
-              <Text className={cuisine === item ? 'text-emerald-300 text-xs capitalize' : 'text-slate-300 text-xs capitalize'}>{item}</Text>
+              <Text className={cuisine === item ? 'text-emerald-300 text-xs capitalize' : 'text-slate-700 text-xs capitalize'}>{item}</Text>
             </Pressable>
           )}
         />
@@ -117,9 +117,9 @@ export default function RecipeBrowser() {
 
 function RecipeCard({ recipe, isSaved, onToggleSave }: { recipe: Recipe; isSaved: boolean; onToggleSave: () => void }) {
   return (
-    <View className="bg-slate-900 rounded-2xl p-4">
+    <View className="bg-white rounded-2xl p-4">
       <View className="flex-row items-center justify-between mb-1">
-        <Text className="text-slate-100 font-medium flex-1">{recipe?.n || 'Untitled recipe'}</Text>
+        <Text className="text-slate-900 font-medium flex-1">{recipe?.n || 'Untitled recipe'}</Text>
         <Pressable onPress={onToggleSave}>
           <Text className="text-lg">{isSaved ? '⭐️' : '☆'}</Text>
         </Pressable>

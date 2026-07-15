@@ -16,6 +16,7 @@ export default function FocusSession({ taskTitle, durationMinutes }: FocusSessio
   const router = useRouter();
   const incrementMilestone = useAppStore((s) => s.incrementMilestone);
   const logMomentum = useAppStore((s) => s.logMomentum);
+  const reduceMotion = useAppStore((s) => s.reduceMotion);
   const awardProgress = useAppStore((s) => s.awardProgress);
   const [phase, setPhase] = useState<Phase>('settling');
   const [secondsLeft, setSecondsLeft] = useState((durationMinutes || 5) * 60);
@@ -23,12 +24,14 @@ export default function FocusSession({ taskTitle, durationMinutes }: FocusSessio
 
   useEffect(() => {
     if (phase !== 'settling') return;
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulse, { toValue: 1.15, duration: 2000, useNativeDriver: true }),
-        Animated.timing(pulse, { toValue: 1, duration: 2000, useNativeDriver: true }),
-      ])
-    ).start();
+    if (!reduceMotion) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulse, { toValue: 1.15, duration: 2000, useNativeDriver: true }),
+          Animated.timing(pulse, { toValue: 1, duration: 2000, useNativeDriver: true }),
+        ])
+      ).start();
+    }
     const settleTimer = setTimeout(() => { setPhase('running'); logMomentum('started_session'); }, 6000);
     return () => clearTimeout(settleTimer);
   }, [phase]);
@@ -57,12 +60,12 @@ export default function FocusSession({ taskTitle, durationMinutes }: FocusSessio
   const seconds = secondsLeft % 60;
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-950">
+    <SafeAreaView className="flex-1 bg-stone-50">
       <View className="flex-1 items-center justify-center px-8 pt-safe pb-safe">
         {phase === 'settling' && (
           <>
             <Animated.View style={{ transform: [{ scale: pulse }] }} className="w-32 h-32 rounded-full bg-indigo-600/20 border-2 border-indigo-500 mb-8" />
-            <Text className="text-slate-100 text-xl text-center font-medium mb-2">Getting settled...</Text>
+            <Text className="text-slate-900 text-xl text-center font-medium mb-2">Getting settled...</Text>
             <Text className="text-slate-400 text-center">{taskTitle || 'Just this, for now.'}</Text>
           </>
         )}

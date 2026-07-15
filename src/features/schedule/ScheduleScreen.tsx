@@ -90,9 +90,9 @@ export default function ScheduleScreen() {
               <Pressable
                 key={mins}
                 onPress={() => { shiftRemainingSchedule(mins); setShowBehindOptions(false); }}
-                className="flex-1 bg-slate-900 rounded-xl py-2 items-center"
+                className="flex-1 bg-white rounded-xl py-2 items-center"
               >
-                <Text className="text-slate-300 text-sm">{mins} min</Text>
+                <Text className="text-slate-700 text-sm">{mins} min</Text>
               </Pressable>
             ))}
           </View>
@@ -104,15 +104,15 @@ export default function ScheduleScreen() {
           </Pressable>
         )}
 
-        <View className="bg-slate-900 rounded-2xl p-4 mb-4">
-          <Text className="text-slate-300 text-sm font-medium mb-2">Add to today</Text>
+        <View className="bg-white rounded-2xl p-4 mb-4">
+          <Text className="text-slate-700 text-sm font-medium mb-2">Add to today</Text>
           <View className="flex-row gap-2">
             <TextInput
               value={newTime}
               onChangeText={setNewTime}
               placeholder="HH:MM"
               placeholderTextColor="#64748b"
-              className="w-20 bg-slate-800 text-slate-100 rounded-xl px-3 py-2 text-center"
+              className="w-20 bg-stone-100 text-slate-900 rounded-xl px-3 py-2 text-center"
             />
             <TextInput
               value={newLabel}
@@ -120,7 +120,7 @@ export default function ScheduleScreen() {
               placeholder="What's happening..."
               placeholderTextColor="#64748b"
               onSubmitEditing={handleAdd}
-              className="flex-1 bg-slate-800 text-slate-100 rounded-xl px-3 py-2"
+              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-3 py-2"
             />
             <Pressable onPress={handleAdd} className="bg-indigo-600 rounded-xl px-4 justify-center">
               <Text className="text-white font-semibold">Add</Text>
@@ -131,12 +131,12 @@ export default function ScheduleScreen() {
         <View className="gap-2">
           {(items || []).length === 0 && <Text className="text-slate-500 text-center mt-6">Nothing on today's timeline yet.</Text>}
           {(items || []).map((item) => (
-            <Pressable key={item.id} onPress={() => toggleScheduleItemDone(item.id)} className="bg-slate-900 rounded-xl p-3 flex-row items-center gap-3">
-              <View className={item.isDone ? 'w-5 h-5 rounded-full bg-emerald-500 items-center justify-center' : 'w-5 h-5 rounded-full border-2 border-slate-600'}>
-                {item.isDone && <Text className="text-slate-950 text-xs">✓</Text>}
+            <Pressable key={item.id} onPress={() => toggleScheduleItemDone(item.id)} className="bg-white rounded-xl p-3 flex-row items-center gap-3">
+              <View className={item.isDone ? 'w-5 h-5 rounded-full bg-emerald-500 items-center justify-center' : 'w-5 h-5 rounded-full border-2 border-stone-300'}>
+                {item.isDone && <Text className="text-white text-xs">✓</Text>}
               </View>
               <Text className="text-slate-500 text-xs w-12">{item.time}</Text>
-              <Text className={item.isDone ? 'text-slate-500 line-through flex-1' : 'text-slate-100 flex-1'}>{item.label}</Text>
+              <Text className={item.isDone ? 'text-slate-500 line-through flex-1' : 'text-slate-900 flex-1'}>{item.label}</Text>
               <Pressable onPress={() => removeScheduleItem(item.id)}>
                 <Text className="text-slate-700 text-xs">✕</Text>
               </Pressable>

@@ -32,34 +32,34 @@ export default function WellnessHub() {
               <Pressable
                 key={option.level}
                 onPress={() => logEnergyForToday(option.level)}
-                className={isActive ? 'flex-1 bg-indigo-600/20 border-2 border-indigo-400 rounded-2xl py-4 items-center' : 'flex-1 bg-slate-900 border-2 border-transparent rounded-2xl py-4 items-center'}
+                className={isActive ? 'flex-1 bg-indigo-600/20 border-2 border-indigo-400 rounded-2xl py-4 items-center' : 'flex-1 bg-white border-2 border-transparent rounded-2xl py-4 items-center'}
               >
                 <Text className="text-2xl mb-1">{option.emoji}</Text>
-                <Text className={isActive ? 'text-indigo-200 text-xs' : 'text-slate-300 text-xs'}>{option.label}</Text>
+                <Text className={isActive ? 'text-indigo-200 text-xs' : 'text-slate-700 text-xs'}>{option.label}</Text>
               </Pressable>
             );
           })}
         </View>
 
         <View className="gap-3">
-          <Pressable onPress={() => router?.push?.('/fitness/workouts')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-100 text-sm">💪 Workout</Text>
+          <Pressable onPress={() => router?.push?.('/fitness/workouts')} className="bg-white rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-900 text-sm">💪 Workout</Text>
             <Text className="text-slate-500 text-xs">→</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/coach')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-100 text-sm">💬 Chat with Aviva</Text>
+          <Pressable onPress={() => router?.push?.('/coach')} className="bg-white rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-900 text-sm">💬 Chat with Aviva</Text>
             <Text className="text-slate-500 text-xs">→</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/settings/cycle-tracking')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-100 text-sm">🌙 Cycle tracking</Text>
+          <Pressable onPress={() => router?.push?.('/settings/cycle-tracking')} className="bg-white rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-900 text-sm">🌙 Cycle tracking</Text>
             <Text className="text-slate-500 text-xs">→</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/wellness/meals')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-100 text-sm">🩸 Blood type meal lens</Text>
+          <Pressable onPress={() => router?.push?.('/wellness/meals')} className="bg-white rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-900 text-sm">🩸 Blood type meal lens</Text>
             <Text className="text-slate-500 text-xs">optional →</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/wellness/strains')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-100 text-sm">🌿 Strain explorer</Text>
+          <Pressable onPress={() => router?.push?.('/wellness/strains')} className="bg-white rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-900 text-sm">🌿 Strain explorer</Text>
             <Text className="text-slate-500 text-xs">optional →</Text>
           </Pressable>
         </View>

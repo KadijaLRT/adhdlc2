@@ -15,8 +15,8 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#818cf8',
-        tabBarInactiveTintColor: '#64748b',
-        tabBarStyle: { backgroundColor: '#0f172a', borderTopColor: '#1e293b' },
+        tabBarInactiveTintColor: '#94a3b8',
+        tabBarStyle: { backgroundColor: '#fafaf9', borderTopColor: '#e7e5e4' },
       }}
     >
       <Tabs.Screen name="home" options={{ title: 'Home', tabBarIcon: () => <TabIcon emoji="🏠" /> }} />

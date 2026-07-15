@@ -19,6 +19,7 @@ export default function OverwhelmedMode() {
   const tasks = useAppStore(selectTasks);
   const energyLevel = useAppStore(selectEnergyLevel);
   const logMomentum = useAppStore((s) => s.logMomentum);
+  const reduceMotion = useAppStore((s) => s.reduceMotion);
 
   const [phase, setPhase] = useState<'breathe' | 'main'>('breathe');
   const [timerSeconds, setTimerSeconds] = useState<number | null>(null);
@@ -28,6 +29,7 @@ export default function OverwhelmedMode() {
   const tinyStep = suggested?.subSteps?.find((s) => !s.isComplete)?.title || suggested?.title || null;
 
   useEffect(() => {
+    if (reduceMotion) return;
     Animated.loop(
       Animated.sequence([
         Animated.timing(pulse, { toValue: 1.2, duration: 3000, useNativeDriver: true }),
@@ -47,7 +49,7 @@ export default function OverwhelmedMode() {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-950">
+    <SafeAreaView className="flex-1 bg-stone-50">
       <View className="flex-1 items-center justify-center px-8">
         {phase === 'breathe' && (
           <>
@@ -55,7 +57,7 @@ export default function OverwhelmedMode() {
               style={{ transform: [{ scale: pulse }] }}
               className="w-40 h-40 rounded-full bg-indigo-600/20 border-2 border-indigo-500 mb-10"
             />
-            <Text className="text-slate-100 text-xl text-center mb-10">
+            <Text className="text-slate-900 text-xl text-center mb-10">
               Just breathe for a moment.{'\n'}Nothing else matters right now.
             </Text>
             <Pressable onPress={() => setPhase('main')} className="bg-indigo-600 rounded-full py-4 px-10 active:bg-indigo-500">
@@ -66,20 +68,20 @@ export default function OverwhelmedMode() {
 
         {phase === 'main' && (
           <View className="w-full max-w-sm gap-4">
-            <View className="bg-slate-900 rounded-2xl p-5 items-center">
+            <View className="bg-white rounded-2xl p-5 items-center">
               <Text className="text-slate-400 text-xs uppercase tracking-wider mb-2">One tiny step</Text>
-              <Text className="text-slate-100 text-lg text-center font-medium">
+              <Text className="text-slate-900 text-lg text-center font-medium">
                 {tinyStep || 'Just sit here for a moment. That counts too.'}
               </Text>
             </View>
 
-            <View className="bg-slate-900 rounded-2xl p-5 items-center">
+            <View className="bg-white rounded-2xl p-5 items-center">
               <Text className="text-slate-400 text-xs uppercase tracking-wider mb-2">💧 Water</Text>
-              <Text className="text-slate-300 text-sm text-center">Take a sip, right now if you can.</Text>
+              <Text className="text-slate-700 text-sm text-center">Take a sip, right now if you can.</Text>
             </View>
 
             {timerSeconds !== null && timerSeconds > 0 && (
-              <View className="bg-slate-900 rounded-2xl p-5 items-center">
+              <View className="bg-white rounded-2xl p-5 items-center">
                 <Text className="text-slate-50 text-4xl font-bold">
                   {String(Math.floor(timerSeconds / 60)).padStart(2, '0')}:{String(timerSeconds % 60).padStart(2, '0')}
                 </Text>
@@ -92,9 +94,9 @@ export default function OverwhelmedMode() {
                   <Pressable
                     key={secs}
                     onPress={() => setTimerSeconds(secs)}
-                    className="flex-1 bg-slate-900 rounded-xl py-3 items-center"
+                    className="flex-1 bg-white rounded-xl py-3 items-center"
                   >
-                    <Text className="text-slate-300 text-sm">{secs / 60} min timer</Text>
+                    <Text className="text-slate-700 text-sm">{secs / 60} min timer</Text>
                   </Pressable>
                 ))}
               </View>

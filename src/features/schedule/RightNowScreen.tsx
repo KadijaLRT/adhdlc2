@@ -28,8 +28,8 @@ export default function RightNowScreen() {
 
   if (!current) {
     return (
-      <SafeAreaView className="flex-1 bg-slate-950 items-center justify-center px-8">
-        <Text className="text-slate-300 text-center text-lg">Nothing scheduled right now.</Text>
+      <SafeAreaView className="flex-1 bg-stone-50 items-center justify-center px-8">
+        <Text className="text-slate-700 text-center text-lg">Nothing scheduled right now.</Text>
         <Pressable onPress={() => router?.back?.()} className="mt-4">
           <Text className="text-indigo-400">Back to schedule</Text>
         </Pressable>
@@ -38,12 +38,12 @@ export default function RightNowScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-950">
+    <SafeAreaView className="flex-1 bg-stone-50">
       <View className="flex-1 items-center justify-center px-8">
         <Text className="text-slate-500 text-sm uppercase tracking-wider mb-3">Right now</Text>
         <Text className="text-slate-50 text-3xl font-semibold text-center mb-10">{current.label}</Text>
         <Pressable onPress={handleComplete} className="bg-emerald-500 rounded-full py-4 px-12 mb-4 active:bg-emerald-400">
-          <Text className="text-slate-950 font-semibold text-lg">Done</Text>
+          <Text className="text-white font-semibold text-lg">Done</Text>
         </Pressable>
         <Pressable onPress={() => router?.back?.()} className="py-2">
           <Text className="text-slate-600 text-sm">Back to full schedule</Text>
