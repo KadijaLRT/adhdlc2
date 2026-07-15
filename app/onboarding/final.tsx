@@ -27,6 +27,22 @@ function parseList(text: string): string[] {
   return (text || '').split(',').map((s) => s.trim()).filter(Boolean);
 }
 
+// Best-effort parse of casual time text ("8am", "2:30pm", "14:00") into
+// 24hr "HH:MM" for the schedule. Returns null rather than guessing
+// wrong if it can't confidently parse — a skipped reminder is better
+// than one silently scheduled at the wrong time.
+function parseTimeToHHMM(raw: string): string | null {
+  const match = raw.trim().toLowerCase().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/);
+  if (!match) return null;
+  let hour = parseInt(match[1], 10);
+  const minute = match[2] ? parseInt(match[2], 10) : 0;
+  const meridiem = match[3];
+  if (meridiem === 'pm' && hour < 12) hour += 12;
+  if (meridiem === 'am' && hour === 12) hour = 0;
+  if (hour > 23 || minute > 59) return null;
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+}
+
 export default function FinalScreen() {
   const router = useRouter();
   const o = useOnboardingStore();
@@ -41,6 +57,8 @@ export default function FinalScreen() {
   const setWellnessPreferences = useAppStore((s) => s.setWellnessPreferences);
   const setCycleTrackingEnabled = useAppStore((s) => s.setCycleTrackingEnabled);
   const logWeight = useAppStore((s) => s.logWeight);
+  const setWeightGoal = useAppStore((s) => s.setWeightGoal);
+  const addScheduleItem = useAppStore((s) => s.addScheduleItem);
 
   const [finishing, setFinishing] = useState(false);
 
@@ -64,84 +82,130 @@ export default function FinalScreen() {
       priorities: o.priorities,
       reminderStyle: o.reminderStyle || undefined,
       coachingStyle: o.coachingStyle || undefined,
+      sleepStruggles: o.sleepStruggles,
+      wantsMedicationReminders: o.wantsMedicationReminders ?? undefined,
+      emotionalRegulationHelpers: o.emotionalRegulationHelpers,
     };
 
-    // Every answer is committed to the system that actually uses it,
-    // not just stored on the profile as inert data.
-    setEnergyLevel(o.energyBaseline);
-    await setProfile(profile);
+    // Everything local and instant happens first and is never blocked by
+    // a network call. If anything below fails, the person still has a
+    // saved profile and still reaches Home — onboarding must never be
+    // able to strand someone on a spinner.
+    try {
+      setEnergyLevel(o.energyBaseline);
+      await setProfile(profile);
 
-    await setNutritionPreferences({
-      allergies: parseList(o.allergies),
-      dietaryRestrictions: [],
-      foodsLoved: parseList(o.foodsLoved),
-      foodsAvoided: parseList(o.foodsAvoided),
-    });
-
-    await setFitnessPreferences({
-      equipment: ['bodyweight'],
-      primaryGoal: o.exerciseGoals.includes('get_stronger') ? 'strength' : o.exerciseGoals.includes('flexibility') ? 'mobility' : o.exerciseGoals.includes('cardio') ? 'endurance' : 'general',
-      gender: o.gender,
-      weightGoalDirections: o.weightGoalDirections,
-      bodyType: o.bodyType || undefined,
-      activityLevel: o.activityLevel || undefined,
-      exerciseGoals: o.exerciseGoals,
-      focusAreas: o.focusAreas,
-    });
-
-    if (o.bloodType) {
-      await setWellnessPreferences({ bloodTypeEnabled: true, bloodType: o.bloodType });
-    }
-
-    if (o.startingWeightLbs && Number(o.startingWeightLbs) > 0) {
-      await logWeight(Number(o.startingWeightLbs));
-    }
-
-    if (o.cycleTrackingEnabled) {
-      setCycleTrackingEnabled(true);
-    }
-
-    // First task, generated from the biggest hurdle they named,
-    // exactly as before — the last step never removed this, just moved
-    // where it lives in the flow.
-    if (o.biggestHurdle?.trim()) {
-      const hour = new Date().getHours();
-      const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : hour < 21 ? 'evening' : 'night';
-      const decomposition = await avivaBrain.decomposeTask(o.biggestHurdle, {
-        currentEnergyLevel: o.energyBaseline,
-        isOverwhelmed: false,
-        timeOfDay,
+      await setNutritionPreferences({
+        allergies: parseList(o.allergies),
+        dietaryRestrictions: [],
+        foodsLoved: parseList(o.foodsLoved),
+        foodsAvoided: parseList(o.foodsAvoided),
       });
-      if (decomposition) {
-        await addTask({
-          id: `onboarding-${Date.now()}`,
-          title: decomposition.originalTask || o.biggestHurdle,
-          isComplete: false,
-          energyRequired: decomposition.suggestedEnergyLevel,
-          realMinutes: decomposition.estimatedRealMinutes,
-          estimatedMinutes: decomposition.estimatedIdealMinutes,
-          priority: 'important',
-          category: 'general',
-          createdAt: new Date().toISOString(),
-          subSteps: (decomposition.subSteps || []).map((s) => ({ id: s.id, title: s.title, isComplete: false })),
-        });
-      } else {
-        await addTask({
-          id: `onboarding-${Date.now()}`,
-          title: o.biggestHurdle,
-          isComplete: false,
-          energyRequired: o.energyBaseline,
-          priority: 'important',
-          category: 'general',
-          createdAt: new Date().toISOString(),
-          subSteps: [],
-        });
+
+      await setFitnessPreferences({
+        equipment: ['bodyweight'],
+        primaryGoal: o.exerciseGoals.includes('get_stronger') ? 'strength' : o.exerciseGoals.includes('flexibility') ? 'mobility' : o.exerciseGoals.includes('cardio') ? 'endurance' : 'general',
+        gender: o.gender,
+        weightGoalDirections: o.weightGoalDirections,
+        bodyType: o.bodyType || undefined,
+        activityLevel: o.activityLevel || undefined,
+        exerciseGoals: o.exerciseGoals,
+        focusAreas: o.focusAreas,
+      });
+
+      if (o.bloodType) {
+        await setWellnessPreferences({ bloodTypeEnabled: true, bloodType: o.bloodType });
+      }
+
+      if (o.startingWeightLbs && Number(o.startingWeightLbs) > 0) {
+        await logWeight(Number(o.startingWeightLbs));
+      }
+      if (o.goalWeightLbs && Number(o.goalWeightLbs) > 0) {
+        await setWeightGoal(Number(o.goalWeightLbs));
+      }
+
+      if (o.cycleTrackingEnabled) {
+        setCycleTrackingEnabled(true);
+      }
+
+      // Medication times become real Schedule items immediately — a
+      // concrete answer to "wire it to functionality," not just stored data.
+      if (o.wantsMedicationReminders && o.medicationTimes?.trim()) {
+        const times = parseList(o.medicationTimes);
+        for (const rawTime of times) {
+          const parsedTime = parseTimeToHHMM(rawTime);
+          if (parsedTime) {
+            await addScheduleItem({
+              id: `med-${Date.now()}-${rawTime}`,
+              label: '💊 Medication',
+              time: parsedTime,
+              refKind: 'freeform',
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('onboarding: local save failed', error);
+      // Continue anyway — whatever did save, saved; the person should
+      // never be stuck here because of this.
+    }
+
+    // The AI-dependent first task is a nice-to-have, never a blocker.
+    // Timeout-raced so a slow or unreachable AI service can't hang
+    // onboarding — after 6 seconds it gives up and falls back to a
+    // plain, undivided task instead.
+    if (o.biggestHurdle?.trim()) {
+      try {
+        const hour = new Date().getHours();
+        const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : hour < 21 ? 'evening' : 'night';
+
+        const decomposition = await Promise.race([
+          avivaBrain.decomposeTask(o.biggestHurdle, {
+            currentEnergyLevel: o.energyBaseline,
+            isOverwhelmed: false,
+            timeOfDay,
+          }),
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 6000)),
+        ]);
+
+        if (decomposition) {
+          await addTask({
+            id: `onboarding-${Date.now()}`,
+            title: decomposition.originalTask || o.biggestHurdle,
+            isComplete: false,
+            energyRequired: decomposition.suggestedEnergyLevel,
+            realMinutes: decomposition.estimatedRealMinutes,
+            estimatedMinutes: decomposition.estimatedIdealMinutes,
+            priority: 'important',
+            category: 'general',
+            createdAt: new Date().toISOString(),
+            subSteps: (decomposition.subSteps || []).map((s) => ({ id: s.id, title: s.title, isComplete: false })),
+          });
+        } else {
+          await addTask({
+            id: `onboarding-${Date.now()}`,
+            title: o.biggestHurdle,
+            isComplete: false,
+            energyRequired: o.energyBaseline,
+            priority: 'important',
+            category: 'general',
+            createdAt: new Date().toISOString(),
+            subSteps: [],
+          });
+        }
+      } catch (error) {
+        console.error('onboarding: AI task breakdown failed, continuing without it', error);
       }
     }
 
-    syncProfileIfSignedIn({
-      timezone, energyBaseline: o.energyBaseline, stressThreshold: o.stressThreshold, biggestHurdle: o.biggestHurdle,
-    });
+    // Fire-and-forget, never awaited in a way that could block navigation.
+    try {
+      syncProfileIfSignedIn({
+        timezone, energyBaseline: o.energyBaseline, stressThreshold: o.stressThreshold, biggestHurdle: o.biggestHurdle,
+      });
+    } catch (error) {
+      console.error('onboarding: cloud sync failed', error);
+    }
 
     resetOnboarding();
     router?.replace?.('/(tabs)/home');

@@ -25,7 +25,12 @@ export default function ModulesScreen() {
   const selectedModules = useOnboardingStore((s) => s.selectedModules);
   const toggleInList = useOnboardingStore((s) => s.toggleInList);
 
-  const handleContinue = () => router?.push?.('/onboarding/symptoms');
+  const buildModuleScreenQueue = useOnboardingStore((s) => s.buildModuleScreenQueue);
+
+  const handleContinue = () => {
+    buildModuleScreenQueue();
+    router?.push?.('/onboarding/symptoms');
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-slate-950">

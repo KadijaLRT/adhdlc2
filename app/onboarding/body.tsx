@@ -54,14 +54,8 @@ export default function BodyScreen() {
   const setField = useOnboardingStore((s) => s.setField);
   const toggleInList = useOnboardingStore((s) => s.toggleInList);
 
-  const handleContinue = () => {
-    const selected = o.selectedModules || [];
-    if (selected.includes('nutrition')) {
-      router?.push?.('/onboarding/food');
-    } else {
-      router?.push?.('/onboarding/final');
-    }
-  };
+  const goToNextModuleScreen = useOnboardingStore((s) => s.goToNextModuleScreen);
+  const handleContinue = () => goToNextModuleScreen(router);
 
   return (
     <SafeAreaView className="flex-1 bg-slate-950">
@@ -88,8 +82,18 @@ export default function BodyScreen() {
             placeholder="Starting weight (lbs)"
             placeholderTextColor="#64748b"
             keyboardType="numeric"
-            className="bg-slate-900 text-slate-100 rounded-xl px-4 py-3 mb-6"
+            className="bg-slate-900 text-slate-100 rounded-xl px-4 py-3 mb-3"
           />
+          {o.weightGoalDirections.length > 0 && o.weightGoalDirections[0] !== 'maintain' && (
+            <TextInput
+              value={o.goalWeightLbs}
+              onChangeText={(v) => setField('goalWeightLbs', v)}
+              placeholder="Goal weight (lbs) — powers your Progress trend"
+              placeholderTextColor="#64748b"
+              keyboardType="numeric"
+              className="bg-slate-900 text-slate-100 rounded-xl px-4 py-3 mb-6"
+            />
+          )}
 
           <Text className="text-slate-100 text-base font-medium mb-2">Body type</Text>
           <View className="gap-2 mb-6">

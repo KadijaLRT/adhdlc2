@@ -19,7 +19,6 @@ export default function CalibrationScreen() {
   const router = useRouter();
   const displayName = useOnboardingStore((s) => s.displayName);
   const ageBracket = useOnboardingStore((s) => s.ageBracket);
-  const biggestHurdle = useOnboardingStore((s) => s.biggestHurdle);
   const setField = useOnboardingStore((s) => s.setField);
 
   const handleContinue = () => {
@@ -59,17 +58,7 @@ export default function CalibrationScreen() {
             })}
           </View>
 
-          <Text className="text-slate-100 text-base font-medium mb-2">What's the biggest hurdle today?</Text>
-          <TextInput
-            value={biggestHurdle}
-            onChangeText={(v) => setField('biggestHurdle', v)}
-            placeholder="Getting started on anything..."
-            placeholderTextColor="#64748b"
-            multiline
-            className="bg-slate-900 text-slate-100 rounded-xl p-4 min-h-[80px] mb-8 text-base"
-          />
-
-          <Pressable onPress={handleContinue} className="bg-emerald-500 rounded-full py-4 active:bg-emerald-400">
+          <Pressable onPress={handleContinue} className="bg-emerald-500 rounded-full py-4 active:bg-emerald-400 mt-2">
             <Text className="text-slate-950 text-lg text-center font-semibold">Continue →</Text>
           </Pressable>
         </View>

@@ -11,7 +11,8 @@ export default function FoodScreen() {
   const allergies = useOnboardingStore((s) => s.allergies);
   const setField = useOnboardingStore((s) => s.setField);
 
-  const handleContinue = () => router?.push?.('/onboarding/final');
+  const goToNextModuleScreen = useOnboardingStore((s) => s.goToNextModuleScreen);
+  const handleContinue = () => goToNextModuleScreen(router);
 
   return (
     <SafeAreaView className="flex-1 bg-slate-950">

@@ -38,4 +38,7 @@ export interface UserProfile {
   adhdSymptoms?: string[]; brainTypes?: string[];
   supportMethods?: string[]; priorities?: string[];
   reminderStyle?: ReminderStyle; coachingStyle?: CoachingStyle;
+  sleepStruggles?: string[];
+  wantsMedicationReminders?: boolean;
+  emotionalRegulationHelpers?: string[];
 }

@@ -18,6 +18,7 @@ import WeeklyChallengeCard from '@/features/gamification/WeeklyChallengeCard';
 import { getDailyInsight } from './DailyInsight';
 import { buildTodaysPlan, type PlanItem } from './buildTodaysPlan';
 import ReflectionCard from './ReflectionCard';
+import BiggestHurdleCard from './BiggestHurdleCard';
 
 function StreakBadge() {
   const streaks = useAppStore(selectStreaks);
@@ -109,6 +110,7 @@ export default function HomeScreen() {
           </View>
         ))}
 
+        <BiggestHurdleCard />
         <ExecutiveFunctionRings />
         <DayRhythmCard />
         <WeeklyChallengeCard />
