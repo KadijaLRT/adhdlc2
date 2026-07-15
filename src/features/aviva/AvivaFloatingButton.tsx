@@ -6,9 +6,12 @@ export default function AvivaFloatingButton() {
   const [open, setOpen] = useState(false);
   return (
     <>
+      {/* Positioned well above the tab bar and made smaller than
+          before — it was overlapping bottom-of-screen content
+          (primary buttons, list items) on several screens. */}
       <Pressable onPress={() => setOpen(true)}
-        className="absolute bottom-8 right-6 bg-indigo-600 rounded-full w-16 h-16 items-center justify-center shadow-lg active:bg-indigo-500">
-        <Text className="text-2xl">✨</Text>
+        className="absolute bottom-24 right-4 bg-indigo-600 rounded-full w-12 h-12 items-center justify-center shadow-lg active:bg-indigo-500 z-50">
+        <Text className="text-lg">✨</Text>
       </Pressable>
       <BrainDumpSheet visible={open} onClose={() => setOpen(false)} />
     </>

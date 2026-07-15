@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAppStore, type EnergyLevel } from '@/store/index';
+import { useAppStore, selectProfile, type EnergyLevel } from '@/store/index';
 import { Heading } from '@/shared/components/Heading';
 
 const MOOD_OPTIONS: { level: EnergyLevel; emoji: string; label: string }[] = [
@@ -10,14 +10,18 @@ const MOOD_OPTIONS: { level: EnergyLevel; emoji: string; label: string }[] = [
 ];
 
 /**
- * Mood-first, per the document — one tap, then the rest of the hub
- * (workout, coach, energy tracking) is reachable from here rather than
- * competing as separate tabs.
+ * Mood-first. Workout isn't linked here anymore — it has its own tab
+ * already, so it doesn't need a second entry point. Blood type moved to
+ * Meals, since that's what it actually affects. Strain Explorer only
+ * shows if the person indicated cannabis as a support method during
+ * onboarding — it's not offered to everyone by default.
  */
 export default function WellnessHub() {
   const router = useRouter();
   const energyLevel = useAppStore((s) => s.energyLevel);
   const logEnergyForToday = useAppStore((s) => s.logEnergyForToday);
+  const profile = useAppStore(selectProfile);
+  const showStrainExplorer = (profile?.supportMethods || []).includes('cannabis');
 
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
@@ -42,10 +46,6 @@ export default function WellnessHub() {
         </View>
 
         <View className="gap-3">
-          <Pressable onPress={() => router?.push?.('/fitness/workouts')} className="bg-white dark:bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-900 dark:text-slate-100 text-sm">💪 Workout</Text>
-            <Text className="text-slate-500 text-xs">→</Text>
-          </Pressable>
           <Pressable onPress={() => router?.push?.('/coach')} className="bg-white dark:bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
             <Text className="text-slate-900 dark:text-slate-100 text-sm">💬 Chat with Aviva</Text>
             <Text className="text-slate-500 text-xs">→</Text>
@@ -54,14 +54,12 @@ export default function WellnessHub() {
             <Text className="text-slate-900 dark:text-slate-100 text-sm">🌙 Cycle tracking</Text>
             <Text className="text-slate-500 text-xs">→</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/wellness/meals')} className="bg-white dark:bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-900 dark:text-slate-100 text-sm">🩸 Blood type meal lens</Text>
-            <Text className="text-slate-500 text-xs">optional →</Text>
-          </Pressable>
-          <Pressable onPress={() => router?.push?.('/wellness/strains')} className="bg-white dark:bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-900 dark:text-slate-100 text-sm">🌿 Strain explorer</Text>
-            <Text className="text-slate-500 text-xs">optional →</Text>
-          </Pressable>
+          {showStrainExplorer && (
+            <Pressable onPress={() => router?.push?.('/wellness/strains')} className="bg-white dark:bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
+              <Text className="text-slate-900 dark:text-slate-100 text-sm">🌿 Strain explorer</Text>
+              <Text className="text-slate-500 text-xs">→</Text>
+            </Pressable>
+          )}
         </View>
       </View>
     </ScrollView>

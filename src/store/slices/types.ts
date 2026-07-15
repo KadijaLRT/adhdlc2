@@ -16,7 +16,7 @@ export interface RoutineStreak {
   routineId: string; count: number; lastCompletedDate: string | null;
   freezesAvailable: number; isFrozen: boolean;
 }
-export type MilestoneEvent = 'task_completed' | 'stuck_flow_used' | 'body_doubling_session' | 'routine_completed';
+export type MilestoneEvent = 'task_completed' | 'stuck_flow_used' | 'body_doubling_session' | 'routine_completed' | 'focus_session_completed' | 'critical_tasks_cleared_today';
 export interface MilestoneProgress { trackedEvent: MilestoneEvent; count: number; }
 export interface EnergyLogEntry { date: string; energyLevel: EnergyLevel; note?: string; }
 export interface StressLogEntry { date: string; stressLevel: EnergyLevel; }
@@ -41,4 +41,11 @@ export interface UserProfile {
   sleepStruggles?: string[];
   wantsMedicationReminders?: boolean;
   emotionalRegulationHelpers?: string[];
+}
+
+export interface Routine {
+  id: string;
+  title: string;
+  emoji: string;
+  createdAt: string;
 }

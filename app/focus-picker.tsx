@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppStore, selectTasks } from '@/store/index';
 import { Heading } from '@/shared/components/Heading';
+import { ScreenBackButton } from '@/shared/components/ScreenBackButton';
 
 const DURATIONS = [5, 15, 25];
 
@@ -20,7 +21,7 @@ export default function FocusPickerScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-stone-50"><ScreenBackButton />
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
         <View className="w-full max-w-md self-center">
           <Heading className="mb-1 mt-2">Focus Sprint</Heading>

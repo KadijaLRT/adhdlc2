@@ -5,6 +5,7 @@ import { useOnboardingStore } from '@/store/useOnboardingStore';
 import type { Gender, WeightGoalDirection, BodyType, ActivityLevel } from '@/store/index';
 import type { BloodType } from '@/content/bloodTypeAffinities';
 import { OnboardingStepHeader, OnboardingProgressBar } from '@/features/onboarding/OnboardingStepHeader';
+import { DateInput } from '@/shared/components/DateInput';
 
 const GENDERS: { id: Gender; label: string; emoji: string }[] = [
   { id: 'female', label: 'Female', emoji: '👩' },
@@ -94,14 +95,9 @@ export default function BodyScreen() {
                 keyboardType="numeric"
                 className="bg-slate-900 text-slate-100 rounded-xl px-4 py-3 mb-3"
               />
-              <TextInput
-                value={o.goalDate}
-                onChangeText={(v) => setField('goalDate', v)}
-                placeholder="Goal date (YYYY-MM-DD) — optional"
-                placeholderTextColor="#64748b"
-                className="bg-slate-900 text-slate-100 rounded-xl px-4 py-3 mb-2"
-              />
-              <Text className="text-slate-500 text-xs mb-6">
+              <Text className="text-slate-400 text-xs mb-2">Goal date (optional)</Text>
+              <DateInput value={o.goalDate} onChange={(iso) => setField('goalDate', iso)} dark />
+              <Text className="text-slate-500 text-xs mt-2 mb-6">
                 With a date, we can show whether your planned workouts and nutrition are actually on pace to get there by then.
               </Text>
             </>

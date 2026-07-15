@@ -24,6 +24,9 @@ import { createMomentumSlice, type MomentumSlice } from './slices/momentumSlice'
 
 export * from './slices/types';
 export type { NutritionPreferences, FitnessPreferences, Gender, WeightGoalDirection, BodyType, ActivityLevel } from './slices/nutritionFitnessSlice';
+export type { TextSize, ColorSchemePreference } from './slices/settingsSlice';
+export type { MomentumEntry, MomentumActionType } from './slices/momentumSlice';
+export type { MeasurementSite, WeightEntry, MeasurementEntry } from './slices/bodyProgressSlice';
 
 export type AppState = UiSlice & TaskSlice & StreakSlice & MilestoneSlice &
   EnergySlice & StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & NutritionFitnessSlice & WorkoutSlice & ProgramSlice & GrocerySlice & RoutineSlice & RpgSlice & SettingsSlice & ReflectionSlice & ScheduleSlice & SchoolSlice & BodyProgressSlice & MomentumSlice;
@@ -74,6 +77,7 @@ export const selectCycleLogs = (s: AppState) => s.cycleLogs || [];
 export const selectWellnessPreferences = (s: AppState) => s.wellnessPreferences;
 export const selectProfile = (s: AppState) => s.profile;
 export const selectIsHydrated = (s: AppState) => s.isHydrated;
+export const selectStorageWorking = (s: AppState) => s.storageWorking;
 export const selectReflections = (s: AppState) => s.reflections || [];
 export const selectScheduleItems = (s: AppState) => s.scheduleItems || [];
 export const selectCourses = (s: AppState) => s.courses || [];
@@ -92,7 +96,8 @@ export const selectFitnessCardDismissed = (s: AppState) => s.fitnessCardDismisse
 export const selectSetLogs = (s: AppState) => s.setLogs || [];
 export const selectPersonalRecords = (s: AppState) => s.personalRecords || [];
 export const selectAdhdFocusModeEnabled = (s: AppState) => s.adhdFocusModeEnabled ?? true;
-export const selectGymName = (s: AppState) => s.gymName || '';
+export const selectGyms = (s: AppState) => s.gyms || [];
+export const selectActiveGymId = (s: AppState) => s.activeGymId;
 export const selectWeekdayAssignment = (s: AppState) => s.weekdayAssignment || [null, 'A', 'B', 'C', 'D', 'E', 'F'];
 export const selectTextSize = (s: AppState) => s.textSize || 'medium';
 export const selectReduceMotion = (s: AppState) => s.reduceMotion ?? false;

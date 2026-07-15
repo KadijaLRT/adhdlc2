@@ -1,14 +1,21 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { TaskRepository } from './types';
 
-// On web, AsyncStorage is backed by localStorage, the most mature and
-// well-tested persistence path in browsers. Keeps SQLite/WASM complexity
-// off the web bundle entirely.
+// Direct, synchronous localStorage access — not AsyncStorage. This
+// matters: AsyncStorage's web implementation is still Promise-based
+// even though it's backed by localStorage, meaning every write has a
+// scheduling delay (a microtask hop) before the actual browser storage
+// write happens. If the PWA is forcibly closed (swiped away in the app
+// switcher, not just backgrounded) during that gap, the write can be
+// lost entirely. A direct, synchronous localStorage.setItem() call
+// completes immediately in the current call stack with no async gap
+// for a close event to land in, which is verifiably how this exact
+// problem was avoided in an earlier version of this app.
 const NS = 'adhd-life-coach';
 
-async function readJson<T>(key: string, fallback: T): Promise<T> {
+function readJson<T>(key: string, fallback: T): T {
   try {
-    const raw = await AsyncStorage.getItem(`${NS}:${key}`);
+    if (typeof window === 'undefined' || !window.localStorage) return fallback;
+    const raw = window.localStorage.getItem(`${NS}:${key}`);
     if (!raw) return fallback;
     return JSON.parse(raw) ?? fallback;
   } catch (error) {
@@ -17,29 +24,54 @@ async function readJson<T>(key: string, fallback: T): Promise<T> {
   }
 }
 
-async function writeJson(key: string, value: unknown): Promise<void> {
+function writeJson(key: string, value: unknown): void {
   try {
-    await AsyncStorage.setItem(`${NS}:${key}`, JSON.stringify(value ?? null));
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    window.localStorage.setItem(`${NS}:${key}`, JSON.stringify(value ?? null));
   } catch (error) {
     console.error(`webRepository: failed to write "${key}"`, error);
   }
 }
 
 export const webRepository: TaskRepository = {
-  getTasks: () => readJson('tasks', []),
-  saveTasks: (v) => writeJson('tasks', v || []),
-  getStreaks: () => readJson('streaks', []),
-  saveStreaks: (v) => writeJson('streaks', v || []),
-  getMilestones: () => readJson('milestones', []),
-  saveMilestones: (v) => writeJson('milestones', v || []),
-  getEnergyLogs: () => readJson('energyLogs', []),
-  saveEnergyLogs: (v) => writeJson('energyLogs', v || []),
-  getCycleLogs: () => readJson('cycleLogs', []),
-  saveCycleLogs: (v) => writeJson('cycleLogs', v || []),
-  getStressLogs: () => readJson('stressLogs', []),
-  saveStressLogs: (v) => writeJson('stressLogs', v || []),
-  getWellnessPreferences: () => readJson('wellnessPreferences', null),
-  saveWellnessPreferences: (v) => writeJson('wellnessPreferences', v),
-  getProfile: () => readJson('profile', null),
-  saveProfile: (v) => writeJson('profile', v),
+  getTasks: async () => readJson('tasks', []),
+  saveTasks: async (v) => writeJson('tasks', v || []),
+  getStreaks: async () => readJson('streaks', []),
+  saveStreaks: async (v) => writeJson('streaks', v || []),
+  getMilestones: async () => readJson('milestones', []),
+  saveMilestones: async (v) => writeJson('milestones', v || []),
+  getEnergyLogs: async () => readJson('energyLogs', []),
+  saveEnergyLogs: async (v) => writeJson('energyLogs', v || []),
+  getCycleLogs: async () => readJson('cycleLogs', []),
+  saveCycleLogs: async (v) => writeJson('cycleLogs', v || []),
+  getStressLogs: async () => readJson('stressLogs', []),
+  saveStressLogs: async (v) => writeJson('stressLogs', v || []),
+  getWellnessPreferences: async () => readJson('wellnessPreferences', null),
+  saveWellnessPreferences: async (v) => writeJson('wellnessPreferences', v),
+  getProfile: async () => readJson('profile', null),
+  saveProfile: async (v) => writeJson('profile', v),
+  getRoutines: async () => readJson('routines', []),
+  saveRoutines: async (v) => writeJson('routines', v || []),
+  getRpgState: async () => readJson('rpgState', null),
+  saveRpgState: async (v) => writeJson('rpgState', v),
+  getSettingsState: async () => readJson('settingsState', null),
+  saveSettingsState: async (v) => writeJson('settingsState', v),
+  getReflectionState: async () => readJson('reflectionState', null),
+  saveReflectionState: async (v) => writeJson('reflectionState', v),
+  getScheduleState: async () => readJson('scheduleState', null),
+  saveScheduleState: async (v) => writeJson('scheduleState', v),
+  getSchoolState: async () => readJson('schoolState', null),
+  saveSchoolState: async (v) => writeJson('schoolState', v),
+  getBodyProgressState: async () => readJson('bodyProgressState', null),
+  saveBodyProgressState: async (v) => writeJson('bodyProgressState', v),
+  getMomentumState: async () => readJson('momentumState', null),
+  saveMomentumState: async (v) => writeJson('momentumState', v),
+  getNutritionFitnessState: async () => readJson('nutritionFitnessState', null),
+  saveNutritionFitnessState: async (v) => writeJson('nutritionFitnessState', v),
+  getWorkoutState: async () => readJson('workoutState', null),
+  saveWorkoutState: async (v) => writeJson('workoutState', v),
+  getProgramState: async () => readJson('programState', null),
+  saveProgramState: async (v) => writeJson('programState', v),
+  getGroceryState: async () => readJson('groceryState', null),
+  saveGroceryState: async (v) => writeJson('groceryState', v),
 };

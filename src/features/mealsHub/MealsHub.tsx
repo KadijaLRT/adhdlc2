@@ -50,6 +50,10 @@ export default function MealsHub() {
             <Text className="text-slate-900 dark:text-slate-100 text-sm">🛒 This week's groceries</Text>
             <Text className="text-slate-500 text-xs">{groceryCount} items</Text>
           </Pressable>
+          <Pressable onPress={() => router?.push?.('/wellness/meals')} className="bg-white dark:bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-900 dark:text-slate-100 text-sm">🩸 Blood type meal lens</Text>
+            <Text className="text-slate-500 text-xs">optional →</Text>
+          </Pressable>
         </View>
       </View>
     </ScrollView>

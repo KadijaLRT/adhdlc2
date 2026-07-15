@@ -12,6 +12,7 @@ import {
 } from '@/store/index';
 import { avivaBrain } from '@/core/ai/AvivaBrain';
 import { Heading } from '@/shared/components/Heading';
+import { ScreenBackButton } from '@/shared/components/ScreenBackButton';
 
 export default function TaskDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -72,6 +73,7 @@ export default function TaskDetailScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-stone-50">
+      <ScreenBackButton />
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
         <View className="w-full max-w-md self-center">
           <Heading className="mb-2">{task?.title || 'Untitled task'}</Heading>

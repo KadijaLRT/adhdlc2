@@ -9,3 +9,9 @@ export type { TaskRepository } from './types';
 export async function getRepository(): Promise<TaskRepository> {
   return sqliteRepository;
 }
+
+// Native SQLite is a real file-backed database, not subject to the
+// browser storage restrictions this check exists for on web.
+export async function testStoragePersistence(): Promise<boolean> {
+  return true;
+}

@@ -28,10 +28,14 @@ export interface WeeklySplitDay {
 export function buildWeeklySplit(
   program: ProgramDefinition,
   preferences: FitnessPreferences | null,
-  customAssignment?: (string | null)[]
+  customAssignment?: (string | null)[],
+  gymEquipment?: string[] | null
 ): WeeklySplitDay[] {
   const entries = Object.entries(WORKOUT_EXERCISES || {});
-  const equipment = preferences?.equipment;
+  // A selected gym's specific equipment takes priority over the
+  // generic equipment set from onboarding — that's what actually makes
+  // a workout tailored to that specific gym's machines, not just a label.
+  const equipment = gymEquipment && gymEquipment.length > 0 ? gymEquipment : preferences?.equipment;
 
   const matchesGroup = ([, ex]: [string, any]) =>
     (program.targetGroups || []).includes('all') || (program.targetGroups || []).includes(ex.group);

@@ -3,7 +3,7 @@ import { View, Text, Pressable, TextInput, ScrollView, FlatList } from 'react-na
 import { useRouter } from 'expo-router';
 import {
   useAppStore, selectActiveProgramId, selectFitnessPreferences,
-  selectGymName, selectSetLogs, selectWeekdayAssignment,
+  selectGyms, selectActiveGymId, selectSetLogs, selectWeekdayAssignment,
 } from '@/store/index';
 import { PROGRAMS } from '@/content/programs';
 import { getCurrentProgramWeek, getSessionsThisWeek } from './buildProgramSession';
@@ -12,43 +12,127 @@ import { getWeightProgressLabel } from './weightProgress';
 import { WORKOUT_EXERCISES } from '@/content/exercises';
 import { Heading, Subheading } from '@/shared/components/Heading';
 
-function GymSelectorCard() {
-  const gymName = useAppStore(selectGymName);
-  const setGymName = useAppStore((s) => s.setGymName);
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(gymName);
+const EQUIPMENT_OPTIONS = ['bodyweight', 'dumbbell', 'barbell', 'machine', 'cable', 'resistance_band'];
 
-  const handleSave = () => {
-    setGymName(draft.trim());
-    setEditing(false);
+function GymSelectorCard() {
+  const gyms = useAppStore(selectGyms);
+  const activeGymId = useAppStore(selectActiveGymId);
+  const addGym = useAppStore((s) => s.addGym);
+  const updateGymEquipment = useAppStore((s) => s.updateGymEquipment);
+  const removeGym = useAppStore((s) => s.removeGym);
+  const setActiveGym = useAppStore((s) => s.setActiveGym);
+
+  const [adding, setAdding] = useState(false);
+  const [managingGymId, setManagingGymId] = useState<string | null>(null);
+  const [newGymName, setNewGymName] = useState('');
+  const [newGymEquipment, setNewGymEquipment] = useState<string[]>(['bodyweight']);
+
+  const activeGym = gyms.find((g) => g.id === activeGymId) || null;
+  const managingGym = gyms.find((g) => g.id === managingGymId) || null;
+
+  const toggleEquipment = (list: string[], setList: (v: string[]) => void, item: string) => {
+    setList(list.includes(item) ? list.filter((e) => e !== item) : [...list, item]);
   };
 
-  if (editing) {
+  const handleAddGym = async () => {
+    if (!newGymName.trim()) return;
+    await addGym(newGymName.trim(), newGymEquipment);
+    setNewGymName('');
+    setNewGymEquipment(['bodyweight']);
+    setAdding(false);
+  };
+
+  if (adding) {
     return (
-      <View className="bg-white border-2 border-indigo-500 rounded-2xl p-4 mb-4 flex-row gap-2">
+      <View className="bg-white border-2 border-indigo-500 rounded-2xl p-4 mb-4">
         <TextInput
-          value={draft}
-          onChangeText={setDraft}
+          value={newGymName}
+          onChangeText={setNewGymName}
           placeholder="Gym name..."
           placeholderTextColor="#64748b"
-          onSubmitEditing={handleSave}
           autoFocus
-          className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-3 py-2"
+          className="bg-stone-100 text-slate-900 rounded-xl px-3 py-2 mb-3"
         />
-        <Pressable onPress={handleSave} className="bg-indigo-600 rounded-xl px-4 justify-center">
-          <Text className="text-white text-sm font-semibold">Save</Text>
-        </Pressable>
+        <Text className="text-slate-700 text-xs font-medium mb-2">What equipment does this gym have?</Text>
+        <View className="flex-row flex-wrap gap-2 mb-3">
+          {EQUIPMENT_OPTIONS.map((eq) => {
+            const isActive = newGymEquipment.includes(eq);
+            return (
+              <Pressable key={eq} onPress={() => toggleEquipment(newGymEquipment, setNewGymEquipment, eq)}
+                className={isActive ? 'bg-emerald-100 border-2 border-emerald-500 rounded-full py-2 px-3' : 'bg-stone-100 border-2 border-transparent rounded-full py-2 px-3'}>
+                <Text className={isActive ? 'text-emerald-700 text-xs capitalize' : 'text-slate-700 text-xs capitalize'}>{eq.replace('_', ' ')}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+        <View className="flex-row gap-2">
+          <Pressable onPress={handleAddGym} className="flex-1 bg-indigo-600 rounded-xl py-3 items-center">
+            <Text className="text-white text-sm font-semibold">Save gym</Text>
+          </Pressable>
+          <Pressable onPress={() => setAdding(false)} className="py-3 px-4">
+            <Text className="text-slate-500 text-sm">Cancel</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
+  if (managingGym) {
+    return (
+      <View className="bg-white border-2 border-indigo-500 rounded-2xl p-4 mb-4">
+        <Text className="text-slate-900 font-semibold mb-3">{managingGym.name}</Text>
+        <Text className="text-slate-700 text-xs font-medium mb-2">Equipment available here</Text>
+        <View className="flex-row flex-wrap gap-2 mb-3">
+          {EQUIPMENT_OPTIONS.map((eq) => {
+            const isActive = managingGym.equipment.includes(eq);
+            return (
+              <Pressable key={eq}
+                onPress={() => updateGymEquipment(managingGym.id, isActive ? managingGym.equipment.filter((e) => e !== eq) : [...managingGym.equipment, eq])}
+                className={isActive ? 'bg-emerald-100 border-2 border-emerald-500 rounded-full py-2 px-3' : 'bg-stone-100 border-2 border-transparent rounded-full py-2 px-3'}>
+                <Text className={isActive ? 'text-emerald-700 text-xs capitalize' : 'text-slate-700 text-xs capitalize'}>{eq.replace('_', ' ')}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+        <View className="flex-row gap-2">
+          <Pressable onPress={() => setManagingGymId(null)} className="flex-1 bg-indigo-600 rounded-xl py-3 items-center">
+            <Text className="text-white text-sm font-semibold">Done</Text>
+          </Pressable>
+          <Pressable onPress={() => { removeGym(managingGym.id); setManagingGymId(null); }} className="py-3 px-4">
+            <Text className="text-red-600 text-sm">Remove gym</Text>
+          </Pressable>
+        </View>
       </View>
     );
   }
 
   return (
-    <Pressable onPress={() => { setDraft(gymName); setEditing(true); }} className="bg-purple-50 border-2 border-purple-400 rounded-2xl p-4 mb-4 flex-row items-center justify-between">
-      <View>
-        <Text className="text-purple-700 font-semibold">{gymName || 'No gym set'}</Text>
-        <Text className="text-slate-500 text-xs">Tap to change</Text>
-      </View>
-    </Pressable>
+    <View className="mb-4">
+      {gyms.length > 0 && (
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={gyms}
+          keyExtractor={(g) => g.id}
+          contentContainerStyle={{ gap: 8, marginBottom: 8 }}
+          renderItem={({ item }) => {
+            const isActive = item.id === activeGymId;
+            return (
+              <Pressable onPress={() => setActiveGym(item.id)} onLongPress={() => setManagingGymId(item.id)}
+                className={isActive ? 'bg-purple-100 border-2 border-purple-500 rounded-2xl py-3 px-4' : 'bg-white border-2 border-stone-200 rounded-2xl py-3 px-4'}>
+                <Text className={isActive ? 'text-purple-700 font-semibold text-sm' : 'text-slate-700 text-sm'}>{item.name}</Text>
+              </Pressable>
+            );
+          }}
+        />
+      )}
+      <Pressable onPress={() => setAdding(true)} className="bg-purple-50 border-2 border-purple-400 rounded-2xl p-4 flex-row items-center justify-between">
+        <View>
+          <Text className="text-purple-700 font-semibold">{activeGym ? `Exercises tailored to ${activeGym.name}` : 'Add a gym'}</Text>
+          <Text className="text-slate-500 text-xs">{gyms.length > 0 ? 'Tap a gym to switch, hold to edit equipment, or add another' : "Workouts adapt to that gym's actual equipment"}</Text>
+        </View>
+      </Pressable>
+    </View>
   );
 }
 
@@ -150,6 +234,8 @@ export default function ProgramsScreen() {
   const router = useRouter();
   const activeProgramId = useAppStore(selectActiveProgramId);
   const fitnessPreferences = useAppStore(selectFitnessPreferences);
+  const gyms = useAppStore(selectGyms);
+  const activeGymId = useAppStore(selectActiveGymId);
   const sessionsCompletedInProgram = useAppStore((s) => s.sessionsCompletedInProgram);
   const startProgram = useAppStore((s) => s.startProgram);
   const stopProgram = useAppStore((s) => s.stopProgram);
@@ -164,9 +250,10 @@ export default function ProgramsScreen() {
 
   const activeProgram = PROGRAMS.find((p) => p.id === activeProgramId) || null;
 
+  const activeGym = gyms.find((g) => g.id === activeGymId) || null;
   const weeklySplit = useMemo(
-    () => (activeProgram ? buildWeeklySplit(activeProgram, fitnessPreferences, weekdayAssignment) : []),
-    [activeProgram, fitnessPreferences, weekdayAssignment]
+    () => (activeProgram ? buildWeeklySplit(activeProgram, fitnessPreferences, weekdayAssignment, activeGym?.equipment) : []),
+    [activeProgram, fitnessPreferences, weekdayAssignment, activeGym]
   );
   const availableLetters = activeProgram ? getAvailableDayLetters(activeProgram) : [];
 
@@ -179,7 +266,7 @@ export default function ProgramsScreen() {
   const handleCycleDay = (weekdayIndex: number, current: string | null) => {
     const options: (string | null)[] = [null, ...availableLetters];
     const currentPos = options.indexOf(current);
-    const next = options[(currentPos + 1) % options.length];
+    const next = options[(currentPos + 1) % options.length] ?? null;
     setWeekdayAssignment(weekdayIndex, next);
   };
 
@@ -212,9 +299,11 @@ export default function ProgramsScreen() {
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Programs</Heading>
 
-        {/* Day strip is the second thing on screen, right after the
-            title — opens in view without scrolling past anything else,
-            per the requested layout. */}
+        <GymSelectorCard />
+
+        {/* Day strip is right after the title/gym card — opens in view
+            without scrolling past anything else, per the requested
+            layout. */}
         {activeProgram && weeklySplit.length > 0 && (
           <View onLayout={(e) => { stripOffsetY.current = e.nativeEvent.layout.y; }}>
             <View className="flex-row items-center justify-between mb-2">
@@ -261,10 +350,6 @@ export default function ProgramsScreen() {
             ))}
           </View>
         )}
-
-        <View className="mt-2">
-          <GymSelectorCard />
-        </View>
 
         <Text className="text-slate-900 text-lg font-semibold mb-3">{activeProgram ? 'Switch program' : 'Choose a program'}</Text>
         <FlatList

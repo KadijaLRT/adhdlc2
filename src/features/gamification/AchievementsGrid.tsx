@@ -1,6 +1,7 @@
 import { View, Text } from 'react-native';
 import { useAppStore, selectMilestones } from '@/store/index';
 import { MILESTONE_DEFINITIONS, getUnlockedTiers, getNextTier } from '@/content/milestoneDefinitions';
+import { Subheading } from '@/shared/components/Heading';
 
 export default function AchievementsGrid() {
   const milestones = useAppStore(selectMilestones);

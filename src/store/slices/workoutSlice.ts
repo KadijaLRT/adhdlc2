@@ -15,18 +15,28 @@ export interface PersonalRecord {
   achievedAt: string;
 }
 
+export interface Gym {
+  id: string;
+  name: string;
+  equipment: string[];
+}
+
 export interface WorkoutState {
   setLogs: SetLogEntry[];
   personalRecords: PersonalRecord[];
   adhdFocusModeEnabled: boolean;
-  gymName: string;
+  gyms: Gym[];
+  activeGymId: string | null;
   weekdayAssignment: (string | null)[]; // length 7, index=weekday (0=Sun), value=day letter or null for rest
 }
 
 export interface WorkoutSlice extends WorkoutState {
   logSet: (exerciseId: string, weight: number, reps: number) => Promise<{ isNewRecord: boolean }>;
   setAdhdFocusMode: (enabled: boolean) => Promise<void>;
-  setGymName: (name: string) => Promise<void>;
+  addGym: (name: string, equipment: string[]) => Promise<void>;
+  updateGymEquipment: (gymId: string, equipment: string[]) => Promise<void>;
+  removeGym: (gymId: string) => Promise<void>;
+  setActiveGym: (gymId: string | null) => Promise<void>;
   setWeekdayAssignment: (weekdayIndex: number, dayLetter: string | null) => Promise<void>;
 }
 
@@ -35,7 +45,8 @@ const DEFAULT_STATE: WorkoutState = {
   personalRecords: [],
   adhdFocusModeEnabled: true, // defaults on — reducing cognitive load during
                               // a workout is the safer default for this audience
-  gymName: '',
+  gyms: [],
+  activeGymId: null,
   weekdayAssignment: [null, 'A', 'B', 'C', 'D', 'E', 'F'], // default: Sun rest, Mon–Sat A–F
 };
 
@@ -49,7 +60,8 @@ function currentState(get: () => WorkoutState): WorkoutState {
     setLogs: get().setLogs || [],
     personalRecords: get().personalRecords || [],
     adhdFocusModeEnabled: get().adhdFocusModeEnabled ?? true,
-    gymName: get().gymName || '',
+    gyms: get().gyms || [],
+    activeGymId: get().activeGymId ?? null,
     weekdayAssignment: get().weekdayAssignment || DEFAULT_STATE.weekdayAssignment,
   };
 }
@@ -95,8 +107,38 @@ export const createWorkoutSlice: StateCreator<WorkoutSlice> = (set, get) => ({
   // permission and a places API wired at runtime, which this app
   // doesn't have configured. Flagging that honestly rather than faking
   // a location picker that doesn't actually search anything.
-  setGymName: async (gymName) => {
-    const nextState = { ...currentState(get), gymName };
+  addGym: async (name, equipment) => {
+    const newGym = { id: `gym-${Date.now()}`, name: name.trim(), equipment };
+    const nextGyms = [...(get().gyms || []), newGym];
+    const nextState = { ...currentState(get), gyms: nextGyms, activeGymId: newGym.id };
+    set(nextState);
+    await persist(nextState);
+  },
+
+  updateGymEquipment: async (gymId, equipment) => {
+    const nextGyms = (get().gyms || []).map((g) => (g.id === gymId ? { ...g, equipment } : g));
+    const nextState = { ...currentState(get), gyms: nextGyms };
+    set(nextState);
+    await persist(nextState);
+  },
+
+  removeGym: async (gymId) => {
+    const nextGyms = (get().gyms || []).filter((g) => g.id !== gymId);
+    const wasActive = get().activeGymId === gymId;
+    const nextState = {
+      ...currentState(get),
+      gyms: nextGyms,
+      activeGymId: wasActive ? (nextGyms[0]?.id ?? null) : get().activeGymId,
+    };
+    set(nextState);
+    await persist(nextState);
+  },
+
+  // Selecting a gym is what actually changes which exercises show up —
+  // this is what makes workouts tailored to that specific gym's
+  // machines, not just a label.
+  setActiveGym: async (activeGymId) => {
+    const nextState = { ...currentState(get), activeGymId };
     set(nextState);
     await persist(nextState);
   },

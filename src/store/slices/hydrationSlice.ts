@@ -1,5 +1,5 @@
 import type { StateCreator } from 'zustand';
-import { getRepository } from '@/core/storage';
+import { getRepository, testStoragePersistence } from '@/core/storage';
 import type { TaskSlice } from './taskSlice';
 import type { StreakSlice } from './streakSlice';
 import type { MilestoneSlice } from './milestoneSlice';
@@ -23,6 +23,7 @@ import type { GrocerySlice } from './grocerySlice';
 
 export interface HydrationSlice {
   isHydrated: boolean;
+  storageWorking: boolean;
   hydrate: () => Promise<void>;
 }
 
@@ -35,8 +36,13 @@ type FullState = TaskSlice & StreakSlice & MilestoneSlice & EnergySlice &
 // never touching any other slice file.
 export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlice> = (set) => ({
   isHydrated: false,
+  storageWorking: true,
 
   hydrate: async () => {
+    const storageWorking = await testStoragePersistence();
+    if (!storageWorking) {
+      console.error('hydrationSlice: storage self-test failed — data will not persist between sessions on this device');
+    }
     try {
       const repo = await getRepository();
       const [
@@ -90,7 +96,8 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
         setLogs: workoutState?.setLogs ?? state.setLogs,
         personalRecords: workoutState?.personalRecords ?? state.personalRecords,
         adhdFocusModeEnabled: workoutState?.adhdFocusModeEnabled ?? state.adhdFocusModeEnabled,
-        gymName: workoutState?.gymName ?? state.gymName,
+        gyms: workoutState?.gyms ?? state.gyms,
+        activeGymId: workoutState?.activeGymId ?? state.activeGymId,
         weekdayAssignment: workoutState?.weekdayAssignment ?? state.weekdayAssignment,
 
         activeProgramId: programState?.activeProgramId ?? state.activeProgramId,
@@ -101,10 +108,11 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
         checkedIngredients: groceryState?.checkedIngredients ?? state.checkedIngredients,
 
         isHydrated: true,
+        storageWorking,
       }));
     } catch (error) {
       console.error('hydrationSlice: hydrate failed', error);
-      set({ isHydrated: true });
+      set({ isHydrated: true, storageWorking });
     }
   },
 });

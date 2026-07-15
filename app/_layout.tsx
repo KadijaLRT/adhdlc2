@@ -5,7 +5,7 @@ import { View, Text } from 'react-native';
 import { useColorScheme } from 'nativewind';
 import { useFonts, Lexend_400Regular, Lexend_600SemiBold } from '@expo-google-fonts/lexend';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useAppStore, selectDyslexiaFont, selectColorScheme } from '@/store/index';
+import { useAppStore, selectDyslexiaFont, selectColorScheme, selectIsHydrated, selectStorageWorking } from '@/store/index';
 import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
 import AvivaFloatingButton from '@/features/aviva/AvivaFloatingButton';
 
@@ -14,6 +14,8 @@ export default function RootLayout() {
   const pathname = usePathname();
   const dyslexiaFont = useAppStore(selectDyslexiaFont);
   const colorSchemePreference = useAppStore(selectColorScheme);
+  const isHydrated = useAppStore(selectIsHydrated);
+  const storageWorking = useAppStore(selectStorageWorking);
   const { setColorScheme } = useColorScheme();
   const [fontsLoaded] = useFonts({ Lexend_400Regular, Lexend_600SemiBold });
 
@@ -61,6 +63,13 @@ export default function RootLayout() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <View className="flex-1">
+          {isHydrated && !storageWorking && (
+            <View className="bg-amber-500 px-4 py-2 pt-safe">
+              <Text className="text-slate-950 text-xs text-center font-medium">
+                ⚠️ Your data can't be saved on this device right now (storage is blocked). Check Settings → Safari → Private Browsing, or Advanced Tracking Protection settings.
+              </Text>
+            </View>
+          )}
           <Stack screenOptions={{ headerShown: false }} />
           {!hideFloatingButton && <AvivaFloatingButton />}
         </View>

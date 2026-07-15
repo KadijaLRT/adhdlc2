@@ -1,6 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ProgressScreen from '@/features/workout/ProgressScreen';
+import { ScreenBackButton } from '@/shared/components/ScreenBackButton';
 
 export default function ProgressRoute() {
-  return <SafeAreaView className="flex-1 bg-stone-50"><ProgressScreen /></SafeAreaView>;
+  return <SafeAreaView className="flex-1 bg-stone-50"><ScreenBackButton /><ProgressScreen /></SafeAreaView>;
 }
