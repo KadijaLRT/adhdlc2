@@ -32,7 +32,7 @@ export default function CoachScreen() {
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
-        <Heading className="mb-1 mt-2">Coach</Heading>
+        <Heading className="mb-1 mt-2">Chat with Aviva</Heading>
         <Text className="text-slate-400 text-sm mb-4">Pick a specialist, or just ask and I&apos;ll route it for you.</Text>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">

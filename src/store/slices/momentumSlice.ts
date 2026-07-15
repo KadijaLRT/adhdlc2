@@ -6,6 +6,7 @@ export type MomentumActionType = 'opened_task' | 'started_session' | 'first_step
 export interface MomentumEntry {
   type: MomentumActionType;
   date: string;
+  refId?: string; // optional id of the task/routine/session this refers to
 }
 
 export interface MomentumState {
@@ -13,7 +14,7 @@ export interface MomentumState {
 }
 
 export interface MomentumSlice extends MomentumState {
-  logMomentum: (type: MomentumActionType) => Promise<void>;
+  logMomentum: (type: MomentumActionType, refId?: string) => Promise<void>;
 }
 
 async function persist(state: MomentumState) {
@@ -34,8 +35,8 @@ function today(): string {
 export const createMomentumSlice: StateCreator<MomentumSlice> = (set, get) => ({
   momentumLog: [],
 
-  logMomentum: async (type) => {
-    const next = [...(get().momentumLog || []), { type, date: today() }];
+  logMomentum: async (type, refId) => {
+    const next = [...(get().momentumLog || []), { type, date: today(), refId }];
     set({ momentumLog: next });
     await persist({ momentumLog: next });
   },

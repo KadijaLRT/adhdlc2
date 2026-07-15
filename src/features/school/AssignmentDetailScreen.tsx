@@ -57,7 +57,7 @@ export default function AssignmentDetailScreen({ assignmentId }: { assignmentId:
           className={assignment.isComplete ? 'bg-emerald-500 rounded-full py-4 mb-6' : 'bg-indigo-600 rounded-full py-4 mb-6 active:bg-indigo-500'}
         >
           <Text className={assignment.isComplete ? 'text-slate-950 text-center font-semibold' : 'text-white text-center font-semibold'}>
-            {assignment.isComplete ? 'Marked complete ✓' : 'Mark complete'}
+            {assignment.isComplete ? 'Marked done ✓' : 'Done'}
           </Text>
         </Pressable>
 

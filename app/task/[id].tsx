@@ -29,7 +29,7 @@ export default function TaskDetailScreen() {
   const task = (tasks || []).find((t) => t.id === id);
 
   useEffect(() => {
-    if (task) logMomentum('opened_task');
+    if (task) logMomentum('opened_task', task.id);
   }, [id]);
 
   if (!task) {
@@ -120,7 +120,7 @@ export default function TaskDetailScreen() {
             className={task?.isComplete ? 'bg-emerald-500 rounded-full py-4 mb-6' : 'bg-indigo-600 rounded-full py-4 mb-6 active:bg-indigo-500'}
           >
             <Text className={task?.isComplete ? 'text-slate-950 text-center font-semibold' : 'text-white text-center font-semibold'}>
-              {task?.isComplete ? 'Marked complete ✓' : 'Mark complete'}
+              {task?.isComplete ? 'Marked done ✓' : 'Done'}
             </Text>
           </Pressable>
 

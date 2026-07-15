@@ -47,7 +47,7 @@ export default function WellnessHub() {
             <Text className="text-slate-500 text-xs">→</Text>
           </Pressable>
           <Pressable onPress={() => router?.push?.('/coach')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-100 text-sm">🤖 Talk to your coach</Text>
+            <Text className="text-slate-100 text-sm">💬 Chat with Aviva</Text>
             <Text className="text-slate-500 text-xs">→</Text>
           </Pressable>
           <Pressable onPress={() => router?.push?.('/settings/cycle-tracking')} className="bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">

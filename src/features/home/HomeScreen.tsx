@@ -10,6 +10,7 @@ import {
   selectStreaks,
   selectRoutines,
   selectProfile,
+  selectMomentumLog,
 } from '@/store/index';
 import ExecutiveFunctionRings from './ExecutiveFunctionRings';
 import DayRhythmCard from '@/features/energy/DayRhythmCard';
@@ -33,11 +34,12 @@ export default function HomeScreen() {
   const stressLogs = useAppStore(selectStressLogs);
   const streaks = useAppStore(selectStreaks);
   const routines = useAppStore(selectRoutines);
+  const momentumLog = useAppStore(selectMomentumLog);
 
   const [planStarted, setPlanStarted] = useState(false);
   const [todaysPlan, setTodaysPlan] = useState<PlanItem[]>([]);
 
-  const insight = getDailyInsight(energyLevel, stressLogs, streaks);
+  const insight = getDailyInsight(energyLevel, stressLogs, streaks, tasks, momentumLog);
   const [modeOverride, setModeOverride] = useState<'auto' | 'planning' | 'reflection'>('auto');
   const timeBasedIsEvening = new Date().getHours() >= 20;
   const isEvening = modeOverride === 'auto' ? timeBasedIsEvening : modeOverride === 'reflection';
@@ -58,7 +60,7 @@ export default function HomeScreen() {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, gap: 14 }}>
       <View className="w-full max-w-md self-center gap-4">
         <Pressable onPress={() => router?.push?.('/overwhelmed')} className="bg-amber-400/10 border-2 border-amber-400 rounded-2xl py-3 items-center">
-          <Text className="text-amber-300 text-sm font-medium">I'm overwhelmed right now</Text>
+          <Text className="text-amber-300 text-sm font-medium">I need a reset</Text>
         </Pressable>
 
         <View>

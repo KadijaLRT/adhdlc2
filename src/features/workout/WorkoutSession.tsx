@@ -171,7 +171,7 @@ export default function WorkoutSession({ exerciseId, programId, queue }: { exerc
             className="py-3"
           >
             <Text className="text-slate-600 text-center text-xs">
-              {adhdFocusModeEnabled ? 'Show more detail' : 'Simplify (Focus Mode)'}
+              {adhdFocusModeEnabled ? 'Show more detail' : 'Simplify'}
             </Text>
           </Pressable>
         )}

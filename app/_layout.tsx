@@ -1,29 +1,30 @@
-import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Stack, usePathname } from 'expo-router';
+import { View } from 'react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useAppStore } from '@/store/index';
+import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
+import AvivaFloatingButton from '@/features/aviva/AvivaFloatingButton';
 
-function TabIcon({ emoji }: { emoji: string }) {
-  return <Text style={{ fontSize: 20 }}>{emoji}</Text>;
-}
+export default function RootLayout() {
+  const [queryClient] = useState(() => new QueryClient());
+  const pathname = usePathname();
+  // Overwhelmed Mode is designed with zero nav/menus visible, per its
+  // own screen — the global floating button would defeat that.
+  const hideFloatingButton = pathname?.startsWith('/overwhelmed');
 
-// Five tabs, matching the document's IA: Home (command center), Today
-// (execution hub for tasks/focus/routines), Meals (recipes/groceries),
-// Wellness (mood/workout/coach), Profile. Everything else launches from
-// one of these hubs rather than competing for its own permanent tab.
-export default function TabsLayout() {
+  useEffect(() => {
+    useAppStore.getState().hydrate();
+  }, []);
+
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#818cf8',
-        tabBarInactiveTintColor: '#64748b',
-        tabBarStyle: { backgroundColor: '#0f172a', borderTopColor: '#1e293b' },
-      }}
-    >
-      <Tabs.Screen name="home" options={{ title: 'Home', tabBarIcon: () => <TabIcon emoji="🏠" /> }} />
-      <Tabs.Screen name="today" options={{ title: 'Today', tabBarIcon: () => <TabIcon emoji="✅" /> }} />
-      <Tabs.Screen name="meals" options={{ title: 'Meals', tabBarIcon: () => <TabIcon emoji="🍽️" /> }} />
-      <Tabs.Screen name="wellness" options={{ title: 'Wellness', tabBarIcon: () => <TabIcon emoji="❤️" /> }} />
-      <Tabs.Screen name="profile" options={{ title: 'You', tabBarIcon: () => <TabIcon emoji="👤" /> }} />
-    </Tabs>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <View className="flex-1">
+          <Stack screenOptions={{ headerShown: false }} />
+          {!hideFloatingButton && <AvivaFloatingButton />}
+        </View>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }

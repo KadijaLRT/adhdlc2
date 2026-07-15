@@ -23,7 +23,7 @@ export default function FocusPickerScreen() {
     <SafeAreaView className="flex-1 bg-slate-950">
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
         <View className="w-full max-w-md self-center">
-          <Heading className="mb-1 mt-2">Focus</Heading>
+          <Heading className="mb-1 mt-2">Focus Sprint</Heading>
           <Text className="text-slate-400 text-sm mb-6">Pick something, or just show up. Both count.</Text>
 
           <Text className="text-slate-300 text-sm font-medium mb-2">What are you focusing on?</Text>
@@ -57,7 +57,7 @@ export default function FocusPickerScreen() {
           </View>
 
           <Pressable onPress={handleStart} className="bg-emerald-500 rounded-full py-4 active:bg-emerald-400">
-            <Text className="text-slate-950 text-center font-semibold text-lg">Begin</Text>
+            <Text className="text-slate-950 text-center font-semibold text-lg">Ready to focus?</Text>
           </Pressable>
         </View>
       </ScrollView>
