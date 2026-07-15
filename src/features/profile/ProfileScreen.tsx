@@ -16,7 +16,7 @@ import { calculateWorkoutStreak, calculateTotalVolume } from '@/features/workout
 
 function StatTile({ label, value }: { label: string; value: string }) {
   return (
-    <View className="bg-white rounded-2xl p-4 flex-1 min-w-[45%]">
+    <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 flex-1 min-w-[45%]">
       <Text className="text-amber-300 text-xl font-bold mb-1">{value}</Text>
       <Text className="text-slate-400 text-xs">{label}</Text>
     </View>
@@ -84,9 +84,9 @@ export default function ProfileScreen() {
           {profile?.biggestHurdle ? `Working on: ${profile.biggestHurdle}` : 'Your progress, all in one place.'}
         </Text>
 
-        <View className="bg-white rounded-2xl p-4 mb-6">
-          <Text className="text-slate-900 text-base font-semibold mb-1">Level {level} · {coins || 0} coins</Text>
-          <View className="h-2 bg-stone-100 rounded-full overflow-hidden mb-2">
+        <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-6">
+          <Text className="text-slate-900 dark:text-slate-100 text-base font-semibold mb-1">Level {level} · {coins || 0} coins</Text>
+          <View className="h-2 bg-stone-100 dark:bg-slate-800 rounded-full overflow-hidden mb-2">
             <View className="h-2 bg-amber-400 rounded-full" style={{ width: `${levelProgressPercent}%` }} />
           </View>
           <Text className="text-slate-500 text-xs">{totalXp || 0} / {nextLevelXp} XP to level {level + 1}</Text>
@@ -95,9 +95,9 @@ export default function ProfileScreen() {
         <Subheading className="mb-3">Skills</Subheading>
         <View className="flex-row flex-wrap gap-2 mb-6">
           {(SKILLS || []).map((skill) => (
-            <View key={skill.id} className="bg-white rounded-xl p-3 w-[31%] items-center">
+            <View key={skill.id} className="bg-white dark:bg-slate-900 rounded-xl p-3 w-[31%] items-center">
               <Text className="text-xl mb-1">{skill.emoji}</Text>
-              <Text className="text-slate-700 text-xs text-center">{skill.label}</Text>
+              <Text className="text-slate-700 dark:text-slate-300 text-xs text-center">{skill.label}</Text>
               <Text className="text-amber-300 text-sm font-semibold mt-1">{skillXp?.[skill.id] || 0}</Text>
             </View>
           ))}
@@ -108,10 +108,10 @@ export default function ProfileScreen() {
           {(UNLOCKABLES || []).map((item) => {
             const owned = (ownedUnlockables || []).includes(item.id);
             return (
-              <View key={item.id} className="bg-white rounded-xl p-4 flex-row items-center justify-between">
+              <View key={item.id} className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-row items-center justify-between">
                 <View className="flex-row items-center gap-3">
                   <Text className="text-xl">{item.emoji}</Text>
-                  <Text className="text-slate-900">{item.label}</Text>
+                  <Text className="text-slate-900 dark:text-slate-100">{item.label}</Text>
                 </View>
                 {owned ? (
                   <Text className="text-emerald-400 text-sm font-medium">Owned</Text>
@@ -119,7 +119,7 @@ export default function ProfileScreen() {
                   <Pressable
                     onPress={() => purchaseUnlockable(item.id, item.cost)}
                     disabled={(coins || 0) < item.cost}
-                    className={(coins || 0) < item.cost ? 'bg-stone-100 rounded-full py-2 px-4' : 'bg-indigo-600 rounded-full py-2 px-4 active:bg-indigo-500'}
+                    className={(coins || 0) < item.cost ? 'bg-stone-100 dark:bg-slate-800 rounded-full py-2 px-4' : 'bg-indigo-600 rounded-full py-2 px-4 active:bg-indigo-500'}
                   >
                     <Text className={(coins || 0) < item.cost ? 'text-slate-600 text-xs' : 'text-white text-xs font-semibold'}>{item.cost} coins</Text>
                   </Pressable>
@@ -141,40 +141,40 @@ export default function ProfileScreen() {
 
         <Subheading className="mb-3">Personalize</Subheading>
         <View className="gap-2 mb-6">
-          <Pressable onPress={() => router?.push?.('/achievements')} className="bg-white rounded-xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-800 text-sm">🏆 Achievements</Text>
+          <Pressable onPress={() => router?.push?.('/achievements')} className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-800 dark:text-slate-200 text-sm">🏆 Achievements</Text>
             <Text className="text-slate-600 text-xs">→</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/settings/cycle-tracking')} className="bg-white rounded-xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-800 text-sm">🌙 Cycle tracking</Text>
+          <Pressable onPress={() => router?.push?.('/settings/cycle-tracking')} className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-800 dark:text-slate-200 text-sm">🌙 Cycle tracking</Text>
             <Text className="text-slate-600 text-xs">→</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/nutrition/recipes')} className="bg-white rounded-xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-800 text-sm">🍎 Nutrition preferences</Text>
+          <Pressable onPress={() => router?.push?.('/nutrition/recipes')} className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-800 dark:text-slate-200 text-sm">🍎 Nutrition preferences</Text>
             <Text className="text-slate-600 text-xs">→</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/fitness/workouts')} className="bg-white rounded-xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-800 text-sm">💪 Fitness preferences</Text>
+          <Pressable onPress={() => router?.push?.('/fitness/workouts')} className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-800 dark:text-slate-200 text-sm">💪 Fitness preferences</Text>
             <Text className="text-slate-600 text-xs">→</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/body/progress')} className="bg-white rounded-xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-800 text-sm">📏 Weight & measurements</Text>
+          <Pressable onPress={() => router?.push?.('/body/progress')} className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-800 dark:text-slate-200 text-sm">📏 Weight & measurements</Text>
             <Text className="text-slate-600 text-xs">→</Text>
           </Pressable>
         </View>
 
         <Subheading className="mb-3">Settings</Subheading>
         <View className="gap-2 mb-6">
-          <Pressable onPress={() => router?.push?.('/settings/accessibility')} className="bg-white rounded-xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-800 text-sm">♿ Accessibility</Text>
+          <Pressable onPress={() => router?.push?.('/settings/accessibility')} className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-800 dark:text-slate-200 text-sm">♿ Accessibility</Text>
             <Text className="text-slate-600 text-xs">→</Text>
           </Pressable>
         </View>
 
         <Subheading className="mb-3">Your data</Subheading>
         <View className="gap-2">
-          <Pressable onPress={handleExportData} className="bg-white rounded-xl p-4">
-            <Text className="text-slate-800 text-sm mb-1">Export my data</Text>
+          <Pressable onPress={handleExportData} className="bg-white dark:bg-slate-900 rounded-xl p-4">
+            <Text className="text-slate-800 dark:text-slate-200 text-sm mb-1">Export my data</Text>
             <Text className="text-slate-500 text-xs">Everything stays on your device. This shares a copy, nothing is uploaded automatically.</Text>
           </Pressable>
         </View>

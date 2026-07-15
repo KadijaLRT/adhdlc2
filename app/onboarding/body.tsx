@@ -42,8 +42,8 @@ const BLOOD_TYPES: BloodType[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O
 
 function Pill({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} className={active ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-full py-2 px-4' : 'bg-white border-2 border-transparent rounded-full py-2 px-4'}>
-      <Text className={active ? 'text-emerald-300 text-sm' : 'text-slate-700 text-sm'}>{label}</Text>
+    <Pressable onPress={onPress} className={active ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-full py-2 px-4' : 'bg-slate-900 border-2 border-transparent rounded-full py-2 px-4'}>
+      <Text className={active ? 'text-emerald-300 text-sm' : 'text-slate-300 text-sm'}>{label}</Text>
     </Pressable>
   );
 }
@@ -58,21 +58,21 @@ export default function BodyScreen() {
   const handleContinue = () => goToNextModuleScreen(router);
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-slate-950">
       <OnboardingProgressBar step={5} total={7} />
       <ScrollView contentContainerStyle={{ padding: 24 }}>
         <View className="w-full max-w-md self-center">
           <OnboardingStepHeader step={5} total={7} />
-          <Text className="text-slate-900 text-2xl font-semibold mb-1">A little about your body</Text>
+          <Text className="text-slate-100 text-2xl font-semibold mb-1">A little about your body</Text>
           <Text className="text-slate-400 text-sm mb-1">Used to personalize workouts, macro targets, and which features show up for you.</Text>
           <Text className="text-slate-600 text-xs mb-6">🔒 Stays on your device. Never shared.</Text>
 
-          <Text className="text-slate-900 text-base font-medium mb-2">Gender</Text>
+          <Text className="text-slate-100 text-base font-medium mb-2">Gender</Text>
           <View className="flex-row gap-2 mb-6">
             {GENDERS.map((g) => <Pill key={g.id} label={`${g.emoji} ${g.label}`} active={o.gender === g.id} onPress={() => setField('gender', g.id)} />)}
           </View>
 
-          <Text className="text-slate-900 text-base font-medium mb-2">Weight goal</Text>
+          <Text className="text-slate-100 text-base font-medium mb-2">Weight goal</Text>
           <View className="flex-row gap-2 mb-4">
             {WEIGHT_GOALS.map((g) => <Pill key={g.id} label={`${g.emoji} ${g.label}`} active={o.weightGoalDirections.includes(g.id)} onPress={() => toggleInList('weightGoalDirections' as any, g.id)} />)}
           </View>
@@ -82,7 +82,7 @@ export default function BodyScreen() {
             placeholder="Starting weight (lbs)"
             placeholderTextColor="#64748b"
             keyboardType="numeric"
-            className="bg-white text-slate-900 rounded-xl px-4 py-3 mb-3"
+            className="bg-slate-900 text-slate-100 rounded-xl px-4 py-3 mb-3"
           />
           {o.weightGoalDirections.length > 0 && o.weightGoalDirections[0] !== 'maintain' && (
             <>
@@ -92,14 +92,14 @@ export default function BodyScreen() {
                 placeholder="Goal weight (lbs) — powers your Progress trend"
                 placeholderTextColor="#64748b"
                 keyboardType="numeric"
-                className="bg-white text-slate-900 rounded-xl px-4 py-3 mb-3"
+                className="bg-slate-900 text-slate-100 rounded-xl px-4 py-3 mb-3"
               />
               <TextInput
                 value={o.goalDate}
                 onChangeText={(v) => setField('goalDate', v)}
                 placeholder="Goal date (YYYY-MM-DD) — optional"
                 placeholderTextColor="#64748b"
-                className="bg-white text-slate-900 rounded-xl px-4 py-3 mb-2"
+                className="bg-slate-900 text-slate-100 rounded-xl px-4 py-3 mb-2"
               />
               <Text className="text-slate-500 text-xs mb-6">
                 With a date, we can show whether your planned workouts and nutrition are actually on pace to get there by then.
@@ -107,46 +107,46 @@ export default function BodyScreen() {
             </>
           )}
 
-          <Text className="text-slate-900 text-base font-medium mb-2">Body type</Text>
+          <Text className="text-slate-100 text-base font-medium mb-2">Body type</Text>
           <View className="gap-2 mb-6">
             {BODY_TYPES.map((t) => (
-              <Pressable key={t.id} onPress={() => setField('bodyType', t.id)} className={o.bodyType === t.id ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3' : 'bg-white border-2 border-transparent rounded-xl p-3'}>
-                <Text className={o.bodyType === t.id ? 'text-emerald-300 font-medium' : 'text-slate-900 font-medium'}>{t.label}</Text>
+              <Pressable key={t.id} onPress={() => setField('bodyType', t.id)} className={o.bodyType === t.id ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3' : 'bg-slate-900 border-2 border-transparent rounded-xl p-3'}>
+                <Text className={o.bodyType === t.id ? 'text-emerald-300 font-medium' : 'text-slate-100 font-medium'}>{t.label}</Text>
                 <Text className="text-slate-500 text-xs">{t.blurb}</Text>
               </Pressable>
             ))}
           </View>
 
-          <Text className="text-slate-900 text-base font-medium mb-2">Daily activity level</Text>
+          <Text className="text-slate-100 text-base font-medium mb-2">Daily activity level</Text>
           <View className="gap-2 mb-6">
             {ACTIVITY_LEVELS.map((a) => (
-              <Pressable key={a.id} onPress={() => setField('activityLevel', a.id)} className={o.activityLevel === a.id ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3' : 'bg-white border-2 border-transparent rounded-xl p-3'}>
-                <Text className={o.activityLevel === a.id ? 'text-emerald-300 font-medium' : 'text-slate-900 font-medium'}>{a.label}</Text>
+              <Pressable key={a.id} onPress={() => setField('activityLevel', a.id)} className={o.activityLevel === a.id ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3' : 'bg-slate-900 border-2 border-transparent rounded-xl p-3'}>
+                <Text className={o.activityLevel === a.id ? 'text-emerald-300 font-medium' : 'text-slate-100 font-medium'}>{a.label}</Text>
                 <Text className="text-slate-500 text-xs">{a.blurb}</Text>
               </Pressable>
             ))}
           </View>
 
-          <Text className="text-slate-900 text-base font-medium mb-2">Exercise goals</Text>
+          <Text className="text-slate-100 text-base font-medium mb-2">Exercise goals</Text>
           <View className="flex-row flex-wrap gap-2 mb-6">
             {EXERCISE_GOALS.map((g) => <Pill key={g.id} label={`${g.emoji} ${g.label}`} active={o.exerciseGoals.includes(g.id)} onPress={() => toggleInList('exerciseGoals', g.id)} />)}
           </View>
 
-          <Text className="text-slate-900 text-base font-medium mb-2">Focus areas (pick all that apply)</Text>
+          <Text className="text-slate-100 text-base font-medium mb-2">Focus areas (pick all that apply)</Text>
           <View className="flex-row flex-wrap gap-2 mb-6">
             {FOCUS_AREAS.map((f) => <Pill key={f} label={f} active={o.focusAreas.includes(f)} onPress={() => toggleInList('focusAreas', f)} />)}
           </View>
 
-          <Text className="text-slate-900 text-base font-medium mb-2">Blood type</Text>
+          <Text className="text-slate-100 text-base font-medium mb-2">Blood type</Text>
           <Text className="text-slate-500 text-xs mb-3">Optional. Powers the opt-in meal lens in Wellness — not clinically validated, just a lens some people like.</Text>
           <View className="flex-row flex-wrap gap-2 mb-6">
             {BLOOD_TYPES.map((bt) => <Pill key={bt} label={bt} active={o.bloodType === bt} onPress={() => setField('bloodType', bt)} />)}
           </View>
 
-          <Text className="text-slate-900 text-base font-medium mb-2">Height</Text>
+          <Text className="text-slate-100 text-base font-medium mb-2">Height</Text>
           <View className="flex-row gap-2 mb-8">
-            <TextInput value={o.heightFt} onChangeText={(v) => setField('heightFt', v)} placeholder="ft" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-white text-slate-900 rounded-xl px-4 py-3" />
-            <TextInput value={o.heightIn} onChangeText={(v) => setField('heightIn', v)} placeholder="in" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-white text-slate-900 rounded-xl px-4 py-3" />
+            <TextInput value={o.heightFt} onChangeText={(v) => setField('heightFt', v)} placeholder="ft" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-slate-900 text-slate-100 rounded-xl px-4 py-3" />
+            <TextInput value={o.heightIn} onChangeText={(v) => setField('heightIn', v)} placeholder="in" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-slate-900 text-slate-100 rounded-xl px-4 py-3" />
           </View>
 
           <Pressable onPress={handleContinue} className="bg-emerald-500 rounded-full py-4 active:bg-emerald-400">

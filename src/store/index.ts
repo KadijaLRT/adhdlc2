@@ -98,6 +98,7 @@ export const selectTextSize = (s: AppState) => s.textSize || 'medium';
 export const selectReduceMotion = (s: AppState) => s.reduceMotion ?? false;
 export const selectHighContrast = (s: AppState) => s.highContrast ?? false;
 export const selectDyslexiaFont = (s: AppState) => s.dyslexiaFont ?? false;
+export const selectColorScheme = (s: AppState) => s.colorScheme || 'light';
 export const selectActiveProgramId = (s: AppState) => s.activeProgramId;
 export const selectPantryItems = (s: AppState) => s.pantryItems || [];
 export const selectCheckedIngredients = (s: AppState) => s.checkedIngredients || [];

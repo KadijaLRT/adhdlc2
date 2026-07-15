@@ -28,12 +28,12 @@ export default function SupportScreen() {
   const handleContinue = () => goToNextModuleScreen(router);
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-slate-950">
       <OnboardingProgressBar step={4} total={7} />
       <ScrollView contentContainerStyle={{ padding: 24 }}>
         <View className="w-full max-w-md self-center">
           <OnboardingStepHeader step={4} total={7} />
-          <Text className="text-slate-900 text-2xl font-semibold mb-2">How do you support yourself?</Text>
+          <Text className="text-slate-100 text-2xl font-semibold mb-2">How do you support yourself?</Text>
           <Text className="text-slate-400 text-sm mb-6">Whatever works for you counts. No judgment here.</Text>
 
           <View className="flex-row flex-wrap gap-2 mb-8">
@@ -43,10 +43,10 @@ export default function SupportScreen() {
                 <Pressable
                   key={item.id}
                   onPress={() => toggleInList('supportMethods', item.id)}
-                  className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-4 w-[47%]' : 'bg-white border-2 border-transparent rounded-xl p-4 w-[47%]'}
+                  className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-4 w-[47%]' : 'bg-slate-900 border-2 border-transparent rounded-xl p-4 w-[47%]'}
                 >
                   <Text className="text-lg mb-1">{item.emoji}</Text>
-                  <Text className={isActive ? 'text-emerald-300 text-sm font-medium' : 'text-slate-700 text-sm font-medium'}>{item.label}</Text>
+                  <Text className={isActive ? 'text-emerald-300 text-sm font-medium' : 'text-slate-300 text-sm font-medium'}>{item.label}</Text>
                 </Pressable>
               );
             })}

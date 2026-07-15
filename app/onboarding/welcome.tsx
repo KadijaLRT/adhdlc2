@@ -10,9 +10,9 @@ export default function WelcomeScreen() {
     router?.push?.('/onboarding/calibration');
   };
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-slate-950">
       <View className="flex-1 w-full max-w-md self-center px-6 pt-safe pb-safe justify-center">
-        <Text accessibilityRole="header" className="text-slate-900 text-3xl font-semibold mb-3">
+        <Text accessibilityRole="header" className="text-slate-100 text-3xl font-semibold mb-3">
           Hi, I'm your coach 👋
         </Text>
         <Text className="text-slate-400 text-lg leading-7 mb-2">

@@ -32,12 +32,12 @@ export default function BrainTypeScreen() {
   const handleContinue = () => router?.push?.('/onboarding/support');
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-slate-950">
       <OnboardingProgressBar step={3} total={7} />
       <ScrollView contentContainerStyle={{ padding: 24 }}>
         <View className="w-full max-w-md self-center">
           <OnboardingStepHeader step={3} total={7} />
-          <Text className="text-slate-900 text-2xl font-semibold mb-2">Which ones sound like your brain?</Text>
+          <Text className="text-slate-100 text-2xl font-semibold mb-2">Which ones sound like your brain?</Text>
           <Text className="text-slate-400 text-sm mb-6">Most people are a mix. Pick as many as feel right. These are relatable descriptions, not clinical categories.</Text>
 
           <View className="gap-2 mb-8">
@@ -47,10 +47,10 @@ export default function BrainTypeScreen() {
                 <Pressable
                   key={type.id}
                   onPress={() => toggleInList('brainTypes', type.id)}
-                  className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-4' : 'bg-white border-2 border-transparent rounded-xl p-4'}
+                  className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-4' : 'bg-slate-900 border-2 border-transparent rounded-xl p-4'}
                 >
                   <Text className="text-lg mb-1">{type.emoji}</Text>
-                  <Text className={isActive ? 'text-emerald-300 font-medium mb-1' : 'text-slate-900 font-medium mb-1'}>{type.label}</Text>
+                  <Text className={isActive ? 'text-emerald-300 font-medium mb-1' : 'text-slate-100 font-medium mb-1'}>{type.label}</Text>
                   <Text className="text-slate-500 text-xs">{type.traits}</Text>
                 </Pressable>
               );

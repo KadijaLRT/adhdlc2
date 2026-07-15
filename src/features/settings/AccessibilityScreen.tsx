@@ -1,7 +1,7 @@
 import { View, Text, Pressable, Switch, ScrollView } from 'react-native';
 import {
   useAppStore, selectTextSize, selectReduceMotion, selectHighContrast, selectDyslexiaFont,
-  selectTasks, selectAssignments, type TextSize,
+  selectColorScheme, selectTasks, selectAssignments, type TextSize, type ColorSchemePreference,
 } from '@/store/index';
 import { Heading } from '@/shared/components/Heading';
 import { buildIcsContent, downloadIcsFile } from './exportCalendar';
@@ -17,6 +17,8 @@ export default function AccessibilityScreen() {
   const reduceMotion = useAppStore(selectReduceMotion);
   const highContrast = useAppStore(selectHighContrast);
   const dyslexiaFont = useAppStore(selectDyslexiaFont);
+  const colorScheme = useAppStore(selectColorScheme);
+  const setColorSchemePref = useAppStore((s) => s.setColorScheme);
   const setTextSize = useAppStore((s) => s.setTextSize);
   const setReduceMotion = useAppStore((s) => s.setReduceMotion);
   const setHighContrast = useAppStore((s) => s.setHighContrast);
@@ -34,6 +36,27 @@ export default function AccessibilityScreen() {
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">Accessibility</Heading>
         <Text className="text-slate-500 text-sm mb-6">Make the app fit how you read and see best.</Text>
+
+        <View className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-700 rounded-2xl p-4 mb-4">
+          <Text className="text-indigo-600 text-xs font-bold uppercase tracking-wider mb-3">🎨 Appearance</Text>
+          <View className="flex-row gap-2">
+            {(['light', 'dark', 'system'] as ColorSchemePreference[]).map((option) => {
+              const isActive = colorScheme === option;
+              return (
+                <Pressable
+                  key={option}
+                  onPress={() => setColorSchemePref(option)}
+                  className={isActive ? 'flex-1 bg-emerald-100 dark:bg-emerald-500/20 border-2 border-emerald-500 rounded-xl py-3 items-center' : 'flex-1 bg-stone-50 dark:bg-slate-800 border border-stone-200 dark:border-slate-700 rounded-xl py-3 items-center'}
+                >
+                  <Text className={isActive ? 'text-emerald-700 dark:text-emerald-300 text-sm font-semibold capitalize' : 'text-slate-700 dark:text-slate-300 text-sm capitalize'}>{option}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          <Text className="text-slate-500 text-xs mt-3">
+            Onboarding always stays dark by design. Applied to Home, Today, Meals, Wellness, and Profile so far — not yet every screen in the app.
+          </Text>
+        </View>
 
         <View className="bg-white border border-stone-200 rounded-2xl p-4 mb-4">
           <View className="flex-row items-center gap-2 mb-1">

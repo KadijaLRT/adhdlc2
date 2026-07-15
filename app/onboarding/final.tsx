@@ -212,12 +212,12 @@ export default function FinalScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-slate-950">
       <OnboardingProgressBar step={7} total={7} />
       <ScrollView contentContainerStyle={{ padding: 24 }}>
         <View className="w-full max-w-md self-center">
           <OnboardingStepHeader step={7} total={7} />
-          <Text className="text-slate-900 text-2xl font-semibold mb-2">Almost there 🎉</Text>
+          <Text className="text-slate-100 text-2xl font-semibold mb-2">Almost there 🎉</Text>
           <Text className="text-slate-400 text-sm mb-6">Two last things. These help your reminders feel right for how your brain works.</Text>
 
           <View className="bg-purple-400/10 border-2 border-purple-400 rounded-2xl p-4 mb-6">
@@ -225,35 +225,35 @@ export default function FinalScreen() {
             <Text className="text-slate-400 text-xs mb-3">Track how your cycle affects your mood, energy, and ADHD symptoms. Optional and off by default.</Text>
             <Pressable
               onPress={() => setField('cycleTrackingEnabled', !o.cycleTrackingEnabled)}
-              className={o.cycleTrackingEnabled ? 'bg-purple-400/20 border-2 border-purple-400 rounded-xl py-2 items-center' : 'bg-stone-100 rounded-xl py-2 items-center'}
+              className={o.cycleTrackingEnabled ? 'bg-purple-400/20 border-2 border-purple-400 rounded-xl py-2 items-center' : 'bg-slate-800 rounded-xl py-2 items-center'}
             >
-              <Text className={o.cycleTrackingEnabled ? 'text-purple-200 font-medium' : 'text-slate-700 font-medium'}>
+              <Text className={o.cycleTrackingEnabled ? 'text-purple-200 font-medium' : 'text-slate-300 font-medium'}>
                 {o.cycleTrackingEnabled ? 'Cycle tracking enabled ✓' : 'Enable cycle tracking'}
               </Text>
             </Pressable>
           </View>
 
-          <Text className="text-slate-900 text-lg font-semibold mb-1">How should I coach you?</Text>
+          <Text className="text-slate-100 text-lg font-semibold mb-1">How should I coach you?</Text>
           <Text className="text-slate-400 text-sm mb-4">This shapes Aviva's tone in every conversation.</Text>
           <View className="flex-row flex-wrap gap-2 mb-8">
             {COACHING_STYLES.map((style) => {
               const isActive = o.coachingStyle === style.id;
               return (
-                <Pressable key={style.id} onPress={() => setField('coachingStyle', style.id)} className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-full py-2 px-4' : 'bg-white border-2 border-transparent rounded-full py-2 px-4'}>
-                  <Text className={isActive ? 'text-emerald-300 text-sm' : 'text-slate-700 text-sm'}>{style.emoji} {style.label}</Text>
+                <Pressable key={style.id} onPress={() => setField('coachingStyle', style.id)} className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-full py-2 px-4' : 'bg-slate-900 border-2 border-transparent rounded-full py-2 px-4'}>
+                  <Text className={isActive ? 'text-emerald-300 text-sm' : 'text-slate-300 text-sm'}>{style.emoji} {style.label}</Text>
                 </Pressable>
               );
             })}
           </View>
 
-          <Text className="text-slate-900 text-lg font-semibold mb-1">How do reminders land best for you?</Text>
+          <Text className="text-slate-100 text-lg font-semibold mb-1">How do reminders land best for you?</Text>
           <Text className="text-slate-400 text-sm mb-4">There's no right answer — pick what actually gets you moving.</Text>
           <View className="gap-2 mb-8">
             {REMINDER_STYLES.map((style) => {
               const isActive = o.reminderStyle === style.id;
               return (
-                <Pressable key={style.id} onPress={() => setField('reminderStyle', style.id)} className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-4' : 'bg-white border-2 border-transparent rounded-xl p-4'}>
-                  <Text className={isActive ? 'text-emerald-300 font-medium' : 'text-slate-900 font-medium'}>{style.emoji} {style.label}</Text>
+                <Pressable key={style.id} onPress={() => setField('reminderStyle', style.id)} className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-4' : 'bg-slate-900 border-2 border-transparent rounded-xl p-4'}>
+                  <Text className={isActive ? 'text-emerald-300 font-medium' : 'text-slate-100 font-medium'}>{style.emoji} {style.label}</Text>
                   <Text className="text-slate-500 text-xs">{style.blurb}</Text>
                 </Pressable>
               );

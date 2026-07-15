@@ -27,21 +27,21 @@ export default function CalibrationScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-slate-950">
       <OnboardingProgressBar step={1} total={7} />
       <ScrollView contentContainerStyle={{ padding: 24 }}>
         <View className="w-full max-w-md self-center">
           <OnboardingStepHeader step={1} total={7} />
-          <Text className="text-slate-900 text-2xl font-semibold mb-2">What should I call you?</Text>
+          <Text className="text-slate-100 text-2xl font-semibold mb-2">What should I call you?</Text>
           <TextInput
             value={displayName}
             onChangeText={(v) => setField('displayName', v)}
             placeholder="Your name"
             placeholderTextColor="#64748b"
-            className="bg-white text-slate-900 rounded-xl px-4 py-3 mb-6 text-lg"
+            className="bg-slate-900 text-slate-100 rounded-xl px-4 py-3 mb-6 text-lg"
           />
 
-          <Text className="text-slate-900 text-base font-medium mb-3">Where are you in life right now?</Text>
+          <Text className="text-slate-100 text-base font-medium mb-3">Where are you in life right now?</Text>
           <View className="flex-row flex-wrap gap-2 mb-6">
             {(AGE_BRACKETS || []).map((bracket) => {
               const isActive = ageBracket === bracket.id;
@@ -49,9 +49,9 @@ export default function CalibrationScreen() {
                 <Pressable
                   key={bracket.id}
                   onPress={() => setField('ageBracket', bracket.id)}
-                  className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3 w-[31%]' : 'bg-white border-2 border-transparent rounded-xl p-3 w-[31%]'}
+                  className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3 w-[31%]' : 'bg-slate-900 border-2 border-transparent rounded-xl p-3 w-[31%]'}
                 >
-                  <Text className={isActive ? 'text-emerald-300 text-sm font-medium' : 'text-slate-700 text-sm font-medium'}>{bracket.label}</Text>
+                  <Text className={isActive ? 'text-emerald-300 text-sm font-medium' : 'text-slate-300 text-sm font-medium'}>{bracket.label}</Text>
                   <Text className="text-slate-500 text-xs">{bracket.range}</Text>
                 </Pressable>
               );

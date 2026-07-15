@@ -68,6 +68,7 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
         reduceMotion: settingsState?.reduceMotion ?? state.reduceMotion,
         highContrast: settingsState?.highContrast ?? state.highContrast,
         dyslexiaFont: settingsState?.dyslexiaFont ?? state.dyslexiaFont,
+        colorScheme: settingsState?.colorScheme ?? state.colorScheme,
         reflections: reflectionState?.reflections ?? state.reflections,
         scheduleItems: scheduleState?.scheduleItems ?? state.scheduleItems,
         runningBehindMinutes: scheduleState?.runningBehindMinutes ?? state.runningBehindMinutes,

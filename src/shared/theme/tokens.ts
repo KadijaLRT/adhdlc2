@@ -10,8 +10,8 @@
 // Three sizes only: large (screen titles), medium (section/card
 // headers), small (supporting detail). Nothing in between.
 export const TEXT_SCALE = {
-  large: 'text-slate-900 text-2xl font-semibold',
-  medium: 'text-slate-900 text-base font-semibold',
+  large: 'text-slate-900 dark:text-slate-100 text-2xl font-semibold',
+  medium: 'text-slate-900 dark:text-slate-100 text-base font-semibold',
   small: 'text-slate-400 text-xs',
 };
 

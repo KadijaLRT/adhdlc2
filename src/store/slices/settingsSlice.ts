@@ -2,12 +2,14 @@ import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
 
 export type TextSize = 'small' | 'medium' | 'large';
+export type ColorSchemePreference = 'light' | 'dark' | 'system';
 
 export interface SettingsState {
   textSize: TextSize;
   reduceMotion: boolean;
   highContrast: boolean;
   dyslexiaFont: boolean;
+  colorScheme: ColorSchemePreference;
 }
 
 export interface SettingsSlice extends SettingsState {
@@ -15,6 +17,7 @@ export interface SettingsSlice extends SettingsState {
   setReduceMotion: (enabled: boolean) => Promise<void>;
   setHighContrast: (enabled: boolean) => Promise<void>;
   setDyslexiaFont: (enabled: boolean) => Promise<void>;
+  setColorScheme: (scheme: ColorSchemePreference) => Promise<void>;
 }
 
 const DEFAULT_STATE: SettingsState = {
@@ -22,6 +25,7 @@ const DEFAULT_STATE: SettingsState = {
   reduceMotion: false,
   highContrast: false,
   dyslexiaFont: false,
+  colorScheme: 'light',
 };
 
 async function persist(state: SettingsState) {
@@ -35,6 +39,7 @@ function currentState(get: () => SettingsState): SettingsState {
     reduceMotion: get().reduceMotion ?? false,
     highContrast: get().highContrast ?? false,
     dyslexiaFont: get().dyslexiaFont ?? false,
+    colorScheme: get().colorScheme || 'light',
   };
 }
 
@@ -58,6 +63,11 @@ export const createSettingsSlice: StateCreator<SettingsSlice> = (set, get) => ({
   },
   setDyslexiaFont: async (dyslexiaFont) => {
     const nextState = { ...currentState(get), dyslexiaFont };
+    set(nextState);
+    await persist(nextState);
+  },
+  setColorScheme: async (colorScheme) => {
+    const nextState = { ...currentState(get), colorScheme };
     set(nextState);
     await persist(nextState);
   },

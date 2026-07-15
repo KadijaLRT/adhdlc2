@@ -15,12 +15,12 @@ export default function FoodScreen() {
   const handleContinue = () => goToNextModuleScreen(router);
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-slate-950">
       <OnboardingProgressBar step={6} total={7} />
       <ScrollView contentContainerStyle={{ padding: 24 }}>
         <View className="w-full max-w-md self-center">
           <OnboardingStepHeader step={6} total={7} />
-          <Text className="text-slate-900 text-2xl font-semibold mb-2">Food — what works for you?</Text>
+          <Text className="text-slate-100 text-2xl font-semibold mb-2">Food — what works for you?</Text>
           <Text className="text-slate-400 text-sm mb-6">Personalizes your recipes and meal plans. Be as specific or vague as you want. You can always update this.</Text>
 
           <Text className="text-emerald-400 text-sm font-medium mb-2">✅ Foods you love</Text>
@@ -30,7 +30,7 @@ export default function FoodScreen() {
             placeholder="e.g. spinach, plantains, mac & cheese, shellfish, mangoes..."
             placeholderTextColor="#64748b"
             multiline
-            className="bg-white text-slate-900 rounded-xl p-4 min-h-[90px] mb-6"
+            className="bg-slate-900 text-slate-100 rounded-xl p-4 min-h-[90px] mb-6"
           />
 
           <Text className="text-red-400 text-sm font-medium mb-2">❌ Foods you hate or avoid</Text>
@@ -40,7 +40,7 @@ export default function FoodScreen() {
             placeholder="e.g. pork, bananas, pickles, raw onions..."
             placeholderTextColor="#64748b"
             multiline
-            className="bg-white text-slate-900 rounded-xl p-4 min-h-[90px] mb-6"
+            className="bg-slate-900 text-slate-100 rounded-xl p-4 min-h-[90px] mb-6"
           />
 
           <Text className="text-amber-400 text-sm font-medium mb-2">⚠️ Allergies or restrictions</Text>
@@ -49,7 +49,7 @@ export default function FoodScreen() {
             onChangeText={(v) => setField('allergies', v)}
             placeholder="e.g. almonds (mild), shellfish, gluten-free, dairy-free"
             placeholderTextColor="#64748b"
-            className="bg-white text-slate-900 rounded-xl px-4 py-3 mb-8"
+            className="bg-slate-900 text-slate-100 rounded-xl px-4 py-3 mb-8"
           />
 
           <Pressable onPress={handleContinue} className="bg-emerald-500 rounded-full py-4 active:bg-emerald-400">

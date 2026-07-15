@@ -18,11 +18,11 @@ export default function SleepScreen() {
   const goToNextModuleScreen = useOnboardingStore((s) => s.goToNextModuleScreen);
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-slate-950">
       <ScrollView contentContainerStyle={{ padding: 24 }}>
         <View className="w-full max-w-md self-center">
           <OnboardingBackOnlyHeader />
-          <Text className="text-slate-900 text-2xl font-semibold mb-2">What do you struggle with?</Text>
+          <Text className="text-slate-100 text-2xl font-semibold mb-2">What do you struggle with?</Text>
           <Text className="text-slate-400 text-sm mb-6">Pick whatever's true. Shapes your wind-down and Evening check-in.</Text>
 
           <View className="gap-2 mb-8">
@@ -32,9 +32,9 @@ export default function SleepScreen() {
                 <Pressable
                   key={item.id}
                   onPress={() => toggleInList('sleepStruggles', item.id)}
-                  className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-4' : 'bg-white border-2 border-transparent rounded-xl p-4'}
+                  className={isActive ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-4' : 'bg-slate-900 border-2 border-transparent rounded-xl p-4'}
                 >
-                  <Text className={isActive ? 'text-emerald-300 font-medium' : 'text-slate-900 font-medium'}>{item.emoji} {item.label}</Text>
+                  <Text className={isActive ? 'text-emerald-300 font-medium' : 'text-slate-100 font-medium'}>{item.emoji} {item.label}</Text>
                 </Pressable>
               );
             })}

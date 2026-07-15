@@ -26,7 +26,7 @@ export function OnboardingBackOnlyHeader() {
 
 export function OnboardingProgressBar({ step, total }: { step: number; total: number }) {
   return (
-    <View className="h-1 bg-stone-100">
+    <View className="h-1 bg-slate-800">
       <View className="h-1 bg-emerald-500" style={{ width: `${(step / total) * 100}%` }} />
     </View>
   );
