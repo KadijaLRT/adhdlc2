@@ -2,6 +2,7 @@ export interface Recipe {
   id: string; n: string; c: string; t: string;
   pro: string; carb: string; fat: string; cal: number;
   ing: string[]; g: string[]; prep: string; cook: string;
+  instructions?: string[]; // step-by-step directions, when the recipe ships with them
 }
 
 export const RECIPES: Recipe[] =[

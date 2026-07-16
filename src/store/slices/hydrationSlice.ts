@@ -113,6 +113,7 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
         fitnessPreferences: nutritionFitnessState?.fitnessPreferences ?? state.fitnessPreferences,
         fitnessCardDismissed: nutritionFitnessState?.fitnessCardDismissed ?? state.fitnessCardDismissed,
         aiGeneratedRecipes: nutritionFitnessState?.aiGeneratedRecipes ?? state.aiGeneratedRecipes,
+        recipeInstructionsCache: nutritionFitnessState?.recipeInstructionsCache ?? state.recipeInstructionsCache,
 
         setLogs: workoutState?.setLogs ?? state.setLogs,
         personalRecords: workoutState?.personalRecords ?? state.personalRecords,

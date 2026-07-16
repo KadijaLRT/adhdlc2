@@ -97,6 +97,7 @@ export const selectWeightGoalDate = (s: AppState) => s.weightGoalDate;
 export const selectMomentumLog = (s: AppState) => s.momentumLog || [];
 export const selectSavedRecipeIds = (s: AppState) => s.savedRecipeIds || [];
 export const selectAiGeneratedRecipes = (s: AppState) => s.aiGeneratedRecipes || [];
+export const selectRecipeInstructionsCache = (s: AppState) => s.recipeInstructionsCache || {};
 export const selectCompletedExerciseLog = (s: AppState) => s.completedExerciseLog || [];
 export const selectNutritionPreferences = (s: AppState) => s.nutritionPreferences;
 export const selectNutritionCardDismissed = (s: AppState) => s.nutritionCardDismissed;

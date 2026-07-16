@@ -2,14 +2,26 @@ import { useMemo, useState } from 'react';
 import { View, Text, Pressable, TextInput, FlatList, ActivityIndicator } from 'react-native';
 import {
   useAppStore, selectSavedRecipeIds, selectNutritionPreferences, selectNutritionCardDismissed,
-  selectWellnessPreferences, selectAiGeneratedRecipes,
+  selectWellnessPreferences, selectAiGeneratedRecipes, type MealType,
 } from '@/store/index';
 import PersonalizeNutritionCard from './PersonalizeNutritionCard';
 import { RECIPES, type Recipe } from '@/content/recipes';
+import { parseGramString } from '@/content/foodDatabase';
 import { getBloodTypeAffinity } from '@/content/bloodTypeAffinities';
 import { generateRecipeWithAI } from './recipeGeneration';
 import { useRouter } from 'expo-router';
 import { Heading } from '@/shared/components/Heading';
+
+const DIARY_MEAL_TYPES: { id: MealType; label: string; icon: string }[] = [
+  { id: 'breakfast', label: 'Breakfast', icon: '🍳' },
+  { id: 'lunch', label: 'Lunch', icon: '🥪' },
+  { id: 'dinner', label: 'Dinner', icon: '🍽️' },
+  { id: 'snack', label: 'Snack', icon: '🍪' },
+];
+
+function todayLocal(): string {
+  return new Date().toISOString().split('T')[0] || '';
+}
 
 const CUISINES = ['all', 'jamaican', 'american', 'southern', 'italian', 'mexican', 'caribbean', 'japanese'];
 const MEAL_TYPES = ['all', 'breakfast', 'lunch', 'dinner'];
@@ -230,22 +242,68 @@ function RecipeCard({
 }: {
   recipe: Recipe; isSaved: boolean; onToggleSave: () => void; bloodTypeAffinity: 'beneficial' | 'avoid' | 'neutral'; isAiGenerated: boolean;
 }) {
+  const router = useRouter();
+  const logFood = useAppStore((s) => s.logFood);
+  const [showMealPicker, setShowMealPicker] = useState(false);
+  const [justLogged, setJustLogged] = useState<MealType | null>(null);
+
+  const handleLogToMeal = async (mealType: MealType) => {
+    await logFood({
+      date: todayLocal(),
+      mealType,
+      foodName: recipe.n,
+      servings: 1,
+      calories: recipe.cal || 0,
+      protein: parseGramString(recipe.pro),
+      carbs: parseGramString(recipe.carb),
+      fat: parseGramString(recipe.fat),
+    });
+    setShowMealPicker(false);
+    setJustLogged(mealType);
+    setTimeout(() => setJustLogged(null), 2500);
+  };
+
   return (
     <View className="bg-white rounded-2xl p-4 dark:bg-slate-900">
       <View className="flex-row items-center justify-between mb-1">
-        <Text className="text-slate-900 font-medium flex-1 dark:text-slate-100">
-          {isAiGenerated && '✨ '}{recipe?.n || 'Untitled recipe'}
-        </Text>
-        <Pressable onPress={onToggleSave}>
-          <Text className="text-lg">{isSaved ? '⭐️' : '☆'}</Text>
+        <Pressable onPress={() => router?.push?.(`/nutrition/recipe/${recipe.id}`)} className="flex-1 pr-2">
+          <Text className="text-slate-900 font-medium dark:text-slate-100">
+            {isAiGenerated && '✨ '}{recipe?.n || 'Untitled recipe'}
+          </Text>
         </Pressable>
+        <View className="flex-row items-center gap-3">
+          <Pressable onPress={() => setShowMealPicker(!showMealPicker)}>
+            <Text className="text-lg">➕</Text>
+          </Pressable>
+          <Pressable onPress={onToggleSave}>
+            <Text className="text-lg">{isSaved ? '⭐️' : '☆'}</Text>
+          </Pressable>
+        </View>
       </View>
       <Text className="text-slate-500 text-xs mb-2 capitalize">{recipe?.c} · {recipe?.t} · {recipe?.prep} prep · {recipe?.cook} cook</Text>
       <Text className="text-slate-500 text-xs mb-2">{recipe?.cal || 0} cal · {recipe?.pro} protein · {recipe?.carb} carb · {recipe?.fat} fat</Text>
       {bloodTypeAffinity !== 'neutral' && (
-        <Text className={bloodTypeAffinity === 'beneficial' ? 'text-emerald-600 dark:text-emerald-400 text-xs font-medium' : 'text-red-500 text-xs font-medium'}>
+        <Text className={bloodTypeAffinity === 'beneficial' ? 'text-emerald-600 dark:text-emerald-400 text-xs font-medium mb-2' : 'text-red-500 text-xs font-medium mb-2'}>
           {bloodTypeAffinity === 'beneficial' ? '✅ Good match for your type' : '❌ Best avoided for your type'}
         </Text>
+      )}
+
+      {justLogged && (
+        <View className="bg-emerald-400/10 border border-emerald-400 rounded-xl py-2 items-center mb-1">
+          <Text className="text-emerald-700 dark:text-emerald-400 text-xs font-medium">Added to today's {justLogged} ✓</Text>
+        </View>
+      )}
+      {showMealPicker && (
+        <View className="flex-row gap-1.5">
+          {DIARY_MEAL_TYPES.map((meal) => (
+            <Pressable key={meal.id} onPress={() => handleLogToMeal(meal.id)} className="flex-1 bg-stone-100 dark:bg-slate-800 rounded-lg py-2 items-center">
+              <Text className="text-xs">{meal.icon}</Text>
+            </Pressable>
+          ))}
+          <Pressable onPress={() => setShowMealPicker(false)} className="px-2 justify-center">
+            <Text className="text-slate-400 text-xs">✕</Text>
+          </Pressable>
+        </View>
       )}
     </View>
   );

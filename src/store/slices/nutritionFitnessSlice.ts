@@ -33,6 +33,7 @@ export interface NutritionFitnessState {
   fitnessPreferences: FitnessPreferences | null;
   fitnessCardDismissed: boolean;
   aiGeneratedRecipes: Recipe[];
+  recipeInstructionsCache: Record<string, string[]>;
 }
 
 export interface NutritionFitnessSlice extends NutritionFitnessState {
@@ -43,6 +44,7 @@ export interface NutritionFitnessSlice extends NutritionFitnessState {
   setFitnessPreferences: (prefs: FitnessPreferences) => Promise<void>;
   dismissFitnessCard: () => Promise<void>;
   addAiGeneratedRecipe: (recipe: Recipe) => Promise<void>;
+  setRecipeInstructions: (recipeId: string, instructions: string[]) => Promise<void>;
 }
 
 const DEFAULT_STATE: NutritionFitnessState = {
@@ -53,6 +55,7 @@ const DEFAULT_STATE: NutritionFitnessState = {
   fitnessPreferences: null,
   fitnessCardDismissed: false,
   aiGeneratedRecipes: [],
+  recipeInstructionsCache: {},
 };
 
 async function persist(state: NutritionFitnessState) {
@@ -69,6 +72,7 @@ function currentState(get: () => NutritionFitnessState): NutritionFitnessState {
     fitnessPreferences: get().fitnessPreferences || null,
     fitnessCardDismissed: get().fitnessCardDismissed || false,
     aiGeneratedRecipes: get().aiGeneratedRecipes || [],
+    recipeInstructionsCache: get().recipeInstructionsCache || {},
   };
 }
 
@@ -124,6 +128,14 @@ export const createNutritionFitnessSlice: StateCreator<NutritionFitnessSlice> = 
     const current = get().aiGeneratedRecipes || [];
     if (current.some((r) => r.n.toLowerCase() === recipe.n.toLowerCase())) return;
     const nextState = { ...currentState(get), aiGeneratedRecipes: [...current, recipe] };
+    set(nextState);
+    await persist(nextState);
+  },
+
+  // Generated once per recipe and kept indefinitely — directions don't
+  // change, so there's no reason to regenerate them on every visit.
+  setRecipeInstructions: async (recipeId, instructions) => {
+    const nextState = { ...currentState(get), recipeInstructionsCache: { ...currentState(get).recipeInstructionsCache, [recipeId]: instructions } };
     set(nextState);
     await persist(nextState);
   },

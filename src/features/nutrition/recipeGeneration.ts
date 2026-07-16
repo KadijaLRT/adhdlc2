@@ -16,8 +16,33 @@ const GeneratedRecipeSchema = z.object({
   cookTime: z.string(),
 });
 
+const DirectionsSchema = z.object({
+  steps: z.array(z.string()).min(1),
+});
+
 function slugify(text: string): string {
   return (text || 'recipe').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 40);
+}
+
+/**
+ * Generates step-by-step cooking directions for a recipe that doesn't
+ * have any yet — built-in recipes ship with ingredients and macros but
+ * not directions, since hand-writing real tested steps for 80+ recipes
+ * isn't something to fabricate. This generates a realistic set of
+ * steps from the recipe's own name and ingredient list, clearly framed
+ * in the UI as AI-generated rather than a tested, verified recipe.
+ * Cached once generated (see recipeInstructionsCache) so it only ever
+ * runs once per recipe.
+ */
+export async function generateRecipeDirections(recipeName: string, ingredients: string[]): Promise<string[] | null> {
+  const result = await callGroqJSON(
+    'You are a cooking instructor writing clear, simple, numbered step-by-step directions for a home cook. ' +
+    'Use the given recipe name and ingredient list. Keep each step short and concrete — one action per step. ' +
+    'Do not include ingredient quantities not implied by the ingredient list. 4-10 steps.',
+    { recipeName, ingredients },
+    DirectionsSchema
+  );
+  return result?.steps || null;
 }
 
 /**
