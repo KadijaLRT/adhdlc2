@@ -89,6 +89,8 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
         highContrast: settingsState?.highContrast ?? state.highContrast,
         dyslexiaFont: settingsState?.dyslexiaFont ?? state.dyslexiaFont,
         colorScheme: settingsState?.colorScheme ?? state.colorScheme,
+        dateFormat: settingsState?.dateFormat ?? state.dateFormat,
+        unitSystem: settingsState?.unitSystem ?? state.unitSystem,
         reflections: reflectionState?.reflections ?? state.reflections,
         scheduleItems: scheduleState?.scheduleItems ?? state.scheduleItems,
         runningBehindMinutes: scheduleState?.runningBehindMinutes ?? state.runningBehindMinutes,
@@ -130,6 +132,7 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
 
         foodLog: nutritionTrackingState?.foodLog ?? state.foodLog,
         dailyTargets: nutritionTrackingState?.dailyTargets ?? state.dailyTargets,
+        customMeals: nutritionTrackingState?.customMeals ?? state.customMeals,
 
         isHydrated: true,
         storageWorking,

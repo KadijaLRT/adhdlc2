@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { View, Text, Pressable, ActivityIndicator, ScrollView } from 'react-native';
-import { useAppStore, selectAssignments, selectEnergyLevel, selectIsOverwhelmed } from '@/store/index';
+import { useAppStore, selectAssignments, selectEnergyLevel, selectIsOverwhelmed, selectDateFormat } from '@/store/index';
 import { avivaBrain } from '@/core/ai/AvivaBrain';
 import { spreadStepsAcrossDays, groupStepsByDate } from './spreadWorkload';
 import { Heading } from '@/shared/components/Heading';
+import { formatDate } from '@/shared/formatDate';
 
 export default function AssignmentDetailScreen({ assignmentId }: { assignmentId: string }) {
   const assignments = useAppStore(selectAssignments);
   const energyLevel = useAppStore(selectEnergyLevel);
   const isOverwhelmed = useAppStore(selectIsOverwhelmed);
+  const dateFormat = useAppStore(selectDateFormat);
   const toggleAssignmentComplete = useAppStore((s) => s.toggleAssignmentComplete);
   const toggleAssignmentSubStep = useAppStore((s) => s.toggleAssignmentSubStep);
   const updateAssignment = useAppStore((s) => s.updateAssignment);
@@ -50,7 +52,7 @@ export default function AssignmentDetailScreen({ assignmentId }: { assignmentId:
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
         <Heading className="mb-1 mt-2">{assignment.title}</Heading>
-        <Text className="text-slate-500 text-sm mb-6">Due {assignment.dueDate}</Text>
+        <Text className="text-slate-500 text-sm mb-6">Due {formatDate(assignment.dueDate, dateFormat)}</Text>
 
         <Pressable
           onPress={() => toggleAssignmentComplete(assignment.id)}
@@ -70,7 +72,7 @@ export default function AssignmentDetailScreen({ assignmentId }: { assignmentId:
             {groupStepsByDate(assignment.subSteps || []).map((group) => (
               <View key={group.date}>
                 <Text className="text-slate-500 text-xs font-medium mb-2">
-                  {group.date === new Date().toISOString().split('T')[0] ? 'Today' : group.date}
+                  {group.date === new Date().toISOString().split('T')[0] ? 'Today' : formatDate(group.date, dateFormat)}
                 </Text>
                 <View className="gap-2">
                   {group.steps.map((step) => (

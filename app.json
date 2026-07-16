@@ -13,7 +13,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.adhdlifecoach.app",
-      "infoPlist": { "UIViewControllerBasedStatusBarAppearance": true }
+      "infoPlist": { "UIViewControllerBasedStatusBarAppearance": true, "NSCameraUsageDescription": "Used only to scan a food barcode when logging what you ate — nothing is recorded or stored." }
     },
     "android": {
       "package": "com.adhdlifecoach.app",
@@ -35,7 +35,10 @@
         "apple-mobile-web-app-title": "Aviva"
       }
     },
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router",
+      ["expo-camera", { "cameraPermission": "Used only to scan a food barcode when logging what you ate — nothing is recorded or stored." }]
+    ],
     "experiments": { "typedRoutes": true }
   }
 }

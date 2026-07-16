@@ -3,6 +3,8 @@ import { getRepository } from '@/core/storage';
 
 export type TextSize = 'small' | 'medium' | 'large';
 export type ColorSchemePreference = 'light' | 'dark' | 'system';
+export type DateFormat = 'MM-DD-YYYY' | 'DD-MM-YYYY' | 'YYYY-MM-DD';
+export type UnitSystem = 'imperial' | 'metric';
 
 export interface SettingsState {
   textSize: TextSize;
@@ -10,6 +12,8 @@ export interface SettingsState {
   highContrast: boolean;
   dyslexiaFont: boolean;
   colorScheme: ColorSchemePreference;
+  dateFormat: DateFormat;
+  unitSystem: UnitSystem;
 }
 
 export interface SettingsSlice extends SettingsState {
@@ -18,6 +22,8 @@ export interface SettingsSlice extends SettingsState {
   setHighContrast: (enabled: boolean) => Promise<void>;
   setDyslexiaFont: (enabled: boolean) => Promise<void>;
   setColorScheme: (scheme: ColorSchemePreference) => Promise<void>;
+  setDateFormat: (format: DateFormat) => Promise<void>;
+  setUnitSystem: (system: UnitSystem) => Promise<void>;
 }
 
 const DEFAULT_STATE: SettingsState = {
@@ -26,6 +32,8 @@ const DEFAULT_STATE: SettingsState = {
   highContrast: false,
   dyslexiaFont: false,
   colorScheme: 'light',
+  dateFormat: 'MM-DD-YYYY',
+  unitSystem: 'imperial',
 };
 
 async function persist(state: SettingsState) {
@@ -40,6 +48,8 @@ function currentState(get: () => SettingsState): SettingsState {
     highContrast: get().highContrast ?? false,
     dyslexiaFont: get().dyslexiaFont ?? false,
     colorScheme: get().colorScheme || 'light',
+    dateFormat: get().dateFormat || 'MM-DD-YYYY',
+    unitSystem: get().unitSystem || 'imperial',
   };
 }
 
@@ -68,6 +78,16 @@ export const createSettingsSlice: StateCreator<SettingsSlice> = (set, get) => ({
   },
   setColorScheme: async (colorScheme) => {
     const nextState = { ...currentState(get), colorScheme };
+    set(nextState);
+    await persist(nextState);
+  },
+  setDateFormat: async (dateFormat) => {
+    const nextState = { ...currentState(get), dateFormat };
+    set(nextState);
+    await persist(nextState);
+  },
+  setUnitSystem: async (unitSystem) => {
+    const nextState = { ...currentState(get), unitSystem };
     set(nextState);
     await persist(nextState);
   },

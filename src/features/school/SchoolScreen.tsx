@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useAppStore, selectCourses, selectAssignments, selectEnergyLevel, selectProfile, selectTotalCreditsRequired } from '@/store/index';
 import { Heading } from '@/shared/components/Heading';
 import { calculateGPA } from './gpaCalculations';
+import { getCourseStatus, type CourseStatus } from '@/store/slices/schoolSlice';
 import SchoolProgramSetupCard from './SchoolProgramSetupCard';
 
 const COURSE_EMOJIS = ['📖', '🧮', '🧪', '🎨', '🌍', '💻'];
@@ -35,6 +36,19 @@ function suggestNextAssignment(assignments: ReturnType<typeof selectAssignments>
   return scored[0]?.assignment || null;
 }
 
+const STATUS_ORDER: CourseStatus[] = ['in_progress', 'completed', 'failed', 'retaking'];
+const STATUS_DISPLAY: Record<CourseStatus, { label: string; icon: string; circleClass: string; textClass: string }> = {
+  in_progress: { label: 'In progress', icon: '', circleClass: 'border-2 border-stone-300 dark:border-slate-700', textClass: 'text-slate-900 dark:text-slate-100' },
+  completed: { label: 'Completed', icon: '✓', circleClass: 'bg-emerald-500', textClass: 'text-slate-400 line-through' },
+  failed: { label: 'Failed', icon: '✕', circleClass: 'bg-red-500', textClass: 'text-slate-900 dark:text-slate-100' },
+  retaking: { label: 'Retaking', icon: '↻', circleClass: 'bg-amber-500', textClass: 'text-slate-900 dark:text-slate-100' },
+};
+
+function nextCourseStatus(current: CourseStatus): CourseStatus {
+  const index = STATUS_ORDER.indexOf(current);
+  return STATUS_ORDER[(index + 1) % STATUS_ORDER.length] || 'in_progress';
+}
+
 export default function SchoolScreen() {
   const router = useRouter();
   const courses = useAppStore(selectCourses);
@@ -55,8 +69,8 @@ export default function SchoolScreen() {
   const gpa = useMemo(() => calculateGPA(courses), [courses]);
 
   const isYounger = profile?.ageBracket === 'middle_school' || profile?.ageBracket === 'high_school';
-  const creditsCompleted = (courses || []).reduce((sum, c) => sum + (c.isCompleted ? (c.credits || 0) : 0), 0);
-  const creditsInProgress = (courses || []).reduce((sum, c) => sum + (!c.isCompleted ? (c.credits || 0) : 0), 0);
+  const creditsCompleted = (courses || []).reduce((sum, c) => sum + (getCourseStatus(c) === 'completed' ? (c.credits || 0) : 0), 0);
+  const creditsInProgress = (courses || []).reduce((sum, c) => sum + (getCourseStatus(c) === 'in_progress' || getCourseStatus(c) === 'retaking' ? (c.credits || 0) : 0), 0);
   const degreePercent = totalCreditsRequired ? Math.min(100, Math.round((creditsCompleted / totalCreditsRequired) * 100)) : 0;
 
   const handleSaveCreditsGoal = () => {
@@ -99,7 +113,7 @@ export default function SchoolScreen() {
                   <View className="h-full bg-emerald-500 rounded-full" style={{ width: `${degreePercent}%` }} />
                 </View>
                 {creditsInProgress > 0 && (
-                  <Text className="text-slate-500 text-xs mt-1">+ {creditsInProgress} credit{creditsInProgress === 1 ? '' : 's'} in progress (not yet marked completed)</Text>
+                  <Text className="text-slate-500 text-xs mt-1">+ {creditsInProgress} credit{creditsInProgress === 1 ? '' : 's'} in progress or being retaken (not yet counted)</Text>
                 )}
                 <Pressable onPress={() => setSchoolSetup({ totalCreditsRequired: undefined })} className="mt-2">
                   <Text className="text-indigo-500 text-xs">Change total credits needed</Text>
@@ -172,16 +186,20 @@ export default function SchoolScreen() {
           {(courses || []).map((course) => {
             const courseAssignments = (assignments || []).filter((a) => a.courseId === course.id);
             const openCount = courseAssignments.filter((a) => !a.isComplete).length;
+            const status = getCourseStatus(course);
+            const display = STATUS_DISPLAY[status];
             return (
               <View key={course.id} className="bg-white rounded-xl p-4 flex-row items-center gap-3 dark:bg-slate-900">
-                <Pressable onPress={() => updateCourse(course.id, { isCompleted: !course.isCompleted })}>
-                  <View className={course.isCompleted ? 'w-5 h-5 rounded-full bg-emerald-500 items-center justify-center' : 'w-5 h-5 rounded-full border-2 border-stone-300 dark:border-slate-700'}>
-                    {course.isCompleted && <Text className="text-white text-xs">✓</Text>}
+                <Pressable onPress={() => updateCourse(course.id, { status: nextCourseStatus(status), isCompleted: nextCourseStatus(status) === 'completed' })}>
+                  <View className={`w-5 h-5 rounded-full items-center justify-center ${display.circleClass}`}>
+                    {display.icon && <Text className="text-white text-xs">{display.icon}</Text>}
                   </View>
                 </Pressable>
                 <Pressable onPress={() => router?.push?.(`/school/course/${course.id}`)} className="flex-1 flex-row items-center justify-between">
-                  <Text className={course.isCompleted ? 'text-slate-400 text-sm line-through' : 'text-slate-900 text-sm dark:text-slate-100'}>{course.emoji} {course.name}</Text>
-                  <Text className="text-slate-500 text-xs">{course.isCompleted ? 'Completed' : `${openCount} open`}</Text>
+                  <Text className={`text-sm ${display.textClass}`}>{course.emoji} {course.name}</Text>
+                  <Text className={status === 'failed' ? 'text-red-500 text-xs font-medium' : status === 'retaking' ? 'text-amber-600 dark:text-amber-400 text-xs font-medium' : 'text-slate-500 text-xs'}>
+                    {status === 'in_progress' ? `${openCount} open` : display.label}
+                  </Text>
                 </Pressable>
               </View>
             );

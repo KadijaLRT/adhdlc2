@@ -1,10 +1,15 @@
-import { useMemo, useState } from 'react';
-import { View, Text, Pressable, TextInput, ScrollView } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { View, Text, Pressable, TextInput, ScrollView, ActivityIndicator } from 'react-native';
 import {
-  useAppStore, selectFoodLog, selectDailyTargets, type MealType, type FoodLogEntry,
+  useAppStore, selectFoodLog, selectDailyTargets, selectSavedRecipeIds, selectAiGeneratedRecipes, selectCustomMeals,
+  type MealType, type FoodLogEntry, type CustomMeal, type CustomMealIngredient,
 } from '@/store/index';
-import { searchFoodDatabase, type FoodItem } from '@/content/foodDatabase';
+import { searchFoodDatabase, parseGramString, type FoodItem } from '@/content/foodDatabase';
+import { searchOpenFoodFacts } from '@/core/nutrition/openFoodFactsApi';
+import { RECIPES, type Recipe } from '@/content/recipes';
 import { Heading } from '@/shared/components/Heading';
+import BarcodeScannerModal from './BarcodeScannerModal';
+import CustomMealBuilder from './CustomMealBuilder';
 
 const MEAL_TYPES: { id: MealType; label: string; icon: string }[] = [
   { id: 'breakfast', label: 'Breakfast', icon: '🍳' },
@@ -12,6 +17,8 @@ const MEAL_TYPES: { id: MealType; label: string; icon: string }[] = [
   { id: 'dinner', label: 'Dinner', icon: '🍽️' },
   { id: 'snack', label: 'Snacks', icon: '🍪' },
 ];
+
+type AddTab = 'search' | 'recipes' | 'mymeals';
 
 function todayLocal(): string {
   return new Date().toISOString().split('T')[0] || '';
@@ -47,26 +54,42 @@ function ProgressBar({ value, target, color }: { value: number; target: number |
 export default function NutritionDiaryScreen() {
   const foodLog = useAppStore(selectFoodLog);
   const dailyTargets = useAppStore(selectDailyTargets);
+  const savedRecipeIds = useAppStore(selectSavedRecipeIds);
+  const aiGeneratedRecipes = useAppStore(selectAiGeneratedRecipes);
+  const customMeals = useAppStore(selectCustomMeals);
   const logFood = useAppStore((s) => s.logFood);
   const removeFoodLogEntry = useAppStore((s) => s.removeFoodLogEntry);
+  const updateFoodLogEntry = useAppStore((s) => s.updateFoodLogEntry);
   const setDailyTargets = useAppStore((s) => s.setDailyTargets);
+  const saveCustomMeal = useAppStore((s) => s.saveCustomMeal);
+  const removeCustomMeal = useAppStore((s) => s.removeCustomMeal);
 
   const [selectedDate, setSelectedDate] = useState(todayLocal());
   const [addingToMeal, setAddingToMeal] = useState<MealType | null>(null);
+  const [addTab, setAddTab] = useState<AddTab>('search');
   const [search, setSearch] = useState('');
   const [pickedFood, setPickedFood] = useState<FoodItem | null>(null);
   const [servings, setServings] = useState('1');
-  const [showCustomForm, setShowCustomForm] = useState(false);
-  const [customName, setCustomName] = useState('');
-  const [customCal, setCustomCal] = useState('');
-  const [customPro, setCustomPro] = useState('');
-  const [customCarb, setCustomCarb] = useState('');
-  const [customFat, setCustomFat] = useState('');
+  const [recipeSearch, setRecipeSearch] = useState('');
+  const [pickedRecipe, setPickedRecipe] = useState<Recipe | null>(null);
+  const [recipeServings, setRecipeServings] = useState('1');
   const [editingTargets, setEditingTargets] = useState(false);
   const [targetCalInput, setTargetCalInput] = useState(dailyTargets?.calories ? String(dailyTargets.calories) : '');
   const [targetProInput, setTargetProInput] = useState(dailyTargets?.protein ? String(dailyTargets.protein) : '');
   const [targetCarbInput, setTargetCarbInput] = useState(dailyTargets?.carbs ? String(dailyTargets.carbs) : '');
   const [targetFatInput, setTargetFatInput] = useState(dailyTargets?.fat ? String(dailyTargets.fat) : '');
+  const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editCal, setEditCal] = useState('');
+  const [editPro, setEditPro] = useState('');
+  const [editCarb, setEditCarb] = useState('');
+  const [editFat, setEditFat] = useState('');
+  const [showScanner, setShowScanner] = useState(false);
+  const [liveResults, setLiveResults] = useState<FoodItem[]>([]);
+  const [liveSearching, setLiveSearching] = useState(false);
+  const [showMealBuilder, setShowMealBuilder] = useState(false);
+  const [pickedMeal, setPickedMeal] = useState<CustomMeal | null>(null);
+  const [mealServings, setMealServings] = useState('1');
 
   const entriesForDay = useMemo(() => (foodLog || []).filter((f) => f.date === selectedDate), [foodLog, selectedDate]);
 
@@ -84,13 +107,49 @@ export default function NutritionDiaryScreen() {
 
   const searchResults = useMemo(() => searchFoodDatabase(search).slice(0, 12), [search]);
 
+  // Local curated list shows instantly; live results from Open Food
+  // Facts are appended once they arrive, debounced so it doesn't fire
+  // a network request on every keystroke. Local results are deduped
+  // out of the live list by name so nothing shows twice.
+  useEffect(() => {
+    const query = search.trim();
+    if (query.length < 2) {
+      setLiveResults([]);
+      setLiveSearching(false);
+      return;
+    }
+    setLiveSearching(true);
+    const timeout = setTimeout(async () => {
+      const results = await searchOpenFoodFacts(query);
+      const localNames = new Set(searchResults.map((r) => r.name.toLowerCase()));
+      setLiveResults(results.filter((r) => !localNames.has(r.name.toLowerCase())));
+      setLiveSearching(false);
+    }, 500);
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
+  const combinedSearchResults = useMemo(() => [...searchResults, ...liveResults], [searchResults, liveResults]);
+
+  const allRecipes = useMemo(() => [...(RECIPES || []), ...(aiGeneratedRecipes || [])], [aiGeneratedRecipes]);
+  const recipeResults = useMemo(() => {
+    const q = recipeSearch.trim().toLowerCase();
+    const pool = q ? allRecipes.filter((r) => r.n.toLowerCase().includes(q)) : allRecipes.filter((r) => savedRecipeIds.includes(r.id));
+    return pool.slice(0, 12);
+  }, [allRecipes, recipeSearch, savedRecipeIds]);
+
   const resetAddFlow = () => {
     setAddingToMeal(null);
+    setAddTab('search');
     setSearch('');
     setPickedFood(null);
     setServings('1');
-    setShowCustomForm(false);
-    setCustomName(''); setCustomCal(''); setCustomPro(''); setCustomCarb(''); setCustomFat('');
+    setRecipeSearch('');
+    setPickedRecipe(null);
+    setRecipeServings('1');
+    setShowMealBuilder(false);
+    setPickedMeal(null);
+    setMealServings('1');
   };
 
   const handleLogPickedFood = async () => {
@@ -109,17 +168,54 @@ export default function NutritionDiaryScreen() {
     resetAddFlow();
   };
 
-  const handleLogCustomFood = async () => {
-    if (!customName.trim() || !addingToMeal) return;
+  const handleLogPickedRecipe = async () => {
+    if (!pickedRecipe || !addingToMeal) return;
+    const multiplier = Number(recipeServings) || 1;
     await logFood({
       date: selectedDate,
       mealType: addingToMeal,
-      foodName: customName.trim(),
+      foodName: pickedRecipe.n,
+      servings: multiplier,
+      calories: Math.round((pickedRecipe.cal || 0) * multiplier),
+      protein: Math.round(parseGramString(pickedRecipe.pro) * multiplier),
+      carbs: Math.round(parseGramString(pickedRecipe.carb) * multiplier),
+      fat: Math.round(parseGramString(pickedRecipe.fat) * multiplier),
+    });
+    resetAddFlow();
+  };
+
+  const handleLogPickedMeal = async () => {
+    if (!pickedMeal || !addingToMeal) return;
+    const multiplier = Number(mealServings) || 1;
+    await logFood({
+      date: selectedDate,
+      mealType: addingToMeal,
+      foodName: pickedMeal.name,
+      servings: multiplier,
+      calories: Math.round(pickedMeal.calories * multiplier),
+      protein: Math.round(pickedMeal.protein * multiplier),
+      carbs: Math.round(pickedMeal.carbs * multiplier),
+      fat: Math.round(pickedMeal.fat * multiplier),
+    });
+    resetAddFlow();
+  };
+
+  const handleSaveNewMeal = async (name: string, ingredients: CustomMealIngredient[]) => {
+    if (!addingToMeal) return;
+    const totals = ingredients.reduce(
+      (acc, i) => ({ calories: acc.calories + i.calories, protein: acc.protein + i.protein, carbs: acc.carbs + i.carbs, fat: acc.fat + i.fat }),
+      { calories: 0, protein: 0, carbs: 0, fat: 0 }
+    );
+    const saved = await saveCustomMeal({ name, ingredients, ...totals });
+    await logFood({
+      date: selectedDate,
+      mealType: addingToMeal,
+      foodName: saved.name,
       servings: 1,
-      calories: Number(customCal) || 0,
-      protein: Number(customPro) || 0,
-      carbs: Number(customCarb) || 0,
-      fat: Number(customFat) || 0,
+      calories: saved.calories,
+      protein: saved.protein,
+      carbs: saved.carbs,
+      fat: saved.fat,
     });
     resetAddFlow();
   };
@@ -134,14 +230,36 @@ export default function NutritionDiaryScreen() {
     setEditingTargets(false);
   };
 
-  return (
-    <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
-      <View className="w-full max-w-md self-center">
-        <Heading className="mb-1 mt-2">Nutrition Diary</Heading>
-        <Text className="text-slate-500 text-sm mb-4">Log what you eat — no perfect days required, just what's true.</Text>
+  const handleStartEdit = (entry: FoodLogEntry) => {
+    setEditingEntryId(entry.id);
+    setEditName(entry.foodName);
+    setEditCal(String(entry.calories));
+    setEditPro(String(entry.protein));
+    setEditCarb(String(entry.carbs));
+    setEditFat(String(entry.fat));
+  };
 
-        <View className="flex-row items-center justify-between mb-4">
-          <Pressable onPress={() => setSelectedDate(shiftDate(selectedDate, -1))} className="p-2">
+  const handleSaveEdit = async () => {
+    if (!editingEntryId || !editName.trim()) return;
+    await updateFoodLogEntry(editingEntryId, {
+      foodName: editName.trim(),
+      calories: Number(editCal) || 0,
+      protein: Number(editPro) || 0,
+      carbs: Number(editCarb) || 0,
+      fat: Number(editFat) || 0,
+    });
+    setEditingEntryId(null);
+  };
+
+  return (
+    <View className="flex-1">
+      <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
+        <View className="w-full max-w-md self-center">
+          <Heading className="mb-1 mt-2">Nutrition Diary</Heading>
+          <Text className="text-slate-500 text-sm mb-4">Log what you eat — no perfect days required, just what's true.</Text>
+
+          <View className="flex-row items-center justify-between mb-4">
+            <Pressable onPress={() => setSelectedDate(shiftDate(selectedDate, -1))} className="p-2">
             <Text className="text-indigo-500 text-lg">‹</Text>
           </Pressable>
           <Text className="text-slate-900 dark:text-slate-100 text-sm font-semibold">{formatDateLabel(selectedDate)}</Text>
@@ -218,39 +336,88 @@ export default function NutritionDiaryScreen() {
               </View>
 
               {mealEntries.map((entry) => (
-                <View key={entry.id} className="flex-row items-center justify-between py-1.5 border-t border-stone-100 dark:border-slate-800">
-                  <View className="flex-1">
-                    <Text className="text-slate-800 dark:text-slate-200 text-sm">{entry.foodName}{entry.servings !== 1 ? ` ×${entry.servings}` : ''}</Text>
-                    <Text className="text-slate-500 text-xs">{entry.calories} cal · {entry.protein}p · {entry.carbs}c · {entry.fat}f</Text>
+                editingEntryId === entry.id ? (
+                  <View key={entry.id} className="py-2 border-t border-stone-100 dark:border-slate-800">
+                    <TextInput value={editName} onChangeText={setEditName} placeholder="Food name" placeholderTextColor="#64748b" className="bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2 mb-2" />
+                    <View className="flex-row gap-2 mb-2">
+                      <TextInput value={editCal} onChangeText={setEditCal} placeholder="Calories" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" />
+                      <TextInput value={editPro} onChangeText={setEditPro} placeholder="Protein g" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" />
+                    </View>
+                    <View className="flex-row gap-2 mb-2">
+                      <TextInput value={editCarb} onChangeText={setEditCarb} placeholder="Carbs g" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" />
+                      <TextInput value={editFat} onChangeText={setEditFat} placeholder="Fat g" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" />
+                    </View>
+                    <View className="flex-row gap-2">
+                      <Pressable onPress={handleSaveEdit} disabled={!editName.trim()} className={editName.trim() ? 'flex-1 bg-indigo-600 rounded-xl py-2 items-center active:bg-indigo-500' : 'flex-1 bg-slate-300 dark:bg-slate-700 rounded-xl py-2 items-center'}>
+                        <Text className="text-white text-sm font-semibold">Save</Text>
+                      </Pressable>
+                      <Pressable onPress={() => setEditingEntryId(null)} className="flex-1 bg-stone-100 dark:bg-slate-800 rounded-xl py-2 items-center">
+                        <Text className="text-slate-600 dark:text-slate-300 text-sm font-semibold">Cancel</Text>
+                      </Pressable>
+                    </View>
                   </View>
-                  <Pressable onPress={() => removeFoodLogEntry(entry.id)} className="p-2">
-                    <Text className="text-slate-400 text-xs">✕</Text>
+                ) : (
+                  <Pressable key={entry.id} onPress={() => handleStartEdit(entry)} className="flex-row items-center justify-between py-1.5 border-t border-stone-100 dark:border-slate-800">
+                    <View className="flex-1">
+                      <Text className="text-slate-800 dark:text-slate-200 text-sm">{entry.foodName}{entry.servings !== 1 ? ` ×${entry.servings}` : ''}</Text>
+                      <Text className="text-slate-500 text-xs">{entry.calories} cal · {entry.protein}p · {entry.carbs}c · {entry.fat}f</Text>
+                    </View>
+                    <Pressable onPress={() => removeFoodLogEntry(entry.id)} className="p-2">
+                      <Text className="text-slate-400 text-xs">✕</Text>
+                    </Pressable>
                   </Pressable>
-                </View>
+                )
               ))}
 
               {addingToMeal === meal.id ? (
                 <View className="mt-2 pt-2 border-t border-stone-100 dark:border-slate-800">
-                  {!showCustomForm ? (
+                  <View className="flex-row gap-2 mb-3">
+                    {([
+                      { id: 'search', label: 'Search' },
+                      { id: 'recipes', label: 'Recipes' },
+                      { id: 'mymeals', label: 'My Meals' },
+                    ] as { id: AddTab; label: string }[]).map((tab) => (
+                      <Pressable
+                        key={tab.id}
+                        onPress={() => setAddTab(tab.id)}
+                        className={addTab === tab.id ? 'flex-1 bg-indigo-600/20 border-2 border-indigo-400 rounded-full py-1.5 items-center' : 'flex-1 bg-stone-100 dark:bg-slate-800 border-2 border-transparent rounded-full py-1.5 items-center'}
+                      >
+                        <Text className={addTab === tab.id ? 'text-indigo-700 dark:text-indigo-300 text-xs font-medium' : 'text-slate-600 dark:text-slate-300 text-xs font-medium'}>{tab.label}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+
+                  {addTab === 'search' && (
                     <>
-                      <TextInput
-                        value={search}
-                        onChangeText={(v) => { setSearch(v); setPickedFood(null); }}
-                        placeholder="Search foods…"
-                        placeholderTextColor="#64748b"
-                        autoFocus
-                        className="bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2 mb-2"
-                      />
+                      <View className="flex-row gap-2 mb-2">
+                        <TextInput
+                          value={search}
+                          onChangeText={(v) => { setSearch(v); setPickedFood(null); }}
+                          placeholder="Search foods…"
+                          placeholderTextColor="#64748b"
+                          autoFocus
+                          className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2"
+                        />
+                        <Pressable onPress={() => setShowScanner(true)} className="bg-indigo-600 rounded-xl px-3 justify-center active:bg-indigo-500">
+                          <Text className="text-white text-sm">📷</Text>
+                        </Pressable>
+                      </View>
                       {!pickedFood && (
                         <View className="max-h-48">
-                          {searchResults.map((f) => (
+                          {combinedSearchResults.map((f) => (
                             <Pressable key={f.id} onPress={() => setPickedFood(f)} className="py-2 border-b border-stone-100 dark:border-slate-800">
                               <Text className="text-slate-800 dark:text-slate-200 text-sm">{f.name}</Text>
                               <Text className="text-slate-500 text-xs">{f.servingLabel} · {f.calories} cal · {f.protein}p / {f.carbs}c / {f.fat}f</Text>
                             </Pressable>
                           ))}
-                          {searchResults.length === 0 && (
-                            <Text className="text-slate-500 text-xs py-2">No matches — try "Add custom food" below.</Text>
+                          {liveSearching && (
+                            <View className="flex-row items-center gap-2 py-2">
+                              <ActivityIndicator size="small" />
+                              <Text className="text-slate-500 text-xs">Searching more foods…</Text>
+                            </View>
+                          )}
+                          {combinedSearchResults.length === 0 && !liveSearching && (
+                            <Text className="text-slate-500 text-xs py-2">No matches — try My Meals to build one manually, or scan a barcode.</Text>
                           )}
                         </View>
                       )}
@@ -271,26 +438,103 @@ export default function NutritionDiaryScreen() {
                           </Pressable>
                         </View>
                       )}
-                      <Pressable onPress={() => setShowCustomForm(true)} className="py-2">
-                        <Text className="text-indigo-500 text-xs">+ Add custom food</Text>
-                      </Pressable>
                     </>
-                  ) : (
-                    <View>
-                      <TextInput value={customName} onChangeText={setCustomName} placeholder="Food name" placeholderTextColor="#64748b" className="bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2 mb-2" />
-                      <View className="flex-row gap-2 mb-2">
-                        <TextInput value={customCal} onChangeText={setCustomCal} placeholder="Calories" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" />
-                        <TextInput value={customPro} onChangeText={setCustomPro} placeholder="Protein g" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" />
-                      </View>
-                      <View className="flex-row gap-2 mb-3">
-                        <TextInput value={customCarb} onChangeText={setCustomCarb} placeholder="Carbs g" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" />
-                        <TextInput value={customFat} onChangeText={setCustomFat} placeholder="Fat g" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" />
-                      </View>
-                      <Pressable onPress={handleLogCustomFood} disabled={!customName.trim()} className={customName.trim() ? 'bg-emerald-500 rounded-xl py-2 items-center active:bg-emerald-400' : 'bg-slate-300 dark:bg-slate-700 rounded-xl py-2 items-center'}>
-                        <Text className="text-white text-sm font-semibold">Add to {meal.label.toLowerCase()}</Text>
-                      </Pressable>
-                    </View>
                   )}
+
+                  {addTab === 'recipes' && (
+                    <>
+                      <TextInput
+                        value={recipeSearch}
+                        onChangeText={(v) => { setRecipeSearch(v); setPickedRecipe(null); }}
+                        placeholder="Search recipes… (blank shows your saved ones)"
+                        placeholderTextColor="#64748b"
+                        className="bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2 mb-2"
+                      />
+                      {!pickedRecipe && (
+                        <View className="max-h-48">
+                          {recipeResults.map((r) => (
+                            <Pressable key={r.id} onPress={() => setPickedRecipe(r)} className="py-2 border-b border-stone-100 dark:border-slate-800">
+                              <Text className="text-slate-800 dark:text-slate-200 text-sm">{r.n}</Text>
+                              <Text className="text-slate-500 text-xs capitalize">{r.c} · {r.t} · {r.cal} cal · {r.pro}p / {r.carb}c / {r.fat}f</Text>
+                            </Pressable>
+                          ))}
+                          {recipeResults.length === 0 && (
+                            <Text className="text-slate-500 text-xs py-2">
+                              {recipeSearch.trim() ? 'No matches.' : "No saved recipes yet — search above, or save some from Recipes first."}
+                            </Text>
+                          )}
+                        </View>
+                      )}
+                      {pickedRecipe && (
+                        <View className="bg-stone-50 dark:bg-slate-800 rounded-xl p-3 mb-2">
+                          <Text className="text-slate-900 dark:text-slate-100 text-sm font-medium mb-2">{pickedRecipe.n}</Text>
+                          <View className="flex-row items-center gap-2 mb-2">
+                            <Text className="text-slate-500 text-xs">Servings</Text>
+                            <TextInput
+                              value={recipeServings}
+                              onChangeText={setRecipeServings}
+                              keyboardType="numeric"
+                              className="w-16 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg px-2 py-1 text-center"
+                            />
+                          </View>
+                          <Pressable onPress={handleLogPickedRecipe} className="bg-emerald-500 rounded-xl py-2 items-center active:bg-emerald-400">
+                            <Text className="text-white text-sm font-semibold">Add to {meal.label.toLowerCase()}</Text>
+                          </Pressable>
+                        </View>
+                      )}
+                    </>
+                  )}
+
+                  {addTab === 'mymeals' && (
+                    <>
+                      {showMealBuilder ? (
+                        <CustomMealBuilder onSave={handleSaveNewMeal} onCancel={() => setShowMealBuilder(false)} />
+                      ) : pickedMeal ? (
+                        <View className="bg-stone-50 dark:bg-slate-800 rounded-xl p-3 mb-2">
+                          <Text className="text-slate-900 dark:text-slate-100 text-sm font-medium mb-2">{pickedMeal.name}</Text>
+                          <Text className="text-slate-500 text-xs mb-2">{pickedMeal.calories} cal · {pickedMeal.protein}p / {pickedMeal.carbs}c / {pickedMeal.fat}f per serving</Text>
+                          <View className="flex-row items-center gap-2 mb-2">
+                            <Text className="text-slate-500 text-xs">Servings</Text>
+                            <TextInput
+                              value={mealServings}
+                              onChangeText={setMealServings}
+                              keyboardType="numeric"
+                              className="w-16 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg px-2 py-1 text-center"
+                            />
+                          </View>
+                          <Pressable onPress={handleLogPickedMeal} className="bg-emerald-500 rounded-xl py-2 items-center active:bg-emerald-400">
+                            <Text className="text-white text-sm font-semibold">Add to {meal.label.toLowerCase()}</Text>
+                          </Pressable>
+                          <Pressable onPress={() => setPickedMeal(null)} className="py-2">
+                            <Text className="text-slate-500 text-center text-xs">Back</Text>
+                          </Pressable>
+                        </View>
+                      ) : (
+                        <>
+                          <View className="max-h-48 mb-2">
+                            {customMeals.length === 0 && (
+                              <Text className="text-slate-500 text-xs py-2">No saved meals yet — build one below.</Text>
+                            )}
+                            {customMeals.map((m) => (
+                              <View key={m.id} className="flex-row items-center justify-between py-2 border-b border-stone-100 dark:border-slate-800">
+                                <Pressable onPress={() => setPickedMeal(m)} className="flex-1">
+                                  <Text className="text-slate-800 dark:text-slate-200 text-sm">{m.name}</Text>
+                                  <Text className="text-slate-500 text-xs">{m.ingredients.length} ingredient{m.ingredients.length === 1 ? '' : 's'} · {m.calories} cal · {m.protein}p / {m.carbs}c / {m.fat}f</Text>
+                                </Pressable>
+                                <Pressable onPress={() => removeCustomMeal(m.id)} className="p-2">
+                                  <Text className="text-slate-400 text-xs">✕</Text>
+                                </Pressable>
+                              </View>
+                            ))}
+                          </View>
+                          <Pressable onPress={() => setShowMealBuilder(true)} className="border-2 border-dashed border-stone-300 dark:border-slate-700 rounded-xl py-2 items-center">
+                            <Text className="text-slate-500 text-xs">+ Build a new meal</Text>
+                          </Pressable>
+                        </>
+                      )}
+                    </>
+                  )}
+
                   <Pressable onPress={resetAddFlow} className="py-2">
                     <Text className="text-slate-500 text-center text-xs">Cancel</Text>
                   </Pressable>
@@ -303,7 +547,19 @@ export default function NutritionDiaryScreen() {
             </View>
           );
         })}
-      </View>
-    </ScrollView>
+        </View>
+      </ScrollView>
+
+      {showScanner && (
+        <BarcodeScannerModal
+          onFound={(item) => {
+            setPickedFood(item);
+            setAddTab('search');
+            setShowScanner(false);
+          }}
+          onClose={() => setShowScanner(false)}
+        />
+      )}
+    </View>
   );
 }

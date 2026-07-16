@@ -1,6 +1,7 @@
 import { View, Text, ScrollView } from 'react-native';
-import { useAppStore, selectCourses, selectAssignments } from '@/store/index';
+import { useAppStore, selectCourses, selectAssignments, selectDateFormat } from '@/store/index';
 import { Heading } from '@/shared/components/Heading';
+import { formatDate } from '@/shared/formatDate';
 
 /**
  * Groups every assignment by month and due date, color-coded by course,
@@ -11,6 +12,7 @@ import { Heading } from '@/shared/components/Heading';
 export default function SemesterCalendar() {
   const courses = useAppStore(selectCourses);
   const assignments = useAppStore(selectAssignments);
+  const dateFormat = useAppStore(selectDateFormat);
 
   const sorted = [...(assignments || [])].sort((a, b) => a.dueDate.localeCompare(b.dueDate));
 
@@ -49,7 +51,7 @@ export default function SemesterCalendar() {
                     <View style={{ width: 4, height: '100%', minHeight: 32, backgroundColor: courseColor(a.courseId), borderRadius: 2 }} />
                     <View className="flex-1">
                       <Text className={a.isComplete ? 'text-slate-500 line-through text-sm' : 'text-slate-900 text-sm'}>{a.title}</Text>
-                      <Text className="text-slate-500 text-xs">{course ? `${course.emoji} ${course.name} · ` : ''}{a.dueDate}</Text>
+                      <Text className="text-slate-500 text-xs">{course ? `${course.emoji} ${course.name} · ` : ''}{formatDate(a.dueDate, dateFormat)}</Text>
                     </View>
                   </View>
                 );

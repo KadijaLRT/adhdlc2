@@ -1,11 +1,12 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
-  useAppStore, selectStreaks, selectMilestones, selectTasks, selectSavedRecipeIds, selectSetLogs,
+  useAppStore, selectStreaks, selectMilestones, selectTasks, selectSavedRecipeIds, selectSetLogs, selectUnitSystem,
 } from '@/store/index';
 import { MILESTONE_DEFINITIONS, getUnlockedTiers } from '@/content/milestoneDefinitions';
 import { SKILLS, UNLOCKABLES, xpToLevel, xpForNextLevel } from '@/content/rpgCatalog';
 import { calculateWorkoutStreak, calculateTotalVolume } from '@/features/workout/progressCalculations';
+import { convertWeightForDisplay, weightUnitLabel } from '@/shared/formatUnits';
 import { Heading, Subheading } from '@/shared/components/Heading';
 
 function StatTile({ label, value }: { label: string; value: string }) {
@@ -34,6 +35,7 @@ export default function ProgressHub() {
   const tasks = useAppStore(selectTasks);
   const savedRecipeIds = useAppStore(selectSavedRecipeIds);
   const setLogs = useAppStore(selectSetLogs);
+  const unitSystem = useAppStore(selectUnitSystem);
 
   const longestStreak = Math.max(0, ...(streaks || []).map((s) => s.count || 0));
   const tasksCompleted = (tasks || []).filter((t) => t.isComplete).length;
@@ -79,7 +81,7 @@ export default function ProgressHub() {
           <StatTile label="Tasks completed" value={String(tasksCompleted)} />
           <StatTile label="Longest routine streak" value={`${longestStreak} days`} />
           <StatTile label="Workout day streak" value={String(workoutStreak)} />
-          <StatTile label="Volume lifted" value={`${totalVolume.toLocaleString()} lbs`} />
+          <StatTile label="Volume lifted" value={`${convertWeightForDisplay(totalVolume, unitSystem).toLocaleString()} ${weightUnitLabel(unitSystem)}`} />
           <StatTile label="Saved recipes" value={String((savedRecipeIds || []).length)} />
           <StatTile label="Milestones unlocked" value={String(unlockedMilestoneCount)} />
         </View>

@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAppStore, selectCourses, selectAssignments } from '@/store/index';
+import { useAppStore, selectCourses, selectAssignments, selectDateFormat } from '@/store/index';
+import { getCourseStatus } from '@/store/slices/schoolSlice';
+import { formatDate } from '@/shared/formatDate';
 import { avivaBrain, type FlashcardSet } from '@/core/ai/AvivaBrain';
 import { Heading } from '@/shared/components/Heading';
 
@@ -10,6 +12,7 @@ const COURSE_EMOJIS = ['📖', '🧮', '🧪', '🎨', '🌍', '💻'];
 export default function CourseDetailScreen({ courseId }: { courseId: string }) {
   const router = useRouter();
   const courses = useAppStore(selectCourses);
+  const dateFormat = useAppStore(selectDateFormat);
   const assignments = useAppStore(selectAssignments);
   const addAssignment = useAppStore((s) => s.addAssignment);
   const updateCourse = useAppStore((s) => s.updateCourse);
@@ -93,6 +96,8 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
     );
   }
 
+  const courseStatus = getCourseStatus(course);
+
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
       <View className="w-full max-w-md self-center">
@@ -124,18 +129,48 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
             </View>
           </View>
         ) : (
-          <View className="flex-row items-center justify-between mb-6 mt-2">
-            <Heading className={course.isCompleted ? 'text-slate-400 line-through' : ''}>{course.emoji} {course.name}</Heading>
-            <View className="flex-row items-center gap-3">
-              <Pressable onPress={() => updateCourse(courseId, { isCompleted: !course.isCompleted })}>
-                <Text className={course.isCompleted ? 'text-emerald-600 dark:text-emerald-400 text-sm font-medium' : 'text-slate-500 text-sm'}>
-                  {course.isCompleted ? '✓ Completed' : 'Mark completed'}
+          <View className="flex-row items-center justify-between mb-4 mt-2">
+            <Heading className={courseStatus === 'completed' ? 'text-slate-400 line-through' : ''}>{course.emoji} {course.name}</Heading>
+            <Pressable onPress={handleStartEditCourse} className="p-2">
+              <Text className="text-indigo-500 text-sm">Edit</Text>
+            </Pressable>
+          </View>
+        )}
+
+        <View className="flex-row flex-wrap gap-2 mb-6">
+          {(['in_progress', 'completed', 'failed', 'retaking'] as const).map((option) => {
+            const isActive = courseStatus === option;
+            const borderStyles: Record<string, string> = {
+              in_progress: 'bg-indigo-600/10 border-indigo-400',
+              completed: 'bg-emerald-400/10 border-emerald-400',
+              failed: 'bg-red-400/10 border-red-400',
+              retaking: 'bg-amber-400/10 border-amber-400',
+            };
+            const textStyles: Record<string, string> = {
+              in_progress: 'text-indigo-700 dark:text-indigo-300',
+              completed: 'text-emerald-700 dark:text-emerald-400',
+              failed: 'text-red-600 dark:text-red-400',
+              retaking: 'text-amber-700 dark:text-amber-400',
+            };
+            const labels: Record<string, string> = { in_progress: 'In progress', completed: '✓ Completed', failed: '✕ Failed', retaking: '↻ Retaking' };
+            return (
+              <Pressable
+                key={option}
+                onPress={() => updateCourse(courseId, { status: option, isCompleted: option === 'completed' })}
+                className={isActive ? `border-2 rounded-full py-2 px-4 ${borderStyles[option]}` : 'border-2 border-transparent bg-stone-100 dark:bg-slate-800 rounded-full py-2 px-4'}
+              >
+                <Text className={isActive ? `text-sm font-medium ${textStyles[option]}` : 'text-slate-600 dark:text-slate-300 text-sm font-medium'}>
+                  {labels[option]}
                 </Text>
               </Pressable>
-              <Pressable onPress={handleStartEditCourse} className="p-2">
-                <Text className="text-indigo-500 text-sm">Edit</Text>
-              </Pressable>
-            </View>
+            );
+          })}
+        </View>
+        {courseStatus === 'retaking' && (
+          <View className="bg-amber-400/10 border border-amber-400/40 rounded-xl p-3 mb-6">
+            <Text className="text-amber-700 dark:text-amber-400 text-xs">
+              Retaking doesn't count toward your degree credits until you mark it Completed. If your school replaces the failed grade instead of averaging it, you may want to set the original failed attempt's credits to 0 so it doesn't double up in your GPA.
+            </Text>
           </View>
         )}
 
@@ -240,7 +275,7 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
           {courseAssignments.map((a) => (
             <Pressable key={a.id} onPress={() => router?.push?.(`/school/assignment/${a.id}`)} className="bg-white rounded-xl p-4 flex-row items-center justify-between dark:bg-slate-900">
               <Text className={a.isComplete ? 'text-slate-500 line-through flex-1' : 'text-slate-900 flex-1'}>{a.title}</Text>
-              <Text className="text-slate-500 text-xs">{a.dueDate}</Text>
+              <Text className="text-slate-500 text-xs">{formatDate(a.dueDate, dateFormat)}</Text>
             </Pressable>
           ))}
         </View>

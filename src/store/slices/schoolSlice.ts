@@ -1,6 +1,8 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
 
+export type CourseStatus = 'in_progress' | 'completed' | 'failed' | 'retaking';
+
 export interface Course {
   id: string;
   name: string;
@@ -9,7 +11,14 @@ export interface Course {
   gradeGoal?: number; // 0-100
   credits?: number; // credit hours, used for weighted GPA
   notes?: string;
-  isCompleted?: boolean; // finished the class (e.g. end of semester)
+  isCompleted?: boolean; // kept for backward compatibility with data saved before `status` existed
+  status?: CourseStatus;
+}
+
+/** Reads status with a fallback to the older isCompleted boolean, for courses saved before status existed. */
+export function getCourseStatus(course: Pick<Course, 'status' | 'isCompleted'>): CourseStatus {
+  if (course.status) return course.status;
+  return course.isCompleted ? 'completed' : 'in_progress';
 }
 
 export interface AssignmentSubStep {

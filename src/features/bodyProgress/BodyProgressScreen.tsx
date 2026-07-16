@@ -6,6 +6,8 @@ import {
   selectMeasurementLog,
   selectWeightGoalLbs,
   selectWeightGoalDate,
+  selectUnitSystem,
+  selectDateFormat,
   type MeasurementSite,
 } from '@/store/index';
 import { Heading } from '@/shared/components/Heading';
@@ -17,6 +19,8 @@ import {
 } from './bodyTrendCalculations';
 import { calculateRequiredRate, describeRigor } from './requiredRate';
 import AppleHealthImportCard from '@/features/settings/AppleHealthImportCard';
+import { convertWeightForDisplay, parseWeightToLbs, weightUnitLabel, convertLengthForDisplay, parseLengthToInches, lengthUnitLabel } from '@/shared/formatUnits';
+import { formatDate } from '@/shared/formatDate';
 
 const MEASUREMENT_SITES: { id: MeasurementSite; label: string }[] = [
   { id: 'chest', label: 'Chest' },
@@ -32,12 +36,17 @@ export default function BodyProgressScreen() {
   const measurementLog = useAppStore(selectMeasurementLog);
   const weightGoalLbs = useAppStore(selectWeightGoalLbs);
   const weightGoalDate = useAppStore(selectWeightGoalDate);
+  const unitSystem = useAppStore(selectUnitSystem);
+  const dateFormat = useAppStore(selectDateFormat);
   const logWeight = useAppStore((s) => s.logWeight);
   const logMeasurement = useAppStore((s) => s.logMeasurement);
   const setWeightGoal = useAppStore((s) => s.setWeightGoal);
 
+  const wUnit = weightUnitLabel(unitSystem);
+  const lUnit = lengthUnitLabel(unitSystem);
+
   const [weightInput, setWeightInput] = useState('');
-  const [goalInput, setGoalInput] = useState(weightGoalLbs ? String(weightGoalLbs) : '');
+  const [goalInput, setGoalInput] = useState(weightGoalLbs ? String(convertWeightForDisplay(weightGoalLbs, unitSystem)) : '');
   const [selectedSite, setSelectedSite] = useState<MeasurementSite>('waist');
   const [measurementInput, setMeasurementInput] = useState('');
 
@@ -54,20 +63,20 @@ export default function BodyProgressScreen() {
   const handleLogWeight = () => {
     const val = Number(weightInput);
     if (!val) return;
-    logWeight(val);
+    logWeight(parseWeightToLbs(val, unitSystem));
     setWeightInput('');
   };
 
   const handleLogMeasurement = () => {
     const val = Number(measurementInput);
     if (!val) return;
-    logMeasurement(selectedSite, val);
+    logMeasurement(selectedSite, parseLengthToInches(val, unitSystem));
     setMeasurementInput('');
   };
 
   const handleSaveGoal = () => {
     const val = Number(goalInput);
-    setWeightGoal(val || null);
+    setWeightGoal(val ? parseWeightToLbs(val, unitSystem) : null);
   };
 
   return (
@@ -82,21 +91,21 @@ export default function BodyProgressScreen() {
           <Text className="text-slate-700 text-sm font-medium mb-3 dark:text-slate-300">Weight trend</Text>
           <View className="flex-row flex-wrap gap-3 mb-3">
             <View className="flex-1 min-w-[45%]">
-              <Text className="text-amber-700 text-xl font-bold dark:text-amber-400">{latest !== null ? `${latest} lb` : '—'}</Text>
+              <Text className="text-amber-700 text-xl font-bold dark:text-amber-400">{latest !== null ? `${convertWeightForDisplay(latest, unitSystem)} ${wUnit}` : '—'}</Text>
               <Text className="text-slate-500 text-xs">Today</Text>
             </View>
             <View className="flex-1 min-w-[45%]">
-              <Text className="text-amber-700 text-xl font-bold dark:text-amber-400">{sevenDayAvg !== null ? sevenDayAvg.toFixed(1) : '—'}</Text>
+              <Text className="text-amber-700 text-xl font-bold dark:text-amber-400">{sevenDayAvg !== null ? convertWeightForDisplay(sevenDayAvg, unitSystem).toFixed(1) : '—'}</Text>
               <Text className="text-slate-500 text-xs">7-day average</Text>
             </View>
             <View className="flex-1 min-w-[45%]">
               <Text className={thirtyDayChange !== null && thirtyDayChange < 0 ? 'text-emerald-700 text-xl font-bold' : 'text-slate-800 text-xl font-bold'}>
-                {thirtyDayChange !== null ? `${thirtyDayChange > 0 ? '+' : ''}${thirtyDayChange.toFixed(1)} lb` : '—'}
+                {thirtyDayChange !== null ? `${thirtyDayChange > 0 ? '+' : ''}${convertWeightForDisplay(thirtyDayChange, unitSystem).toFixed(1)} ${wUnit}` : '—'}
               </Text>
               <Text className="text-slate-500 text-xs">30-day change</Text>
             </View>
             <View className="flex-1 min-w-[45%]">
-              <Text className="text-slate-800 text-xl font-bold dark:text-slate-200">{goalDate || '—'}</Text>
+              <Text className="text-slate-800 text-xl font-bold dark:text-slate-200">{goalDate ? formatDate(goalDate, dateFormat) : '—'}</Text>
               <Text className="text-slate-500 text-xs">Projected goal date</Text>
             </View>
           </View>
@@ -107,11 +116,11 @@ export default function BodyProgressScreen() {
             return (
               <View className={rate.isAggressive || rate.isPastDate ? 'bg-amber-400/10 border-2 border-amber-400 rounded-xl p-3 mb-4' : 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3 mb-4'}>
                 <Text className={rate.isAggressive || rate.isPastDate ? 'text-amber-700 text-xs font-medium mb-1' : 'text-emerald-700 text-xs font-medium mb-1'}>
-                  Your goal date · {weightGoalDate}
+                  Your goal date · {formatDate(weightGoalDate, dateFormat)}
                 </Text>
                 <Text className="text-slate-700 text-sm dark:text-slate-300">{describeRigor(rate)}</Text>
                 {!rate.isPastDate && (
-                  <Text className="text-slate-500 text-xs mt-1">≈ {rate.requiredWeeklyLbs.toFixed(2)} lb/week needed to stay on pace</Text>
+                  <Text className="text-slate-500 text-xs mt-1">≈ {convertWeightForDisplay(rate.requiredWeeklyLbs, unitSystem).toFixed(2)} {wUnit}/week needed to stay on pace</Text>
                 )}
               </View>
             );
@@ -121,7 +130,7 @@ export default function BodyProgressScreen() {
             <TextInput
               value={weightInput}
               onChangeText={setWeightInput}
-              placeholder="Log today's weight (lb)"
+              placeholder={`Log today's weight (${wUnit})`}
               placeholderTextColor="#64748b"
               keyboardType="numeric"
               onSubmitEditing={handleLogWeight}
@@ -135,7 +144,7 @@ export default function BodyProgressScreen() {
             <TextInput
               value={goalInput}
               onChangeText={setGoalInput}
-              placeholder="Goal weight (lb)"
+              placeholder={`Goal weight (${wUnit})`}
               placeholderTextColor="#64748b"
               keyboardType="numeric"
               onSubmitEditing={handleSaveGoal}
@@ -160,7 +169,7 @@ export default function BodyProgressScreen() {
                   className={isActive ? 'bg-indigo-600/20 border-2 border-indigo-400 rounded-xl p-2 items-center w-[30%]' : 'bg-stone-100 border-2 border-transparent rounded-xl p-2 items-center w-[30%]'}
                 >
                   <Text className={isActive ? 'text-indigo-700 text-xs' : 'text-slate-700 text-xs'}>{site.label}</Text>
-                  <Text className="text-slate-500 text-xs mt-1">{latestForSite ? `${latestForSite.inches}"` : '—'}</Text>
+                  <Text className="text-slate-500 text-xs mt-1">{latestForSite ? `${convertLengthForDisplay(latestForSite.inches, unitSystem)}${lUnit === 'in' ? '"' : lUnit}` : '—'}</Text>
                 </Pressable>
               );
             })}
@@ -169,7 +178,7 @@ export default function BodyProgressScreen() {
             <TextInput
               value={measurementInput}
               onChangeText={setMeasurementInput}
-              placeholder={`${MEASUREMENT_SITES.find((s) => s.id === selectedSite)?.label} (inches)`}
+              placeholder={`${MEASUREMENT_SITES.find((s) => s.id === selectedSite)?.label} (${lUnit})`}
               placeholderTextColor="#64748b"
               keyboardType="numeric"
               onSubmitEditing={handleLogMeasurement}
@@ -184,7 +193,7 @@ export default function BodyProgressScreen() {
         <Text className="text-slate-900 text-lg font-semibold mb-3 dark:text-slate-100">Milestones</Text>
         <View className="gap-2">
           {daysLogged >= 1 && <MilestoneRow label="First weight logged" achieved />}
-          {totalLost >= 5 && <MilestoneRow label="First 5 lb change" achieved />}
+          {totalLost >= 5 && <MilestoneRow label={`First ${convertWeightForDisplay(5, unitSystem)} ${wUnit} change`} achieved />}
           {daysLogged >= 30 && <MilestoneRow label="Logged weight for 30 days" achieved />}
           {daysLogged === 0 && <Text className="text-slate-500 text-sm">Log your first weight to start unlocking milestones.</Text>}
         </View>

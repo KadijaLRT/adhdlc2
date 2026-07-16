@@ -25,11 +25,11 @@ import { createNutritionTrackingSlice, type NutritionTrackingSlice } from './sli
 
 export * from './slices/types';
 export type { NutritionPreferences, FitnessPreferences, Gender, WeightGoalDirection, BodyType, ActivityLevel } from './slices/nutritionFitnessSlice';
-export type { TextSize, ColorSchemePreference } from './slices/settingsSlice';
+export type { TextSize, ColorSchemePreference, DateFormat, UnitSystem } from './slices/settingsSlice';
 export type { MomentumEntry, MomentumActionType } from './slices/momentumSlice';
 export type { MeasurementSite, WeightEntry, MeasurementEntry } from './slices/bodyProgressSlice';
 export type { WeeklyMealPlan, PlanDay, PlanMealType, PlanMeal, DayPlan } from '@/features/nutrition/mealPlanGeneration';
-export type { MealType, FoodLogEntry, DailyTargets } from './slices/nutritionTrackingSlice';
+export type { MealType, FoodLogEntry, DailyTargets, CustomMeal, CustomMealIngredient } from './slices/nutritionTrackingSlice';
 
 export type AppState = UiSlice & TaskSlice & StreakSlice & MilestoneSlice &
   EnergySlice & StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & NutritionFitnessSlice & WorkoutSlice & ProgramSlice & GrocerySlice & RoutineSlice & RpgSlice & SettingsSlice & ReflectionSlice & ScheduleSlice & SchoolSlice & BodyProgressSlice & MomentumSlice & NutritionTrackingSlice;
@@ -113,6 +113,8 @@ export const selectReduceMotion = (s: AppState) => s.reduceMotion ?? false;
 export const selectHighContrast = (s: AppState) => s.highContrast ?? false;
 export const selectDyslexiaFont = (s: AppState) => s.dyslexiaFont ?? false;
 export const selectColorScheme = (s: AppState) => s.colorScheme || 'light';
+export const selectDateFormat = (s: AppState) => s.dateFormat || 'MM-DD-YYYY';
+export const selectUnitSystem = (s: AppState) => s.unitSystem || 'imperial';
 export const selectActiveProgramId = (s: AppState) => s.activeProgramId;
 export const selectPantryItems = (s: AppState) => s.pantryItems || [];
 export const selectCheckedIngredients = (s: AppState) => s.checkedIngredients || [];
@@ -120,6 +122,7 @@ export const selectMealPlan = (s: AppState) => s.mealPlan;
 export const selectMealPlanChecked = (s: AppState) => s.mealPlanChecked || [];
 export const selectFoodLog = (s: AppState) => s.foodLog || [];
 export const selectDailyTargets = (s: AppState) => s.dailyTargets;
+export const selectCustomMeals = (s: AppState) => s.customMeals || [];
 export const selectRoutines = (s: AppState) => s.routines || [];
 export const selectTotalXp = (s: AppState) => s.totalXp || 0;
 export const selectCoins = (s: AppState) => s.coins || 0;

@@ -1,7 +1,8 @@
 import { View, Text, ScrollView } from 'react-native';
-import { useAppStore, selectSetLogs, selectPersonalRecords } from '@/store/index';
+import { useAppStore, selectSetLogs, selectPersonalRecords, selectUnitSystem } from '@/store/index';
 import { WORKOUT_EXERCISES } from '@/content/exercises';
 import { Heading, Subheading } from '@/shared/components/Heading';
+import { convertWeightForDisplay, weightUnitLabel } from '@/shared/formatUnits';
 import {
   calculateWorkoutStreak,
   calculateTotalWorkouts,
@@ -22,6 +23,8 @@ function StatCard({ label, value }: { label: string; value: string }) {
 
 export default function ProgressScreen() {
   const setLogs = useAppStore(selectSetLogs);
+  const unitSystem = useAppStore(selectUnitSystem);
+  const wUnit = weightUnitLabel(unitSystem);
   const personalRecords = useAppStore(selectPersonalRecords);
 
   const streak = calculateWorkoutStreak(setLogs);
@@ -47,7 +50,7 @@ export default function ProgressScreen() {
         </View>
         <View className="flex-row gap-3 mb-6">
           <StatCard label="Minutes (est.)" value={String(estimatedMinutes)} />
-          <StatCard label="Volume lifted" value={`${totalVolume.toLocaleString()} lbs`} />
+          <StatCard label="Volume lifted" value={`${convertWeightForDisplay(totalVolume, unitSystem).toLocaleString()} ${wUnit}`} />
         </View>
 
         <Subheading className="mb-3">Last 6 weeks</Subheading>
@@ -74,7 +77,7 @@ export default function ProgressScreen() {
                 <View key={record.exerciseId} className="bg-white rounded-xl p-3 flex-row items-center justify-between dark:bg-slate-900">
                   <Text className="text-slate-800 text-sm dark:text-slate-200">{exercise?.name || record.exerciseId}</Text>
                   <Text className="text-emerald-700 text-sm font-medium dark:text-emerald-400">
-                    {record.bestWeight} lbs × {record.bestReps}
+                    {convertWeightForDisplay(record.bestWeight, unitSystem)} {wUnit} × {record.bestReps}
                   </Text>
                 </View>
               );

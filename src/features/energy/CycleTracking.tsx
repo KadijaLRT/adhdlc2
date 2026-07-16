@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 import { View, Text, Pressable, Switch } from 'react-native';
-import { useAppStore, selectCycleTrackingEnabled, selectCycleLogs, type CycleLogEntry } from '@/store/index';
+import { useAppStore, selectCycleTrackingEnabled, selectCycleLogs, selectDateFormat, type CycleLogEntry } from '@/store/index';
 import { getPeriodStartDates, getAverageCycleLength, getPredictedNextPeriod } from './cyclePredictions';
 import AppleHealthImportCard from '@/features/settings/AppleHealthImportCard';
+import { formatDate } from '@/shared/formatDate';
 
 type Phase = CycleLogEntry['phase'];
 const PHASE_OPTIONS: { phase: Phase; label: string }[] = [
@@ -10,14 +11,11 @@ const PHASE_OPTIONS: { phase: Phase; label: string }[] = [
   { phase: 'ovulation', label: 'Ovulation' }, { phase: 'luteal', label: 'Luteal' }, { phase: 'unspecified', label: 'Not sure' },
 ];
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-}
-
 export default function CycleTracking() {
   const cycleTrackingEnabled = useAppStore(selectCycleTrackingEnabled);
   const setCycleTrackingEnabled = useAppStore((s) => s.setCycleTrackingEnabled);
   const cycleLogs = useAppStore(selectCycleLogs);
+  const dateFormat = useAppStore(selectDateFormat);
   const logCycleForToday = useAppStore((s) => s.logCycleForToday);
   const today = new Date().toISOString().split('T')[0];
   const todaysLog = (cycleLogs || []).find((l) => l.date === today);
@@ -60,7 +58,7 @@ export default function CycleTracking() {
           </View>
           <View className="flex-row justify-between mb-2">
             <Text className="text-slate-500 text-sm">Last period started</Text>
-            <Text className="text-slate-800 dark:text-slate-200 text-sm font-medium">{lastPeriodStart ? formatDate(lastPeriodStart) : '—'}</Text>
+            <Text className="text-slate-800 dark:text-slate-200 text-sm font-medium">{lastPeriodStart ? formatDate(lastPeriodStart, dateFormat) : '—'}</Text>
           </View>
           {averageCycleLength ? (
             <>
@@ -70,7 +68,7 @@ export default function CycleTracking() {
               </View>
               {predictedNext && (
                 <View className="bg-indigo-600/10 rounded-xl p-3 mt-2">
-                  <Text className="text-indigo-700 dark:text-indigo-300 text-sm font-medium">Next period estimate: {formatDate(predictedNext)}</Text>
+                  <Text className="text-indigo-700 dark:text-indigo-300 text-sm font-medium">Next period estimate: {formatDate(predictedNext, dateFormat)}</Text>
                   <Text className="text-slate-500 text-xs mt-1">Based on your average cycle — an estimate, not a guarantee.</Text>
                 </View>
               )}

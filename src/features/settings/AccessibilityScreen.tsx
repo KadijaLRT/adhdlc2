@@ -1,7 +1,8 @@
 import { View, Text, Pressable, Switch, ScrollView } from 'react-native';
 import {
   useAppStore, selectTextSize, selectReduceMotion, selectHighContrast, selectDyslexiaFont,
-  selectColorScheme, selectTasks, selectAssignments, type TextSize, type ColorSchemePreference,
+  selectColorScheme, selectTasks, selectAssignments, selectDateFormat, selectUnitSystem,
+  type TextSize, type ColorSchemePreference, type DateFormat, type UnitSystem,
 } from '@/store/index';
 import { Heading } from '@/shared/components/Heading';
 import { buildIcsContent, downloadIcsFile } from './exportCalendar';
@@ -12,17 +13,27 @@ const TEXT_SIZES: { id: TextSize; label: string; scale: number }[] = [
   { id: 'large', label: 'A', scale: 1.25 },
 ];
 
+const DATE_FORMAT_OPTIONS: { id: DateFormat; example: string }[] = [
+  { id: 'MM-DD-YYYY', example: '07-16-2026' },
+  { id: 'DD-MM-YYYY', example: '16-07-2026' },
+  { id: 'YYYY-MM-DD', example: '2026-07-16' },
+];
+
 export default function AccessibilityScreen() {
   const textSize = useAppStore(selectTextSize);
   const reduceMotion = useAppStore(selectReduceMotion);
   const highContrast = useAppStore(selectHighContrast);
   const dyslexiaFont = useAppStore(selectDyslexiaFont);
   const colorScheme = useAppStore(selectColorScheme);
+  const dateFormat = useAppStore(selectDateFormat);
+  const unitSystem = useAppStore(selectUnitSystem);
   const setColorSchemePref = useAppStore((s) => s.setColorScheme);
   const setTextSize = useAppStore((s) => s.setTextSize);
   const setReduceMotion = useAppStore((s) => s.setReduceMotion);
   const setHighContrast = useAppStore((s) => s.setHighContrast);
   const setDyslexiaFont = useAppStore((s) => s.setDyslexiaFont);
+  const setDateFormat = useAppStore((s) => s.setDateFormat);
+  const setUnitSystem = useAppStore((s) => s.setUnitSystem);
   const tasks = useAppStore(selectTasks);
   const assignments = useAppStore(selectAssignments);
 
@@ -56,6 +67,45 @@ export default function AccessibilityScreen() {
           <Text className="text-slate-500 text-xs mt-3">
             Onboarding always stays dark by design. Now applied across the whole app.
           </Text>
+        </View>
+
+        <View className="bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-700 rounded-2xl p-4 mb-4">
+          <Text className="text-indigo-600 text-xs font-bold uppercase tracking-wider mb-3">📅 Date & Units</Text>
+
+          <Text className="text-slate-900 dark:text-slate-100 text-sm font-semibold mb-2">Date format</Text>
+          <View className="gap-2 mb-4">
+            {DATE_FORMAT_OPTIONS.map((option) => {
+              const isActive = dateFormat === option.id;
+              return (
+                <Pressable
+                  key={option.id}
+                  onPress={() => setDateFormat(option.id)}
+                  className={isActive ? 'flex-row items-center justify-between bg-emerald-100 dark:bg-emerald-500/20 border-2 border-emerald-500 rounded-xl py-3 px-4' : 'flex-row items-center justify-between bg-stone-50 dark:bg-slate-800 border border-stone-200 dark:border-slate-700 rounded-xl py-3 px-4'}
+                >
+                  <Text className={isActive ? 'text-emerald-700 dark:text-emerald-300 text-sm font-semibold' : 'text-slate-700 dark:text-slate-300 text-sm'}>{option.id}</Text>
+                  <Text className="text-slate-500 text-xs">{option.example}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+
+          <Text className="text-slate-900 dark:text-slate-100 text-sm font-semibold mb-2">Units</Text>
+          <View className="flex-row gap-2">
+            {(['imperial', 'metric'] as UnitSystem[]).map((option) => {
+              const isActive = unitSystem === option;
+              return (
+                <Pressable
+                  key={option}
+                  onPress={() => setUnitSystem(option)}
+                  className={isActive ? 'flex-1 bg-emerald-100 dark:bg-emerald-500/20 border-2 border-emerald-500 rounded-xl py-3 items-center' : 'flex-1 bg-stone-50 dark:bg-slate-800 border border-stone-200 dark:border-slate-700 rounded-xl py-3 items-center'}
+                >
+                  <Text className={isActive ? 'text-emerald-700 dark:text-emerald-300 text-sm font-semibold capitalize' : 'text-slate-700 dark:text-slate-300 text-sm capitalize'}>
+                    {option === 'imperial' ? 'Imperial (lbs)' : 'Metric (kg)'}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
 
         <View className="bg-white border border-stone-200 rounded-2xl p-4 mb-4">
