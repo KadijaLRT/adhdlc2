@@ -27,6 +27,7 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
   const [nameInput, setNameInput] = useState('');
   const [emojiInput, setEmojiInput] = useState('');
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [gradeSaved, setGradeSaved] = useState(false);
 
   const course = (courses || []).find((c) => c.id === courseId);
   const courseAssignments = (assignments || []).filter((a) => a.courseId === courseId);
@@ -40,6 +41,8 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
       gradeGoal: goalInput ? goal : course?.gradeGoal,
       credits: creditsInput ? credits : course?.credits,
     });
+    setGradeSaved(true);
+    setTimeout(() => setGradeSaved(false), 2000);
   };
 
   const handleStartEditCourse = () => {
@@ -122,20 +125,32 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
           </View>
         ) : (
           <View className="flex-row items-center justify-between mb-6 mt-2">
-            <Heading>{course.emoji} {course.name}</Heading>
-            <Pressable onPress={handleStartEditCourse} className="p-2">
-              <Text className="text-indigo-500 text-sm">Edit</Text>
-            </Pressable>
+            <Heading className={course.isCompleted ? 'text-slate-400 line-through' : ''}>{course.emoji} {course.name}</Heading>
+            <View className="flex-row items-center gap-3">
+              <Pressable onPress={() => updateCourse(courseId, { isCompleted: !course.isCompleted })}>
+                <Text className={course.isCompleted ? 'text-emerald-600 dark:text-emerald-400 text-sm font-medium' : 'text-slate-500 text-sm'}>
+                  {course.isCompleted ? '✓ Completed' : 'Mark completed'}
+                </Text>
+              </Pressable>
+              <Pressable onPress={handleStartEditCourse} className="p-2">
+                <Text className="text-indigo-500 text-sm">Edit</Text>
+              </Pressable>
+            </View>
           </View>
         )}
 
         <View className="bg-white rounded-2xl p-4 mb-4 dark:bg-slate-900">
           <Text className="text-slate-700 text-sm font-medium mb-2 dark:text-slate-300">Grade</Text>
-          {course.currentGrade !== undefined && course.gradeGoal !== undefined && (
+          {(course.currentGrade !== undefined || course.gradeGoal !== undefined || course.credits !== undefined) && (
             <Text className="text-slate-500 text-xs mb-2">
-              Currently {course.currentGrade}% · goal {course.gradeGoal}%
-              {course.currentGrade >= course.gradeGoal ? ' · on track' : ` · ${course.gradeGoal - course.currentGrade} points to go`}
-              {course.credits !== undefined ? ` · ${course.credits} credits` : ''}
+              {course.currentGrade !== undefined && course.gradeGoal !== undefined
+                ? `Currently ${course.currentGrade}% · goal ${course.gradeGoal}%${course.currentGrade >= course.gradeGoal ? ' · on track' : ` · ${course.gradeGoal - course.currentGrade} points to go`}`
+                : course.currentGrade !== undefined
+                ? `Currently ${course.currentGrade}%`
+                : course.gradeGoal !== undefined
+                ? `Goal ${course.gradeGoal}%`
+                : ''}
+              {course.credits !== undefined ? ` · ${course.credits} credit${course.credits === 1 ? '' : 's'}` : ''}
             </Text>
           )}
           <View className="flex-row gap-2 mb-2">
@@ -166,7 +181,7 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
               className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-3 py-2 dark:text-slate-100 dark:bg-slate-800"
             />
             <Pressable onPress={handleSaveGrade} className="bg-indigo-600 rounded-xl px-4 justify-center">
-              <Text className="text-white text-sm font-semibold">Save</Text>
+              <Text className="text-white text-sm font-semibold">{gradeSaved ? 'Saved ✓' : 'Save'}</Text>
             </Pressable>
           </View>
         </View>

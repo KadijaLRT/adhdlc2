@@ -97,6 +97,7 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
         gradeLevel: schoolState?.gradeLevel ?? state.gradeLevel,
         programName: schoolState?.programName ?? state.programName,
         universityName: schoolState?.universityName ?? state.universityName,
+        totalCreditsRequired: schoolState?.totalCreditsRequired ?? state.totalCreditsRequired,
         weightLog: bodyProgressState?.weightLog ?? state.weightLog,
         measurementLog: bodyProgressState?.measurementLog ?? state.measurementLog,
         weightGoalLbs: bodyProgressState?.weightGoalLbs ?? state.weightGoalLbs,

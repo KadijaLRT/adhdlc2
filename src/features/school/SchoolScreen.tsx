@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAppStore, selectCourses, selectAssignments, selectEnergyLevel } from '@/store/index';
+import { useAppStore, selectCourses, selectAssignments, selectEnergyLevel, selectProfile, selectTotalCreditsRequired } from '@/store/index';
 import { Heading } from '@/shared/components/Heading';
 import { calculateGPA } from './gpaCalculations';
 import SchoolProgramSetupCard from './SchoolProgramSetupCard';
@@ -40,14 +40,30 @@ export default function SchoolScreen() {
   const courses = useAppStore(selectCourses);
   const assignments = useAppStore(selectAssignments);
   const energyLevel = useAppStore(selectEnergyLevel);
+  const profile = useAppStore(selectProfile);
+  const totalCreditsRequired = useAppStore(selectTotalCreditsRequired);
   const addCourse = useAppStore((s) => s.addCourse);
+  const updateCourse = useAppStore((s) => s.updateCourse);
   const toggleAssignmentComplete = useAppStore((s) => s.toggleAssignmentComplete);
+  const setSchoolSetup = useAppStore((s) => s.setSchoolSetup);
 
   const [newCourseName, setNewCourseName] = useState('');
   const [newCourseEmoji, setNewCourseEmoji] = useState(COURSE_EMOJIS[0] || '📘');
+  const [creditsGoalInput, setCreditsGoalInput] = useState('');
 
   const suggested = useMemo(() => suggestNextAssignment(assignments), [assignments]);
   const gpa = useMemo(() => calculateGPA(courses), [courses]);
+
+  const isYounger = profile?.ageBracket === 'middle_school' || profile?.ageBracket === 'high_school';
+  const creditsCompleted = (courses || []).reduce((sum, c) => sum + (c.isCompleted ? (c.credits || 0) : 0), 0);
+  const creditsInProgress = (courses || []).reduce((sum, c) => sum + (!c.isCompleted ? (c.credits || 0) : 0), 0);
+  const degreePercent = totalCreditsRequired ? Math.min(100, Math.round((creditsCompleted / totalCreditsRequired) * 100)) : 0;
+
+  const handleSaveCreditsGoal = () => {
+    const goal = Number(creditsGoalInput);
+    if (goal > 0) setSchoolSetup({ totalCreditsRequired: goal });
+    setCreditsGoalInput('');
+  };
 
   const handleAddCourse = async () => {
     if (!newCourseName.trim()) return;
@@ -67,6 +83,48 @@ export default function SchoolScreen() {
           <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between">
             <Text className="text-slate-900 dark:text-slate-100 text-sm font-medium">📊 Current GPA</Text>
             <Text className="text-emerald-600 dark:text-emerald-400 text-lg font-bold">{gpa.toFixed(2)}</Text>
+          </View>
+        )}
+
+        {!isYounger && (
+          <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-4">
+            <Text className="text-slate-900 dark:text-slate-100 text-sm font-semibold mb-2">🎓 Degree Progress</Text>
+            {totalCreditsRequired ? (
+              <>
+                <View className="flex-row justify-between mb-1">
+                  <Text className="text-slate-500 text-xs">{creditsCompleted} of {totalCreditsRequired} credits completed</Text>
+                  <Text className="text-slate-500 text-xs">{degreePercent}%</Text>
+                </View>
+                <View className="h-2 rounded-full bg-stone-200 dark:bg-slate-800 overflow-hidden mb-1">
+                  <View className="h-full bg-emerald-500 rounded-full" style={{ width: `${degreePercent}%` }} />
+                </View>
+                {creditsInProgress > 0 && (
+                  <Text className="text-slate-500 text-xs mt-1">+ {creditsInProgress} credit{creditsInProgress === 1 ? '' : 's'} in progress (not yet marked completed)</Text>
+                )}
+                <Pressable onPress={() => setSchoolSetup({ totalCreditsRequired: undefined })} className="mt-2">
+                  <Text className="text-indigo-500 text-xs">Change total credits needed</Text>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Text className="text-slate-500 text-xs mb-3">
+                  Set how many total credits your degree needs, and this fills in automatically as you mark courses completed with credit hours.
+                </Text>
+                <View className="flex-row gap-2">
+                  <TextInput
+                    value={creditsGoalInput}
+                    onChangeText={setCreditsGoalInput}
+                    placeholder="e.g. 120"
+                    placeholderTextColor="#64748b"
+                    keyboardType="numeric"
+                    className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2"
+                  />
+                  <Pressable onPress={handleSaveCreditsGoal} className="bg-indigo-600 rounded-xl px-4 justify-center">
+                    <Text className="text-white text-sm font-semibold">Set</Text>
+                  </Pressable>
+                </View>
+              </>
+            )}
           </View>
         )}
 
@@ -115,10 +173,17 @@ export default function SchoolScreen() {
             const courseAssignments = (assignments || []).filter((a) => a.courseId === course.id);
             const openCount = courseAssignments.filter((a) => !a.isComplete).length;
             return (
-              <Pressable key={course.id} onPress={() => router?.push?.(`/school/course/${course.id}`)} className="bg-white rounded-xl p-4 flex-row items-center justify-between dark:bg-slate-900">
-                <Text className="text-slate-900 text-sm dark:text-slate-100">{course.emoji} {course.name}</Text>
-                <Text className="text-slate-500 text-xs">{openCount} open</Text>
-              </Pressable>
+              <View key={course.id} className="bg-white rounded-xl p-4 flex-row items-center gap-3 dark:bg-slate-900">
+                <Pressable onPress={() => updateCourse(course.id, { isCompleted: !course.isCompleted })}>
+                  <View className={course.isCompleted ? 'w-5 h-5 rounded-full bg-emerald-500 items-center justify-center' : 'w-5 h-5 rounded-full border-2 border-stone-300 dark:border-slate-700'}>
+                    {course.isCompleted && <Text className="text-white text-xs">✓</Text>}
+                  </View>
+                </Pressable>
+                <Pressable onPress={() => router?.push?.(`/school/course/${course.id}`)} className="flex-1 flex-row items-center justify-between">
+                  <Text className={course.isCompleted ? 'text-slate-400 text-sm line-through' : 'text-slate-900 text-sm dark:text-slate-100'}>{course.emoji} {course.name}</Text>
+                  <Text className="text-slate-500 text-xs">{course.isCompleted ? 'Completed' : `${openCount} open`}</Text>
+                </Pressable>
+              </View>
             );
           })}
         </View>

@@ -9,6 +9,7 @@ export interface Course {
   gradeGoal?: number; // 0-100
   credits?: number; // credit hours, used for weighted GPA
   notes?: string;
+  isCompleted?: boolean; // finished the class (e.g. end of semester)
 }
 
 export interface AssignmentSubStep {
@@ -34,6 +35,7 @@ export interface SchoolState {
   gradeLevel?: string; // for middle/high school age brackets
   programName?: string; // for college/adult age brackets
   universityName?: string;
+  totalCreditsRequired?: number; // set by the user — how many credits their program/degree needs
 }
 
 export interface SchoolSlice extends SchoolState {
@@ -45,7 +47,7 @@ export interface SchoolSlice extends SchoolState {
   toggleAssignmentComplete: (id: string) => Promise<void>;
   toggleAssignmentSubStep: (assignmentId: string, subStepId: string) => Promise<void>;
   removeAssignment: (id: string) => Promise<void>;
-  setSchoolSetup: (setup: { gradeLevel?: string; programName?: string; universityName?: string }) => Promise<void>;
+  setSchoolSetup: (setup: { gradeLevel?: string; programName?: string; universityName?: string; totalCreditsRequired?: number }) => Promise<void>;
 }
 
 async function persist(state: SchoolState) {
@@ -60,6 +62,7 @@ function currentState(get: () => SchoolState): SchoolState {
     gradeLevel: get().gradeLevel,
     programName: get().programName,
     universityName: get().universityName,
+    totalCreditsRequired: get().totalCreditsRequired,
   };
 }
 

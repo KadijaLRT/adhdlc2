@@ -89,6 +89,7 @@ export const selectAssignments = (s: AppState) => s.assignments || [];
 export const selectGradeLevel = (s: AppState) => s.gradeLevel;
 export const selectProgramName = (s: AppState) => s.programName;
 export const selectUniversityName = (s: AppState) => s.universityName;
+export const selectTotalCreditsRequired = (s: AppState) => s.totalCreditsRequired;
 export const selectWeightLog = (s: AppState) => s.weightLog || [];
 export const selectMeasurementLog = (s: AppState) => s.measurementLog || [];
 export const selectWeightGoalLbs = (s: AppState) => s.weightGoalLbs;
