@@ -15,7 +15,7 @@ async function persist(streaks: RoutineStreak[]) {
   await repo.saveStreaks(streaks || []);
 }
 
-function today(): string { return new Date().toISOString().split('T')[0]; }
+function today(): string { return new Date().toISOString().split('T')[0] || ''; }
 
 function daysBetween(dateA: string, dateB: string): number {
   const a = new Date(dateA).getTime();

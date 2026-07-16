@@ -70,7 +70,7 @@ export default function TasksScreen() {
 
       {totalCount > 0 && (
         <View className="mb-4">
-          <View className="h-2 bg-stone-100 rounded-full overflow-hidden mb-1">
+          <View className="h-2 bg-stone-100 rounded-full overflow-hidden mb-1 dark:bg-slate-800">
             <View className="h-2 bg-emerald-500 rounded-full" style={{ width: `${progressPercent}%` }} />
           </View>
           <Text className="text-slate-500 text-xs">
@@ -84,8 +84,8 @@ export default function TasksScreen() {
           onPress={() => router?.push?.(`/task/${suggested.id}`)}
           className="bg-indigo-600/10 border-2 border-indigo-500 rounded-2xl p-4 mb-4"
         >
-          <Text className="text-indigo-700 text-xs uppercase tracking-wider mb-1">Today's focus</Text>
-          <Text className="text-slate-900 text-lg font-medium mb-1">
+          <Text className="text-indigo-700 text-xs uppercase tracking-wider mb-1 dark:text-indigo-300">Today's focus</Text>
+          <Text className="text-slate-900 text-lg font-medium mb-1 dark:text-slate-100">
             {PRIORITY_DOT[suggested.priority || 'nice']} {suggested.title}
           </Text>
           {(suggested.estimatedMinutes || suggested.realMinutes) && (
@@ -103,7 +103,7 @@ export default function TasksScreen() {
           placeholder="Add a task..."
           placeholderTextColor="#64748b"
           onSubmitEditing={handleAdd}
-          className="flex-1 bg-white text-slate-900 rounded-xl px-4 py-3"
+          className="flex-1 bg-white text-slate-900 rounded-xl px-4 py-3 dark:text-slate-100 dark:bg-slate-900"
         />
         <Pressable onPress={handleAdd} className="bg-indigo-600 rounded-xl px-5 justify-center active:bg-indigo-500">
           <Text className="text-white font-semibold">Add</Text>
@@ -120,7 +120,7 @@ export default function TasksScreen() {
                 onPress={() => setNewTaskPriority(p)}
                 className={isActive ? 'bg-stone-100 border-2 border-indigo-400 rounded-full py-1.5 px-3' : 'bg-white border-2 border-transparent rounded-full py-1.5 px-3'}
               >
-                <Text className="text-slate-700 text-xs">{PRIORITY_DOT[p]} {p}</Text>
+                <Text className="text-slate-700 text-xs dark:text-slate-300">{PRIORITY_DOT[p]} {p}</Text>
               </Pressable>
             );
           })}
@@ -158,7 +158,7 @@ export default function TasksScreen() {
         renderItem={({ item }) => (
           <Pressable
             onPress={() => router?.push?.(`/task/${item.id}`)}
-            className="bg-white rounded-xl p-4 flex-row items-center gap-3"
+            className="bg-white rounded-xl p-4 flex-row items-center gap-3 dark:bg-slate-900"
           >
             <Pressable
               onPress={() => toggleTaskComplete(item.id)}

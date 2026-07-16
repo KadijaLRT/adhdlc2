@@ -1,7 +1,9 @@
+import type { MilestoneEvent } from '@/store/slices/types';
+
 export interface MilestoneTier { threshold: number; label: string; }
 export interface MilestoneDefinition {
   id: string; title: string; description: string;
-  trackedEvent: 'task_completed' | 'stuck_flow_used' | 'body_doubling_session' | 'routine_completed';
+  trackedEvent: MilestoneEvent;
   tiers: MilestoneTier[];
 }
 

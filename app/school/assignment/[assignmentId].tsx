@@ -5,5 +5,5 @@ import { ScreenBackButton } from '@/shared/components/ScreenBackButton';
 
 export default function AssignmentDetailRoute() {
   const { assignmentId } = useLocalSearchParams<{ assignmentId: string }>();
-  return <SafeAreaView className="flex-1 bg-stone-50"><ScreenBackButton /><AssignmentDetailScreen assignmentId={assignmentId || ''} /></SafeAreaView>;
+  return <SafeAreaView className="flex-1 bg-stone-50 dark:bg-slate-950"><ScreenBackButton /><AssignmentDetailScreen assignmentId={assignmentId || ''} /></SafeAreaView>;
 }

@@ -1,13 +1,15 @@
 import '../global.css';
 import { useEffect, useState } from 'react';
 import { Stack, usePathname } from 'expo-router';
-import { View, Text } from 'react-native';
+import { View, Text, Platform } from 'react-native';
+import * as Linking from 'expo-linking';
 import { useColorScheme } from 'nativewind';
 import { useFonts, Lexend_400Regular, Lexend_600SemiBold } from '@expo-google-fonts/lexend';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAppStore, selectDyslexiaFont, selectColorScheme, selectIsHydrated, selectStorageWorking } from '@/store/index';
 import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
 import AvivaFloatingButton from '@/features/aviva/AvivaFloatingButton';
+import { completeNativeSessionFromUrl } from '@/core/supabase/client';
 
 export default function RootLayout() {
   const [queryClient] = useState(() => new QueryClient());
@@ -32,6 +34,18 @@ export default function RootLayout() {
 
   useEffect(() => {
     useAppStore.getState().hydrate();
+  }, []);
+
+  // Native counterpart to web's automatic detectSessionInUrl: catches
+  // the magic-link redirect both when it cold-starts the app and when
+  // the app is already open in the background. No-op on web (handled
+  // by the SDK itself) and a no-op for any URL that isn't an auth
+  // callback.
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    Linking.getInitialURL().then((url) => { if (url) completeNativeSessionFromUrl(url); });
+    const subscription = Linking.addEventListener('url', ({ url }) => { completeNativeSessionFromUrl(url); });
+    return () => subscription.remove();
   }, []);
 
   // Drives NativeWind's actual dark-mode class toggling from the

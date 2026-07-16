@@ -23,8 +23,17 @@ export interface StressLogEntry { date: string; stressLevel: EnergyLevel; }
 export interface CycleLogEntry {
   date: string; phase: 'menstrual' | 'follicular' | 'ovulation' | 'luteal' | 'unspecified'; note?: string;
 }
+export interface CannabisSessionEntry {
+  id: string;
+  date: string; // YYYY-MM-DD
+  strain: string;
+  type: 'sativa' | 'indica' | 'hybrid';
+  effects: string[];
+  mood: number; // -2..2
+}
 export interface WellnessPreferences {
   bloodTypeEnabled: boolean; bloodType: BloodType | null; cannabisModuleEnabled: boolean;
+  weedLog?: CannabisSessionEntry[];
 }
 export type ReminderStyle = 'consequence' | 'loud' | 'gentle';
 export type CoachingStyle = 'gentle' | 'funny' | 'reality_check' | 'friend' | 'scientific';

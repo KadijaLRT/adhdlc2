@@ -27,6 +27,7 @@ export type { NutritionPreferences, FitnessPreferences, Gender, WeightGoalDirect
 export type { TextSize, ColorSchemePreference } from './slices/settingsSlice';
 export type { MomentumEntry, MomentumActionType } from './slices/momentumSlice';
 export type { MeasurementSite, WeightEntry, MeasurementEntry } from './slices/bodyProgressSlice';
+export type { WeeklyMealPlan, PlanDay, PlanMealType, PlanMeal, DayPlan } from '@/features/nutrition/mealPlanGeneration';
 
 export type AppState = UiSlice & TaskSlice & StreakSlice & MilestoneSlice &
   EnergySlice & StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & NutritionFitnessSlice & WorkoutSlice & ProgramSlice & GrocerySlice & RoutineSlice & RpgSlice & SettingsSlice & ReflectionSlice & ScheduleSlice & SchoolSlice & BodyProgressSlice & MomentumSlice;
@@ -82,12 +83,16 @@ export const selectReflections = (s: AppState) => s.reflections || [];
 export const selectScheduleItems = (s: AppState) => s.scheduleItems || [];
 export const selectCourses = (s: AppState) => s.courses || [];
 export const selectAssignments = (s: AppState) => s.assignments || [];
+export const selectGradeLevel = (s: AppState) => s.gradeLevel;
+export const selectProgramName = (s: AppState) => s.programName;
+export const selectUniversityName = (s: AppState) => s.universityName;
 export const selectWeightLog = (s: AppState) => s.weightLog || [];
 export const selectMeasurementLog = (s: AppState) => s.measurementLog || [];
 export const selectWeightGoalLbs = (s: AppState) => s.weightGoalLbs;
 export const selectWeightGoalDate = (s: AppState) => s.weightGoalDate;
 export const selectMomentumLog = (s: AppState) => s.momentumLog || [];
 export const selectSavedRecipeIds = (s: AppState) => s.savedRecipeIds || [];
+export const selectAiGeneratedRecipes = (s: AppState) => s.aiGeneratedRecipes || [];
 export const selectCompletedExerciseLog = (s: AppState) => s.completedExerciseLog || [];
 export const selectNutritionPreferences = (s: AppState) => s.nutritionPreferences;
 export const selectNutritionCardDismissed = (s: AppState) => s.nutritionCardDismissed;
@@ -107,6 +112,8 @@ export const selectColorScheme = (s: AppState) => s.colorScheme || 'light';
 export const selectActiveProgramId = (s: AppState) => s.activeProgramId;
 export const selectPantryItems = (s: AppState) => s.pantryItems || [];
 export const selectCheckedIngredients = (s: AppState) => s.checkedIngredients || [];
+export const selectMealPlan = (s: AppState) => s.mealPlan;
+export const selectMealPlanChecked = (s: AppState) => s.mealPlanChecked || [];
 export const selectRoutines = (s: AppState) => s.routines || [];
 export const selectTotalXp = (s: AppState) => s.totalXp || 0;
 export const selectCoins = (s: AppState) => s.coins || 0;

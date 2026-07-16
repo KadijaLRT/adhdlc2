@@ -6,9 +6,17 @@ create table if not exists public.profiles (
   energy_baseline text check (energy_baseline in ('low', 'medium', 'high')),
   stress_threshold text check (stress_threshold in ('low', 'medium', 'high')),
   biggest_hurdle text,
+  -- Full profile object (all onboarding answers — modules, symptoms,
+  -- fitness/nutrition preferences, etc.), not just the four fields
+  -- above. Added so a device restore can bring back the whole profile,
+  -- not just enough to skip onboarding with everything else blank.
+  profile_data jsonb,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
+
+-- Safe to run again on an existing table — only adds the column if it's not already there.
+alter table public.profiles add column if not exists profile_data jsonb;
 
 alter table public.profiles enable row level security;
 

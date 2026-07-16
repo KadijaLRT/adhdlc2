@@ -16,6 +16,7 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
   const [newDueDate, setNewDueDate] = useState('');
   const [gradeInput, setGradeInput] = useState('');
   const [goalInput, setGoalInput] = useState('');
+  const [creditsInput, setCreditsInput] = useState('');
   const [notesText, setNotesText] = useState('');
   const [flashcards, setFlashcards] = useState<FlashcardSet | null>(null);
   const [generatingCards, setGeneratingCards] = useState(false);
@@ -26,9 +27,11 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
   const handleSaveGrade = () => {
     const grade = Number(gradeInput);
     const goal = Number(goalInput);
+    const credits = Number(creditsInput);
     updateCourse(courseId, {
       currentGrade: gradeInput ? grade : course?.currentGrade,
       gradeGoal: goalInput ? goal : course?.gradeGoal,
+      credits: creditsInput ? credits : course?.credits,
     });
   };
 
@@ -68,22 +71,23 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
       <View className="w-full max-w-md self-center">
         <Heading className="mb-6 mt-2">{course.emoji} {course.name}</Heading>
 
-        <View className="bg-white rounded-2xl p-4 mb-4">
-          <Text className="text-slate-700 text-sm font-medium mb-2">Grade</Text>
+        <View className="bg-white rounded-2xl p-4 mb-4 dark:bg-slate-900">
+          <Text className="text-slate-700 text-sm font-medium mb-2 dark:text-slate-300">Grade</Text>
           {course.currentGrade !== undefined && course.gradeGoal !== undefined && (
             <Text className="text-slate-500 text-xs mb-2">
               Currently {course.currentGrade}% · goal {course.gradeGoal}%
               {course.currentGrade >= course.gradeGoal ? ' · on track' : ` · ${course.gradeGoal - course.currentGrade} points to go`}
+              {course.credits !== undefined ? ` · ${course.credits} credits` : ''}
             </Text>
           )}
-          <View className="flex-row gap-2">
+          <View className="flex-row gap-2 mb-2">
             <TextInput
               value={gradeInput}
               onChangeText={setGradeInput}
               placeholder="Current %"
               placeholderTextColor="#64748b"
               keyboardType="numeric"
-              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-3 py-2"
+              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-3 py-2 dark:text-slate-100 dark:bg-slate-800"
             />
             <TextInput
               value={goalInput}
@@ -91,7 +95,17 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
               placeholder="Goal %"
               placeholderTextColor="#64748b"
               keyboardType="numeric"
-              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-3 py-2"
+              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-3 py-2 dark:text-slate-100 dark:bg-slate-800"
+            />
+          </View>
+          <View className="flex-row gap-2">
+            <TextInput
+              value={creditsInput}
+              onChangeText={setCreditsInput}
+              placeholder="Credit hours (for GPA)"
+              placeholderTextColor="#64748b"
+              keyboardType="numeric"
+              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-3 py-2 dark:text-slate-100 dark:bg-slate-800"
             />
             <Pressable onPress={handleSaveGrade} className="bg-indigo-600 rounded-xl px-4 justify-center">
               <Text className="text-white text-sm font-semibold">Save</Text>
@@ -99,24 +113,24 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
           </View>
         </View>
 
-        <View className="bg-white rounded-2xl p-4 mb-4">
-          <Text className="text-slate-700 text-sm font-medium mb-2">Notes & flashcards</Text>
+        <View className="bg-white rounded-2xl p-4 mb-4 dark:bg-slate-900">
+          <Text className="text-slate-700 text-sm font-medium mb-2 dark:text-slate-300">Notes & flashcards</Text>
           <TextInput
             value={notesText}
             onChangeText={setNotesText}
             placeholder="Paste or type your notes..."
             placeholderTextColor="#64748b"
             multiline
-            className="bg-stone-100 text-slate-900 rounded-xl p-3 min-h-[80px] mb-2"
+            className="bg-stone-100 text-slate-900 rounded-xl p-3 min-h-[80px] mb-2 dark:text-slate-100 dark:bg-slate-800"
           />
           <Pressable onPress={handleGenerateFlashcards} disabled={generatingCards} className="border-2 border-indigo-500 rounded-xl py-2 items-center mb-2">
-            {generatingCards ? <ActivityIndicator color="#818cf8" /> : <Text className="text-indigo-700 text-sm font-medium">Generate flashcards</Text>}
+            {generatingCards ? <ActivityIndicator color="#818cf8" /> : <Text className="text-indigo-700 text-sm font-medium dark:text-indigo-300">Generate flashcards</Text>}
           </Pressable>
           {flashcards?.cards?.length ? (
             <View className="gap-2">
               {flashcards.cards.map((card, i) => (
-                <View key={i} className="bg-stone-100 rounded-lg p-3">
-                  <Text className="text-slate-900 text-sm mb-1">{card.front}</Text>
+                <View key={i} className="bg-stone-100 rounded-lg p-3 dark:bg-slate-800">
+                  <Text className="text-slate-900 text-sm mb-1 dark:text-slate-100">{card.front}</Text>
                   <Text className="text-slate-500 text-xs">{card.back}</Text>
                 </View>
               ))}
@@ -124,14 +138,14 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
           ) : null}
         </View>
 
-        <View className="bg-white rounded-2xl p-4 mb-4">
-          <Text className="text-slate-700 text-sm font-medium mb-2">New assignment</Text>
+        <View className="bg-white rounded-2xl p-4 mb-4 dark:bg-slate-900">
+          <Text className="text-slate-700 text-sm font-medium mb-2 dark:text-slate-300">New assignment</Text>
           <TextInput
             value={newTitle}
             onChangeText={setNewTitle}
             placeholder="Research paper, Chapter 6 reading..."
             placeholderTextColor="#64748b"
-            className="bg-stone-100 text-slate-900 rounded-xl px-4 py-3 mb-2"
+            className="bg-stone-100 text-slate-900 rounded-xl px-4 py-3 mb-2 dark:text-slate-100 dark:bg-slate-800"
           />
           <View className="flex-row gap-2">
             <TextInput
@@ -140,7 +154,7 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
               placeholder="YYYY-MM-DD"
               placeholderTextColor="#64748b"
               onSubmitEditing={handleAdd}
-              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-4 py-3"
+              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-4 py-3 dark:text-slate-100 dark:bg-slate-800"
             />
             <Pressable onPress={handleAdd} className="bg-indigo-600 rounded-xl px-5 justify-center">
               <Text className="text-white font-semibold">Add</Text>
@@ -151,7 +165,7 @@ export default function CourseDetailScreen({ courseId }: { courseId: string }) {
         <View className="gap-2">
           {courseAssignments.length === 0 && <Text className="text-slate-500 text-center mt-4">No assignments yet.</Text>}
           {courseAssignments.map((a) => (
-            <Pressable key={a.id} onPress={() => router?.push?.(`/school/assignment/${a.id}`)} className="bg-white rounded-xl p-4 flex-row items-center justify-between">
+            <Pressable key={a.id} onPress={() => router?.push?.(`/school/assignment/${a.id}`)} className="bg-white rounded-xl p-4 flex-row items-center justify-between dark:bg-slate-900">
               <Text className={a.isComplete ? 'text-slate-500 line-through flex-1' : 'text-slate-900 flex-1'}>{a.title}</Text>
               <Text className="text-slate-500 text-xs">{a.dueDate}</Text>
             </Pressable>

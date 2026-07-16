@@ -23,9 +23,9 @@ export default function ReflectionCard() {
   };
 
   return (
-    <View className="bg-white rounded-2xl p-5">
-      <Text className="text-indigo-700 text-xs uppercase tracking-wider mb-1">Evening check-in</Text>
-      <Text className="text-slate-900 text-base font-medium mb-3">How was today?</Text>
+    <View className="bg-white rounded-2xl p-5 dark:bg-slate-900">
+      <Text className="text-indigo-700 text-xs uppercase tracking-wider mb-1 dark:text-indigo-300">Evening check-in</Text>
+      <Text className="text-slate-900 text-base font-medium mb-3 dark:text-slate-100">How was today?</Text>
 
       <TextInput
         value={note}
@@ -33,7 +33,7 @@ export default function ReflectionCard() {
         placeholder="One line is plenty..."
         placeholderTextColor="#64748b"
         multiline
-        className="bg-stone-100 text-slate-900 rounded-xl p-3 min-h-[70px] mb-3"
+        className="bg-stone-100 text-slate-900 rounded-xl p-3 min-h-[70px] mb-3 dark:text-slate-100 dark:bg-slate-800"
       />
 
       <Pressable

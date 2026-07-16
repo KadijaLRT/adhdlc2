@@ -63,7 +63,7 @@ export default function AssignmentDetailScreen({ assignmentId }: { assignmentId:
 
         {(assignment.subSteps?.length || 0) === 0 ? (
           <Pressable onPress={handleBreakDown} disabled={breakingDown} className="border-2 border-indigo-500 rounded-full py-4 mb-6 items-center">
-            {breakingDown ? <ActivityIndicator color="#818cf8" /> : <Text className="text-indigo-700 font-semibold">Break this into steps</Text>}
+            {breakingDown ? <ActivityIndicator color="#818cf8" /> : <Text className="text-indigo-700 font-semibold dark:text-indigo-300">Break this into steps</Text>}
           </Pressable>
         ) : (
           <View className="gap-4 mb-6">
@@ -74,7 +74,7 @@ export default function AssignmentDetailScreen({ assignmentId }: { assignmentId:
                 </Text>
                 <View className="gap-2">
                   {group.steps.map((step) => (
-                    <Pressable key={step.id} onPress={() => toggleAssignmentSubStep(assignment.id, step.id)} className="bg-white rounded-xl p-4 flex-row items-center gap-3">
+                    <Pressable key={step.id} onPress={() => toggleAssignmentSubStep(assignment.id, step.id)} className="bg-white rounded-xl p-4 flex-row items-center gap-3 dark:bg-slate-900">
                       <View className={step.isComplete ? 'w-5 h-5 rounded-full bg-emerald-500 items-center justify-center' : 'w-5 h-5 rounded-full border-2 border-stone-300'}>
                         {step.isComplete && <Text className="text-white text-xs">✓</Text>}
                       </View>

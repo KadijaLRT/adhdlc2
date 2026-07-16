@@ -48,7 +48,7 @@ export default function BodyProgressScreen() {
 
   const daysLogged = new Set((weightLog || []).map((w) => w.date)).size;
   const totalLost = weightLog.length >= 2
-    ? [...weightLog].sort((a, b) => a.date.localeCompare(b.date))[0].weightLbs - (latest || 0)
+    ? ([...weightLog].sort((a, b) => a.date.localeCompare(b.date))[0]?.weightLbs || 0) - (latest || 0)
     : 0;
 
   const handleLogWeight = () => {
@@ -78,15 +78,15 @@ export default function BodyProgressScreen() {
         <AppleHealthImportCard />
         <Text className="text-slate-500 text-sm mb-6">Trends matter more than any single day.</Text>
 
-        <View className="bg-white rounded-2xl p-4 mb-4">
-          <Text className="text-slate-700 text-sm font-medium mb-3">Weight trend</Text>
+        <View className="bg-white rounded-2xl p-4 mb-4 dark:bg-slate-900">
+          <Text className="text-slate-700 text-sm font-medium mb-3 dark:text-slate-300">Weight trend</Text>
           <View className="flex-row flex-wrap gap-3 mb-3">
             <View className="flex-1 min-w-[45%]">
-              <Text className="text-amber-700 text-xl font-bold">{latest !== null ? `${latest} lb` : '—'}</Text>
+              <Text className="text-amber-700 text-xl font-bold dark:text-amber-400">{latest !== null ? `${latest} lb` : '—'}</Text>
               <Text className="text-slate-500 text-xs">Today</Text>
             </View>
             <View className="flex-1 min-w-[45%]">
-              <Text className="text-amber-700 text-xl font-bold">{sevenDayAvg !== null ? sevenDayAvg.toFixed(1) : '—'}</Text>
+              <Text className="text-amber-700 text-xl font-bold dark:text-amber-400">{sevenDayAvg !== null ? sevenDayAvg.toFixed(1) : '—'}</Text>
               <Text className="text-slate-500 text-xs">7-day average</Text>
             </View>
             <View className="flex-1 min-w-[45%]">
@@ -96,7 +96,7 @@ export default function BodyProgressScreen() {
               <Text className="text-slate-500 text-xs">30-day change</Text>
             </View>
             <View className="flex-1 min-w-[45%]">
-              <Text className="text-slate-800 text-xl font-bold">{goalDate || '—'}</Text>
+              <Text className="text-slate-800 text-xl font-bold dark:text-slate-200">{goalDate || '—'}</Text>
               <Text className="text-slate-500 text-xs">Projected goal date</Text>
             </View>
           </View>
@@ -109,7 +109,7 @@ export default function BodyProgressScreen() {
                 <Text className={rate.isAggressive || rate.isPastDate ? 'text-amber-700 text-xs font-medium mb-1' : 'text-emerald-700 text-xs font-medium mb-1'}>
                   Your goal date · {weightGoalDate}
                 </Text>
-                <Text className="text-slate-700 text-sm">{describeRigor(rate)}</Text>
+                <Text className="text-slate-700 text-sm dark:text-slate-300">{describeRigor(rate)}</Text>
                 {!rate.isPastDate && (
                   <Text className="text-slate-500 text-xs mt-1">≈ {rate.requiredWeeklyLbs.toFixed(2)} lb/week needed to stay on pace</Text>
                 )}
@@ -125,7 +125,7 @@ export default function BodyProgressScreen() {
               placeholderTextColor="#64748b"
               keyboardType="numeric"
               onSubmitEditing={handleLogWeight}
-              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-3 py-2"
+              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-3 py-2 dark:text-slate-100 dark:bg-slate-800"
             />
             <Pressable onPress={handleLogWeight} className="bg-indigo-600 rounded-xl px-4 justify-center">
               <Text className="text-white text-sm font-semibold">Log</Text>
@@ -139,16 +139,16 @@ export default function BodyProgressScreen() {
               placeholderTextColor="#64748b"
               keyboardType="numeric"
               onSubmitEditing={handleSaveGoal}
-              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-3 py-2"
+              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-3 py-2 dark:text-slate-100 dark:bg-slate-800"
             />
-            <Pressable onPress={handleSaveGoal} className="bg-stone-100 rounded-xl px-4 justify-center">
-              <Text className="text-slate-700 text-sm font-medium">Set goal</Text>
+            <Pressable onPress={handleSaveGoal} className="bg-stone-100 rounded-xl px-4 justify-center dark:bg-slate-800">
+              <Text className="text-slate-700 text-sm font-medium dark:text-slate-300">Set goal</Text>
             </Pressable>
           </View>
         </View>
 
-        <View className="bg-white rounded-2xl p-4 mb-4">
-          <Text className="text-slate-700 text-sm font-medium mb-2">Body measurements</Text>
+        <View className="bg-white rounded-2xl p-4 mb-4 dark:bg-slate-900">
+          <Text className="text-slate-700 text-sm font-medium mb-2 dark:text-slate-300">Body measurements</Text>
           <View className="flex-row flex-wrap gap-2 mb-3">
             {(MEASUREMENT_SITES || []).map((site) => {
               const isActive = selectedSite === site.id;
@@ -173,7 +173,7 @@ export default function BodyProgressScreen() {
               placeholderTextColor="#64748b"
               keyboardType="numeric"
               onSubmitEditing={handleLogMeasurement}
-              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-3 py-2"
+              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-3 py-2 dark:text-slate-100 dark:bg-slate-800"
             />
             <Pressable onPress={handleLogMeasurement} className="bg-indigo-600 rounded-xl px-4 justify-center">
               <Text className="text-white text-sm font-semibold">Log</Text>
@@ -181,7 +181,7 @@ export default function BodyProgressScreen() {
           </View>
         </View>
 
-        <Text className="text-slate-900 text-lg font-semibold mb-3">Milestones</Text>
+        <Text className="text-slate-900 text-lg font-semibold mb-3 dark:text-slate-100">Milestones</Text>
         <View className="gap-2">
           {daysLogged >= 1 && <MilestoneRow label="First weight logged" achieved />}
           {totalLost >= 5 && <MilestoneRow label="First 5 lb change" achieved />}
@@ -195,9 +195,9 @@ export default function BodyProgressScreen() {
 
 function MilestoneRow({ label, achieved }: { label: string; achieved: boolean }) {
   return (
-    <View className="bg-white rounded-xl p-3 flex-row items-center gap-2">
+    <View className="bg-white rounded-xl p-3 flex-row items-center gap-2 dark:bg-slate-900">
       <Text>{achieved ? '🏆' : '⚪️'}</Text>
-      <Text className="text-slate-800 text-sm">{label}</Text>
+      <Text className="text-slate-800 text-sm dark:text-slate-200">{label}</Text>
     </View>
   );
 }

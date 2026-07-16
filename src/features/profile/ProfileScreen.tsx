@@ -149,11 +149,11 @@ export default function ProfileScreen() {
             <Text className="text-slate-800 dark:text-slate-200 text-sm">🌙 Cycle tracking</Text>
             <Text className="text-slate-600 text-xs">→</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/nutrition/recipes')} className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-row items-center justify-between">
+          <Pressable onPress={() => router?.push?.('/settings/edit-nutrition')} className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-row items-center justify-between">
             <Text className="text-slate-800 dark:text-slate-200 text-sm">🍎 Nutrition preferences</Text>
             <Text className="text-slate-600 text-xs">→</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/fitness/workouts')} className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-row items-center justify-between">
+          <Pressable onPress={() => router?.push?.('/settings/edit-fitness')} className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-row items-center justify-between">
             <Text className="text-slate-800 dark:text-slate-200 text-sm">💪 Fitness preferences</Text>
             <Text className="text-slate-600 text-xs">→</Text>
           </Pressable>

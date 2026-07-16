@@ -20,10 +20,11 @@ export function getThirtyDayChange(weightLog: WeightEntry[]): number | null {
 
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  const cutoff = thirtyDaysAgo.toISOString().split('T')[0];
+  const cutoff = thirtyDaysAgo.toISOString().split('T')[0] || '';
 
   const oldEntry = sorted.find((e) => e.date >= cutoff) || sorted[0];
   const latestEntry = sorted[sorted.length - 1];
+  if (!oldEntry || !latestEntry) return null;
   return latestEntry.weightLbs - oldEntry.weightLbs;
 }
 
@@ -46,5 +47,5 @@ export function projectGoalDate(weightLog: WeightEntry[], goalLbs: number | null
   const daysNeeded = Math.abs(remaining / dailyRate);
   const projectedDate = new Date();
   projectedDate.setDate(projectedDate.getDate() + Math.round(daysNeeded));
-  return projectedDate.toISOString().split('T')[0];
+  return projectedDate.toISOString().split('T')[0] || null;
 }

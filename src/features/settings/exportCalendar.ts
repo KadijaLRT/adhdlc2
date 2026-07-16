@@ -9,7 +9,7 @@ import type { Assignment } from '@/store/slices/schoolSlice';
  */
 function formatIcsDate(dateStr: string): string {
   const clean = (dateStr || '').replace(/-/g, '');
-  return clean.length === 8 ? clean : new Date(dateStr).toISOString().split('T')[0].replace(/-/g, '');
+  return clean.length === 8 ? clean : (new Date(dateStr).toISOString().split('T')[0] || '').replace(/-/g, '');
 }
 
 export function buildIcsContent(tasks: Task[], assignments: Assignment[]): string {

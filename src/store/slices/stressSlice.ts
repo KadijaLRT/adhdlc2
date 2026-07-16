@@ -7,7 +7,7 @@ export interface StressSlice {
   logStressForToday: (level: EnergyLevel) => Promise<void>;
 }
 
-function today(): string { return new Date().toISOString().split('T')[0]; }
+function today(): string { return new Date().toISOString().split('T')[0] || ''; }
 
 export const createStressSlice: StateCreator<StressSlice> = (set, get) => ({
   stressLogs: [],

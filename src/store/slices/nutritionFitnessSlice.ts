@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import type { Recipe } from '@/content/recipes';
 
 export interface NutritionPreferences {
   allergies: string[];
@@ -31,6 +32,7 @@ export interface NutritionFitnessState {
   nutritionCardDismissed: boolean;
   fitnessPreferences: FitnessPreferences | null;
   fitnessCardDismissed: boolean;
+  aiGeneratedRecipes: Recipe[];
 }
 
 export interface NutritionFitnessSlice extends NutritionFitnessState {
@@ -40,6 +42,7 @@ export interface NutritionFitnessSlice extends NutritionFitnessState {
   dismissNutritionCard: () => Promise<void>;
   setFitnessPreferences: (prefs: FitnessPreferences) => Promise<void>;
   dismissFitnessCard: () => Promise<void>;
+  addAiGeneratedRecipe: (recipe: Recipe) => Promise<void>;
 }
 
 const DEFAULT_STATE: NutritionFitnessState = {
@@ -49,6 +52,7 @@ const DEFAULT_STATE: NutritionFitnessState = {
   nutritionCardDismissed: false,
   fitnessPreferences: null,
   fitnessCardDismissed: false,
+  aiGeneratedRecipes: [],
 };
 
 async function persist(state: NutritionFitnessState) {
@@ -64,6 +68,7 @@ function currentState(get: () => NutritionFitnessState): NutritionFitnessState {
     nutritionCardDismissed: get().nutritionCardDismissed || false,
     fitnessPreferences: get().fitnessPreferences || null,
     fitnessCardDismissed: get().fitnessCardDismissed || false,
+    aiGeneratedRecipes: get().aiGeneratedRecipes || [],
   };
 }
 
@@ -108,6 +113,17 @@ export const createNutritionFitnessSlice: StateCreator<NutritionFitnessSlice> = 
 
   dismissFitnessCard: async () => {
     const nextState = { ...currentState(get), fitnessCardDismissed: true };
+    set(nextState);
+    await persist(nextState);
+  },
+
+  // Kept indefinitely once generated — regenerating the same recipe on
+  // every app open would be wasteful and inconsistent. Deduped by name
+  // so re-searching the same thing twice doesn't create two entries.
+  addAiGeneratedRecipe: async (recipe) => {
+    const current = get().aiGeneratedRecipes || [];
+    if (current.some((r) => r.n.toLowerCase() === recipe.n.toLowerCase())) return;
+    const nextState = { ...currentState(get), aiGeneratedRecipes: [...current, recipe] };
     set(nextState);
     await persist(nextState);
   },

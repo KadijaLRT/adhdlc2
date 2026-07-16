@@ -15,7 +15,7 @@ export default function RoutinesScreen() {
 
   const [recoveryMessage, setRecoveryMessage] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState('');
-  const [newEmoji, setNewEmoji] = useState(EMOJI_OPTIONS[0]);
+  const [newEmoji, setNewEmoji] = useState(EMOJI_OPTIONS[0] || '⭐');
 
   const handleAdd = async () => {
     if (!newTitle?.trim()) return;
@@ -41,12 +41,12 @@ export default function RoutinesScreen() {
 
         {recoveryMessage && (
           <View className="bg-emerald-400/10 border-2 border-emerald-400 rounded-2xl p-4 mb-4">
-            <Text className="text-emerald-700 text-sm font-medium">🎉 {recoveryMessage}</Text>
+            <Text className="text-emerald-700 text-sm font-medium dark:text-emerald-400">🎉 {recoveryMessage}</Text>
           </View>
         )}
 
-        <View className="bg-white rounded-2xl p-4 mb-6">
-          <Text className="text-slate-700 text-sm font-medium mb-2">New routine</Text>
+        <View className="bg-white rounded-2xl p-4 mb-6 dark:bg-slate-900">
+          <Text className="text-slate-700 text-sm font-medium mb-2 dark:text-slate-300">New routine</Text>
           <View className="flex-row gap-2 mb-3">
             {(EMOJI_OPTIONS || []).map((emoji) => (
               <Pressable key={emoji} onPress={() => setNewEmoji(emoji)} className={newEmoji === emoji ? 'bg-indigo-600/30 rounded-lg p-2' : 'p-2'}>
@@ -61,7 +61,7 @@ export default function RoutinesScreen() {
               placeholder="Morning meds, evening wind-down..."
               placeholderTextColor="#64748b"
               onSubmitEditing={handleAdd}
-              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-4 py-3"
+              className="flex-1 bg-stone-100 text-slate-900 rounded-xl px-4 py-3 dark:text-slate-100 dark:bg-slate-800"
             />
             <Pressable onPress={handleAdd} className="bg-indigo-600 rounded-xl px-5 justify-center active:bg-indigo-500">
               <Text className="text-white font-semibold">Add</Text>
@@ -75,11 +75,11 @@ export default function RoutinesScreen() {
             const streak = (streaks || []).find((s) => s.routineId === routine.id);
             const doneToday = streak?.lastCompletedDate === today;
             return (
-              <View key={routine.id} className="bg-white rounded-2xl p-4">
+              <View key={routine.id} className="bg-white rounded-2xl p-4 dark:bg-slate-900">
                 <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-slate-900 font-medium">{routine.emoji} {routine.title}</Text>
+                  <Text className="text-slate-900 font-medium dark:text-slate-100">{routine.emoji} {routine.title}</Text>
                   <Pressable onPress={() => removeRoutine(routine.id)}>
-                    <Text className="text-slate-600 text-xs">Remove</Text>
+                    <Text className="text-slate-600 text-xs dark:text-slate-300">Remove</Text>
                   </Pressable>
                 </View>
                 <Text className="text-slate-500 text-xs mb-3">
@@ -97,8 +97,8 @@ export default function RoutinesScreen() {
                     </Text>
                   </Pressable>
                   {!doneToday && (streak?.freezesAvailable || 0) > 0 && (
-                    <Pressable onPress={() => useStreakFreeze(routine.id)} className="border-2 border-stone-300 rounded-full py-3 px-4 items-center">
-                      <Text className="text-slate-700 text-xs font-medium">Freeze</Text>
+                    <Pressable onPress={() => useStreakFreeze(routine.id)} className="border-2 border-stone-300 rounded-full py-3 px-4 items-center dark:border-slate-700">
+                      <Text className="text-slate-700 text-xs font-medium dark:text-slate-300">Freeze</Text>
                     </Pressable>
                   )}
                 </View>

@@ -12,9 +12,9 @@ function Ring({ label, percent, color }: { label: string; percent: number; color
   const clamped = Math.max(0, Math.min(percent || 0, 100));
   return (
     <View className="items-center flex-1">
-      <View className="w-20 h-20 rounded-full border-4 border-stone-200 items-center justify-center mb-2">
+      <View className="w-20 h-20 rounded-full border-4 border-stone-200 items-center justify-center mb-2 dark:border-slate-700">
         <View className="absolute w-20 h-20 rounded-full border-4" style={{ borderColor: color, opacity: clamped / 100 }} />
-        <Text className="text-slate-900 text-sm font-semibold">{clamped}%</Text>
+        <Text className="text-slate-900 text-sm font-semibold dark:text-slate-100">{clamped}%</Text>
       </View>
       <Text className="text-slate-500 text-xs">{label}</Text>
     </View>
@@ -34,7 +34,7 @@ export default function ExecutiveFunctionRings() {
   const stressScore = todaysStress ? 100 - energyToScore(todaysStress.stressLevel) : 70;
 
   return (
-    <View className="bg-white rounded-2xl p-5 w-full flex-row justify-around">
+    <View className="bg-white rounded-2xl p-5 w-full flex-row justify-around dark:bg-slate-900">
       <Ring label="Focus" percent={focusScore} color="#818cf8" />
       <Ring label="Energy" percent={energyScore} color="#34d399" />
       <Ring label="Calm" percent={stressScore} color="#fbbf24" />

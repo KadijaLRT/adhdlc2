@@ -59,10 +59,12 @@ export function buildWeeklySplit(
     for (const [, ex] of chunk) groupCounts.set(ex.group, (groupCounts.get(ex.group) || 0) + 1);
     const muscleGroups = Array.from(groupCounts.keys());
     const dominantGroup = [...groupCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || 'Full Body';
-    lettersToContent.set(DAY_LETTERS[i], {
+    const dayLetter = DAY_LETTERS[i];
+    if (!dayLetter) continue;
+    lettersToContent.set(dayLetter, {
       exerciseIds: chunk.map(([id]) => id),
       muscleGroups,
-      title: `${capitalize(dominantGroup)} ${DAY_LETTERS[i]}`,
+      title: `${capitalize(dominantGroup)} ${dayLetter}`,
       estimatedMinutes: chunk.length * 10,
     });
   }
@@ -75,10 +77,11 @@ export function buildWeeklySplit(
   const days: WeeklySplitDay[] = [];
   for (let weekday = 0; weekday < 7; weekday++) {
     const letter = assignment[weekday];
+    const weekdayLabel = WEEKDAY_LABELS[weekday] || '';
     if (!letter || !lettersToContent.has(letter)) {
       days.push({
         dayLetter: null,
-        weekdayLabel: WEEKDAY_LABELS[weekday],
+        weekdayLabel,
         title: 'Rest Day',
         muscleGroups: [],
         exerciseIds: [],
@@ -89,7 +92,7 @@ export function buildWeeklySplit(
       const content = lettersToContent.get(letter)!;
       days.push({
         dayLetter: letter,
-        weekdayLabel: WEEKDAY_LABELS[weekday],
+        weekdayLabel,
         title: content.title,
         muscleGroups: content.muscleGroups,
         exerciseIds: content.exerciseIds,

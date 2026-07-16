@@ -15,5 +15,6 @@ export const STUCK_PROMPTS: StuckPrompt[] = [
 
 export function getRandomPrompt(excludeId?: string): StuckPrompt {
   const pool = excludeId ? STUCK_PROMPTS.filter((p) => p.id !== excludeId) : STUCK_PROMPTS;
-  return pool[Math.floor(Math.random() * pool.length)] || STUCK_PROMPTS[0];
+  const fallback = STUCK_PROMPTS[0] || { id: 'water', text: 'Take a sip of water.' };
+  return pool[Math.floor(Math.random() * pool.length)] || fallback;
 }

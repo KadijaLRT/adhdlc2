@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, Pressable, ScrollView, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
-  useAppStore, selectActiveProgramId, selectFitnessPreferences, selectFitnessCardDismissed,
+  useAppStore, selectActiveProgramId, selectFitnessPreferences, selectFitnessCardDismissed, selectEnergyLevel,
   selectGyms, selectActiveGymId, selectSetLogs, selectWeekdayAssignment,
 } from '@/store/index';
 import { PROGRAMS } from '@/content/programs';
@@ -47,9 +47,9 @@ function DayStrip({
 }
 
 function DayCard({
-  day, onStart, onLayout,
+  day, onStart, onLayout, programId,
 }: {
-  day: WeeklySplitDay; onStart: () => void; onLayout: (y: number) => void;
+  day: WeeklySplitDay; onStart: () => void; onLayout: (y: number) => void; programId?: string;
 }) {
   const router = useRouter();
   const setLogs = useAppStore(selectSetLogs);
@@ -58,10 +58,10 @@ function DayCard({
     return (
       <View
         onLayout={(e) => onLayout(e.nativeEvent.layout.y)}
-        className="bg-white rounded-2xl p-6 mb-4 items-center"
+        className="bg-white rounded-2xl p-6 mb-4 items-center dark:bg-slate-900"
       >
         <Text className="text-2xl mb-2">😌</Text>
-        <Text className="text-slate-900 text-lg font-semibold mb-1">Rest day</Text>
+        <Text className="text-slate-900 text-lg font-semibold mb-1 dark:text-slate-100">Rest day</Text>
         <Text className="text-slate-500 text-sm text-center">Recovery is part of the program, not a break from it.</Text>
       </View>
     );
@@ -70,12 +70,12 @@ function DayCard({
   return (
     <View
       onLayout={(e) => onLayout(e.nativeEvent.layout.y)}
-      className="bg-white rounded-2xl p-4 mb-4"
+      className="bg-white rounded-2xl p-4 mb-4 dark:bg-slate-900"
     >
       <View className="bg-indigo-600/10 self-start rounded-full px-3 py-1 mb-2">
-        <Text className="text-indigo-700 text-xs font-bold">DAY {day.dayLetter}</Text>
+        <Text className="text-indigo-700 text-xs font-bold dark:text-indigo-300">DAY {day.dayLetter}</Text>
       </View>
-      <Text className="text-slate-900 text-xl font-bold mb-1">{day.title}</Text>
+      <Text className="text-slate-900 text-xl font-bold mb-1 dark:text-slate-100">{day.title}</Text>
       <Text className="text-slate-500 text-xs mb-1 capitalize">{day.muscleGroups.join(' & ')}</Text>
       <Text className="text-slate-500 text-xs mb-4">~{day.estimatedMinutes} min (estimate) · {day.exerciseIds.length} exercises</Text>
 
@@ -85,19 +85,25 @@ function DayCard({
           const progressLabel = getWeightProgressLabel(id, setLogs);
           return (
             <View key={id} className="flex-row items-center justify-between py-1">
-              <Text className="text-slate-800 text-sm flex-1">{exercise?.icon} {exercise?.name || id}</Text>
-              {progressLabel && <Text className="text-emerald-700 text-xs font-semibold">{progressLabel}</Text>}
+              <Text className="text-slate-800 text-sm flex-1 dark:text-slate-200">{exercise?.icon} {exercise?.name || id}</Text>
+              {progressLabel && <Text className="text-emerald-700 text-xs font-semibold dark:text-emerald-400">{progressLabel}</Text>}
             </View>
           );
         })}
       </View>
 
       <View className="flex-row gap-2 mb-3">
-        <Pressable onPress={() => router?.push?.('/body/progress')} className="flex-1 border-2 border-stone-300 rounded-xl py-3 items-center">
-          <Text className="text-slate-700 text-xs">🩺 Body Check-in</Text>
+        <Pressable
+          onPress={() => router?.push?.({
+            pathname: '/workout/checkin',
+            params: { exerciseIds: day.exerciseIds.join(','), programId: programId || '', dayTitle: day.title },
+          })}
+          className="flex-1 border-2 border-stone-300 rounded-xl py-3 items-center dark:border-slate-700"
+        >
+          <Text className="text-slate-700 text-xs dark:text-slate-300">🩺 Body Check-in</Text>
         </Pressable>
-        <Pressable onPress={() => router?.push?.('/fitness/recovery')} className="flex-1 border-2 border-stone-300 rounded-xl py-3 items-center">
-          <Text className="text-slate-700 text-xs">🧘 Warm-Up</Text>
+        <Pressable onPress={() => router?.push?.('/fitness/recovery')} className="flex-1 border-2 border-stone-300 rounded-xl py-3 items-center dark:border-slate-700">
+          <Text className="text-slate-700 text-xs dark:text-slate-300">🧘 Warm-Up</Text>
         </Pressable>
       </View>
 
@@ -118,6 +124,8 @@ export default function WorkoutsHome() {
   const activeProgramId = useAppStore(selectActiveProgramId);
   const fitnessPreferences = useAppStore(selectFitnessPreferences);
   const fitnessCardDismissed = useAppStore(selectFitnessCardDismissed);
+  const energyLevel = useAppStore(selectEnergyLevel);
+  const isLowEnergyToday = energyLevel === 'low';
   const gyms = useAppStore(selectGyms);
   const activeGymId = useAppStore(selectActiveGymId);
   const weekdayAssignment = useAppStore(selectWeekdayAssignment);
@@ -177,15 +185,37 @@ export default function WorkoutsHome() {
   const handleStartDay = (day: WeeklySplitDay) => {
     const [first, ...rest] = day.exerciseIds;
     if (!first) return;
+    const sessionTotalSets = day.exerciseIds.reduce((sum, id) => {
+      const sets = WORKOUT_EXERCISES?.[id]?.sets || 3;
+      return sum + (isLowEnergyToday ? Math.max(2, sets - 1) : sets);
+    }, 0);
     router?.push?.({
       pathname: `/workout/session/${first}`,
-      params: { programId: activeProgram?.id || '', queue: rest.join(',') },
+      params: {
+        programId: activeProgram?.id || '',
+        queue: rest.join(','),
+        sessionStartedAt: new Date().toISOString(),
+        sessionTotalSets: String(sessionTotalSets),
+        sessionDoneSets: '0',
+        energyLightened: isLowEnergyToday ? '1' : '',
+      },
     });
   };
 
   const handleStartSomewhere = () => {
     const picked = pickStartSomewhereExercise(fitnessPreferences);
-    if (picked) router?.push?.(`/workout/session/${picked.id}`);
+    if (picked) {
+      const sets = WORKOUT_EXERCISES?.[picked.id]?.sets || 3;
+      router?.push?.({
+        pathname: `/workout/session/${picked.id}`,
+        params: {
+          sessionStartedAt: new Date().toISOString(),
+          sessionTotalSets: String(isLowEnergyToday ? Math.max(2, sets - 1) : sets),
+          sessionDoneSets: '0',
+          energyLightened: isLowEnergyToday ? '1' : '',
+        },
+      });
+    }
   };
 
   const currentWeek = activeProgram ? getCurrentProgramWeek(activeProgram, sessionsCompletedInProgram) : 0;
@@ -199,19 +229,25 @@ export default function WorkoutsHome() {
 
         {!fitnessCardDismissed && <PersonalizeFitnessCard />}
 
+        {isLowEnergyToday && (
+          <View className="bg-amber-400/10 border border-amber-400 rounded-xl p-3 mb-3">
+            <Text className="text-amber-700 text-xs dark:text-amber-400">🔋 Energy is low today — sessions are lightened up automatically (one fewer set each). Change it anytime from Home.</Text>
+          </View>
+        )}
+
         <Pressable onPress={handleStartSomewhere} className="bg-indigo-600 rounded-2xl py-4 mb-3 items-center active:bg-indigo-500">
           <Text className="text-white font-semibold text-base">Don't overthink it — Start Somewhere</Text>
         </Pressable>
 
         <View className="flex-row gap-2 mb-4">
-          <Pressable onPress={() => router?.push?.('/fitness/programs')} className="flex-1 bg-white rounded-xl py-3 items-center">
-            <Text className="text-slate-700 text-sm">🏋️ Programs</Text>
+          <Pressable onPress={() => router?.push?.('/fitness/programs')} className="flex-1 bg-white rounded-xl py-3 items-center dark:bg-slate-900">
+            <Text className="text-slate-700 text-sm dark:text-slate-300">🏋️ Programs</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/fitness/recovery')} className="flex-1 bg-white rounded-xl py-3 items-center">
-            <Text className="text-slate-700 text-sm">🧘 Recovery</Text>
+          <Pressable onPress={() => router?.push?.('/fitness/recovery')} className="flex-1 bg-white rounded-xl py-3 items-center dark:bg-slate-900">
+            <Text className="text-slate-700 text-sm dark:text-slate-300">🧘 Recovery</Text>
           </Pressable>
-          <Pressable onPress={() => router?.push?.('/fitness/progress')} className="flex-1 bg-white rounded-xl py-3 items-center">
-            <Text className="text-slate-700 text-sm">📈 Progress</Text>
+          <Pressable onPress={() => router?.push?.('/fitness/progress')} className="flex-1 bg-white rounded-xl py-3 items-center dark:bg-slate-900">
+            <Text className="text-slate-700 text-sm dark:text-slate-300">📈 Progress</Text>
           </Pressable>
         </View>
 
@@ -251,6 +287,7 @@ export default function WorkoutsHome() {
                 day={day}
                 onStart={() => handleStartDay(day)}
                 onLayout={(y) => { cardOffsets.current[index] = y; }}
+                programId={activeProgram?.id}
               />
             ))}
           </View>

@@ -10,8 +10,8 @@ export default function DayRhythmCard() {
   const logEnergyForToday = useAppStore((s) => s.logEnergyForToday);
 
   return (
-    <View className="bg-white rounded-2xl p-5 w-full">
-      <Text className="text-slate-900 text-base font-semibold mb-1">How&apos;s your energy today?</Text>
+    <View className="bg-white rounded-2xl p-5 w-full dark:bg-slate-900">
+      <Text className="text-slate-900 text-base font-semibold mb-1 dark:text-slate-100">How&apos;s your energy today?</Text>
       <Text className="text-slate-500 text-xs mb-4">This helps shape what we show you today. You can change it anytime.</Text>
       <View className="flex-row gap-2">
         {(ENERGY_OPTIONS || []).map((option) => {

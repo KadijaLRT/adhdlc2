@@ -70,7 +70,7 @@ export default function TodayHub() {
             <Text className="text-slate-500 text-xs">→</Text>
           </Pressable>
           <Pressable onPress={() => router?.push?.('/school')} className="bg-white dark:bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
-            <Text className="text-slate-900 dark:text-slate-100 text-sm">📖 Study</Text>
+            <Text className="text-slate-900 dark:text-slate-100 text-sm">📖 School</Text>
             <Text className="text-slate-500 text-xs">→</Text>
           </Pressable>
           <Pressable onPress={() => router?.push?.('/stuck')} className="bg-amber-400/10 border-2 border-amber-400 rounded-2xl p-4">

@@ -5,7 +5,7 @@ import { ScreenBackButton } from '@/shared/components/ScreenBackButton';
 
 export default function AchievementsScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-stone-50"><ScreenBackButton />
+    <SafeAreaView className="flex-1 bg-stone-50 dark:bg-slate-950"><ScreenBackButton />
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
         <AchievementsGrid />
       </ScrollView>

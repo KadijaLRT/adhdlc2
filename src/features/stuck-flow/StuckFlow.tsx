@@ -5,9 +5,12 @@ import { useRouter } from 'expo-router';
 import { useAppStore } from '@/store/index';
 import { STUCK_PROMPTS, getRandomPrompt } from '@/content/stuckPrompts';
 import { Heading } from '@/shared/components/Heading';
+import LaunchCountdown from '@/features/toolkit/LaunchCountdown';
+import DopamineMenuCard from '@/features/toolkit/DopamineMenuCard';
 
 type Room = 'eat' | 'work' | 'gym';
 const ROOM_LABELS: Record<Room, string> = { eat: 'Eating', work: 'Work', gym: 'Gym' };
+type ExtraTool = 'launch' | 'dopamine' | null;
 
 export default function StuckFlow() {
   const router = useRouter();
@@ -18,6 +21,7 @@ export default function StuckFlow() {
   const awardProgress = useAppStore((s) => s.awardProgress);
 
   const [currentPrompt, setCurrentPrompt] = useState(STUCK_PROMPTS?.[0] || { id: 'water', text: 'Take a sip of water.' });
+  const [extraTool, setExtraTool] = useState<ExtraTool>(null);
 
   const handleNextStep = () => {
     setCurrentPrompt(getRandomPrompt(currentPrompt?.id));
@@ -36,14 +40,14 @@ export default function StuckFlow() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-stone-50 dark:bg-slate-950">
       <View className="flex-1 w-full max-w-md self-center px-6 pt-safe pb-safe justify-center">
         <View className="mb-10">
           <Heading>I&apos;m feeling stuck</Heading>
           <Text className="text-slate-500 text-base mt-1">No pressure. Just one small thing.</Text>
         </View>
-        <View className="bg-white rounded-2xl p-8 mb-8 items-center">
-          <Text className="text-indigo-700 text-xs uppercase tracking-wider mb-3">Try this micro step</Text>
+        <View className="bg-white rounded-2xl p-8 mb-8 items-center dark:bg-slate-900">
+          <Text className="text-indigo-700 text-xs uppercase tracking-wider mb-3 dark:text-indigo-300">Try this micro step</Text>
           <Text className="text-slate-50 text-xl text-center font-medium">{currentPrompt?.text || 'Take a sip of water.'}</Text>
         </View>
         <Pressable onPress={handleNextStep} className="bg-indigo-600 rounded-full py-4 px-8 mb-4 active:bg-indigo-500">
@@ -65,6 +69,18 @@ export default function StuckFlow() {
             })}
           </View>
         </View>
+
+        <View className="flex-row gap-2 mb-4">
+          <Pressable onPress={() => setExtraTool(extraTool === 'launch' ? null : 'launch')} className="flex-1 border-2 border-stone-300 rounded-xl py-2.5 items-center">
+            <Text className="text-slate-600 text-xs font-medium">🚀 Launch</Text>
+          </Pressable>
+          <Pressable onPress={() => setExtraTool(extraTool === 'dopamine' ? null : 'dopamine')} className="flex-1 border-2 border-stone-300 rounded-xl py-2.5 items-center">
+            <Text className="text-slate-600 text-xs font-medium">⚡ Dopamine Menu</Text>
+          </Pressable>
+        </View>
+        {extraTool === 'launch' && <View className="mb-6"><LaunchCountdown /></View>}
+        {extraTool === 'dopamine' && <View className="mb-6"><DopamineMenuCard /></View>}
+
         <Pressable onPress={handleDone} className="py-3">
           <Text className="text-slate-500 text-center text-sm">I&apos;m okay now, take me back</Text>
         </Pressable>

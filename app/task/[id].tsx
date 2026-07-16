@@ -35,7 +35,7 @@ export default function TaskDetailScreen() {
 
   if (!task) {
     return (
-      <SafeAreaView className="flex-1 bg-stone-50 items-center justify-center px-8">
+      <SafeAreaView className="flex-1 bg-stone-50 items-center justify-center px-8 dark:bg-slate-950">
         <Text className="text-slate-500 text-center">This task isn&apos;t here anymore.</Text>
         <Pressable onPress={() => router?.back?.()} className="mt-4">
           <Text className="text-indigo-400">Go back</Text>
@@ -72,7 +72,7 @@ export default function TaskDetailScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-stone-50 dark:bg-slate-950">
       <ScreenBackButton />
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
         <View className="w-full max-w-md self-center">
@@ -95,7 +95,7 @@ export default function TaskDetailScreen() {
                   onPress={() => updateTask(task.id, { priority: p })}
                   className={isActive ? 'flex-1 bg-stone-100 border-2 border-indigo-400 rounded-xl py-2 items-center' : 'flex-1 bg-white border-2 border-transparent rounded-xl py-2 items-center'}
                 >
-                  <Text className="text-slate-700 text-xs">{dot} {p}</Text>
+                  <Text className="text-slate-700 text-xs dark:text-slate-300">{dot} {p}</Text>
                 </Pressable>
               );
             })}
@@ -111,7 +111,7 @@ export default function TaskDetailScreen() {
                   onPress={() => updateTask(task.id, { category: cat })}
                   className={isActive ? 'bg-stone-100 border-2 border-indigo-400 rounded-full py-1.5 px-3' : 'bg-white border-2 border-transparent rounded-full py-1.5 px-3'}
                 >
-                  <Text className="text-slate-700 text-xs capitalize">{cat}</Text>
+                  <Text className="text-slate-700 text-xs capitalize dark:text-slate-300">{cat}</Text>
                 </Pressable>
               );
             })}
@@ -132,13 +132,13 @@ export default function TaskDetailScreen() {
               disabled={breakingDown}
               className="border-2 border-indigo-500 rounded-full py-4 mb-6 items-center"
             >
-              {breakingDown ? <ActivityIndicator color="#818cf8" /> : <Text className="text-indigo-700 font-semibold">Break this down for me</Text>}
+              {breakingDown ? <ActivityIndicator color="#818cf8" /> : <Text className="text-indigo-700 font-semibold dark:text-indigo-300">Break this down for me</Text>}
             </Pressable>
           ) : (
             <View className="gap-2 mb-6">
-              <Text className="text-slate-700 text-sm font-medium mb-1">Steps</Text>
+              <Text className="text-slate-700 text-sm font-medium mb-1 dark:text-slate-300">Steps</Text>
               {(task.subSteps || []).map((step) => (
-                <Pressable key={step.id} onPress={() => toggleSubStep(task.id, step.id)} className="bg-white rounded-xl p-4 flex-row items-center gap-3">
+                <Pressable key={step.id} onPress={() => toggleSubStep(task.id, step.id)} className="bg-white rounded-xl p-4 flex-row items-center gap-3 dark:bg-slate-900">
                   <View className={step?.isComplete ? 'w-5 h-5 rounded-full bg-emerald-500 items-center justify-center' : 'w-5 h-5 rounded-full border-2 border-stone-300'}>
                     {step?.isComplete && <Text className="text-white text-xs">✓</Text>}
                   </View>
@@ -149,7 +149,7 @@ export default function TaskDetailScreen() {
           )}
 
           <Pressable onPress={handleDelete} className="py-3">
-            <Text className="text-slate-600 text-center text-sm">Remove this task</Text>
+            <Text className="text-slate-600 text-center text-sm dark:text-slate-300">Remove this task</Text>
           </Pressable>
         </View>
       </ScrollView>

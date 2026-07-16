@@ -18,17 +18,18 @@ export function getWeightProgressLabel(exerciseId: string, setLogs: SetLogEntry[
   // Group by day so multiple sets in one session don't count as separate data points.
   const byDay = new Map<string, number>();
   for (const log of logsForExercise) {
-    const day = log.date.split('T')[0];
+    const day = log.date.split('T')[0] || log.date;
     byDay.set(day, Math.max(byDay.get(day) || 0, log.weight));
   }
 
   const days = Array.from(byDay.entries()).sort(([a], [b]) => a.localeCompare(b));
   if (days.length < 2) return null;
 
-  const [, latestWeight] = days[days.length - 1];
-  const [, previousWeight] = days[days.length - 2];
+  const latest = days[days.length - 1];
+  const previous = days[days.length - 2];
+  if (!latest || !previous) return null;
 
-  const diff = latestWeight - previousWeight;
+  const diff = latest[1] - previous[1];
   if (diff <= 0) return null;
 
   return `↑ ${diff}lbs`;

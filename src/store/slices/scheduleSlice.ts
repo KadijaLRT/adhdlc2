@@ -24,7 +24,7 @@ export interface ScheduleSlice extends ScheduleState {
 
 function addMinutesToTime(time: string, minutes: number): string {
   const [h, m] = (time || '00:00').split(':').map(Number);
-  const total = h * 60 + m + minutes;
+  const total = (h || 0) * 60 + (m || 0) + minutes;
   const wrapped = ((total % 1440) + 1440) % 1440;
   const newH = Math.floor(wrapped / 60);
   const newM = wrapped % 60;

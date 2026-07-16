@@ -3,5 +3,5 @@ import TasksScreen from '@/features/tasks/TasksScreen';
 import { ScreenBackButton } from '@/shared/components/ScreenBackButton';
 
 export default function TasksRoute() {
-  return <SafeAreaView className="flex-1 bg-stone-50"><ScreenBackButton /><TasksScreen /></SafeAreaView>;
+  return <SafeAreaView className="flex-1 bg-stone-50 dark:bg-slate-950"><ScreenBackButton /><TasksScreen /></SafeAreaView>;
 }
