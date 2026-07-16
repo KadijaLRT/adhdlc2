@@ -54,6 +54,14 @@ export default function WellnessHub() {
             <Text className="text-slate-900 dark:text-slate-100 text-sm">🌙 Cycle tracking</Text>
             <Text className="text-slate-500 text-xs">→</Text>
           </Pressable>
+          <Pressable onPress={() => router?.push?.('/wellness/learn')} className="bg-white dark:bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-900 dark:text-slate-100 text-sm">📚 Learn</Text>
+            <Text className="text-slate-500 text-xs">→</Text>
+          </Pressable>
+          <Pressable onPress={() => router?.push?.('/wellness/workbook')} className="bg-white dark:bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-900 dark:text-slate-100 text-sm">📝 Workbook</Text>
+            <Text className="text-slate-500 text-xs">→</Text>
+          </Pressable>
           {showStrainExplorer && (
             <Pressable onPress={() => router?.push?.('/wellness/strains')} className="bg-white dark:bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
               <Text className="text-slate-900 dark:text-slate-100 text-sm">🌿 Strain explorer</Text>

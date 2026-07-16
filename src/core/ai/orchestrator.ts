@@ -28,6 +28,7 @@ export async function askOrchestrator(
 ): Promise<{ agentLabel: string; response: AgentResponse | null }> {
   const agentId = forcedAgentId || pickAgentForMessage(message);
   const agent = getAgentById(agentId);
+  if (!agent) return { agentLabel: 'coach', response: null };
   const response = await agent.ask(message, context);
   return { agentLabel: agent.label, response };
 }

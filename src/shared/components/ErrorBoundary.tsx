@@ -23,9 +23,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   render() {
     if (this.state?.hasError) {
       return (
-        <SafeAreaView className="flex-1 bg-stone-50">
+        <SafeAreaView className="flex-1 bg-stone-50 dark:bg-slate-950">
           <View className="flex-1 items-center justify-center px-8 pt-safe pb-safe">
-            <Text className="text-slate-900 text-2xl font-semibold mb-3 text-center">
+            <Text className="text-slate-900 text-2xl font-semibold mb-3 text-center dark:text-slate-100">
               Something didn&apos;t load right.
             </Text>
             <Text className="text-slate-500 text-base mb-8 text-center">

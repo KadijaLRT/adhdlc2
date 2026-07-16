@@ -6,6 +6,11 @@ export interface RoutineSlice {
   routines: Routine[];
   addRoutine: (routine: Routine) => Promise<void>;
   removeRoutine: (id: string) => Promise<void>;
+  toggleRoutineStep: (routineId: string, stepId: string) => Promise<void>;
+}
+
+function today(): string {
+  return new Date().toISOString().split('T')[0] || '';
 }
 
 async function persist(routines: Routine[]) {
@@ -28,6 +33,22 @@ export const createRoutineSlice: StateCreator<RoutineSlice> = (set, get) => ({
 
   removeRoutine: async (id) => {
     const next = (get().routines || []).filter((r) => r.id !== id);
+    set({ routines: next });
+    await persist(next);
+  },
+
+  toggleRoutineStep: async (routineId, stepId) => {
+    const t = today();
+    const next = (get().routines || []).map((r) => {
+      if (r.id !== routineId) return r;
+      // A stored completion date from any day but today reads as
+      // "nothing checked yet" — this is the implicit daily reset.
+      const currentlyChecked = r.stepCompletionDate === t ? (r.completedStepIds || []) : [];
+      const nextChecked = currentlyChecked.includes(stepId)
+        ? currentlyChecked.filter((id) => id !== stepId)
+        : [...currentlyChecked, stepId];
+      return { ...r, stepCompletionDate: t, completedStepIds: nextChecked };
+    });
     set({ routines: next });
     await persist(next);
   },

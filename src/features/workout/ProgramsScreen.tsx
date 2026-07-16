@@ -37,16 +37,16 @@ function GymSelectorCard() {
 
   if (adding) {
     return (
-      <View className="bg-white border-2 border-indigo-500 rounded-2xl p-4 mb-4">
+      <View className="bg-white border-2 border-indigo-500 rounded-2xl p-4 mb-4 dark:bg-slate-900">
         <TextInput
           value={newGymName}
           onChangeText={setNewGymName}
           placeholder="Gym name..."
           placeholderTextColor="#64748b"
           autoFocus
-          className="bg-stone-100 text-slate-900 rounded-xl px-3 py-2 mb-3"
+          className="bg-stone-100 text-slate-900 rounded-xl px-3 py-2 mb-3 dark:text-slate-100 dark:bg-slate-800"
         />
-        <Text className="text-slate-700 text-xs font-medium mb-2">What equipment does this gym have?</Text>
+        <Text className="text-slate-700 text-xs font-medium mb-2 dark:text-slate-300">What equipment does this gym have?</Text>
         <View className="flex-row flex-wrap gap-2 mb-3">
           {EQUIPMENT_OPTIONS.map((eq) => {
             const isActive = newGymEquipment.includes(eq);
@@ -72,9 +72,9 @@ function GymSelectorCard() {
 
   if (managingGym) {
     return (
-      <View className="bg-white border-2 border-indigo-500 rounded-2xl p-4 mb-4">
-        <Text className="text-slate-900 font-semibold mb-3">{managingGym.name}</Text>
-        <Text className="text-slate-700 text-xs font-medium mb-2">Equipment available here</Text>
+      <View className="bg-white border-2 border-indigo-500 rounded-2xl p-4 mb-4 dark:bg-slate-900">
+        <Text className="text-slate-900 font-semibold mb-3 dark:text-slate-100">{managingGym.name}</Text>
+        <Text className="text-slate-700 text-xs font-medium mb-2 dark:text-slate-300">Equipment available here</Text>
         <View className="flex-row flex-wrap gap-2 mb-3">
           {EQUIPMENT_OPTIONS.map((eq) => {
             const isActive = managingGym.equipment.includes(eq);
@@ -92,7 +92,7 @@ function GymSelectorCard() {
             <Text className="text-white text-sm font-semibold">Done</Text>
           </Pressable>
           <Pressable onPress={() => { removeGym(managingGym.id); setManagingGymId(null); }} className="py-3 px-4">
-            <Text className="text-red-600 text-sm">Remove gym</Text>
+            <Text className="text-red-600 text-sm dark:text-red-400">Remove gym</Text>
           </Pressable>
         </View>
       </View>
@@ -154,7 +154,7 @@ export default function ProgramsScreen() {
         <GymSelectorCard />
 
         {activeProgram && (
-          <View className="bg-white rounded-2xl p-4 mb-4">
+          <View className="bg-white rounded-2xl p-4 mb-4 dark:bg-slate-900">
             <View className="flex-row items-center justify-between mb-1">
               <Subheading>{activeProgram.emoji} {activeProgram.title}</Subheading>
               <Pressable onPress={stopProgram}>
@@ -167,21 +167,21 @@ export default function ProgramsScreen() {
           </View>
         )}
 
-        <Text className="text-slate-900 text-lg font-semibold mb-3">{activeProgram ? 'Switch program' : 'Choose a program'}</Text>
+        <Text className="text-slate-900 text-lg font-semibold mb-3 dark:text-slate-100">{activeProgram ? 'Switch program' : 'Choose a program'}</Text>
         <FlatList
           data={PROGRAMS.filter((p) => p.id !== activeProgramId)}
           keyExtractor={(item) => item.id}
           scrollEnabled={false}
           contentContainerStyle={{ gap: 10 }}
           renderItem={({ item }) => (
-            <View className="bg-white rounded-2xl p-4">
-              <Text className="text-slate-900 font-medium mb-1">{item.emoji} {item.title}</Text>
+            <View className="bg-white rounded-2xl p-4 dark:bg-slate-900">
+              <Text className="text-slate-900 font-medium mb-1 dark:text-slate-100">{item.emoji} {item.title}</Text>
               <Text className="text-slate-500 text-xs mb-2">{item.forWhom}</Text>
               <Text className="text-slate-500 text-xs mb-3">
                 {item.daysPerWeek}x/week · {item.durationWeeks} weeks · {item.sessionExerciseCount} exercises per session
               </Text>
-              <Pressable onPress={() => startProgram(item.id)} className="bg-stone-100 rounded-full py-2 items-center active:bg-stone-200">
-                <Text className="text-slate-800 text-xs font-medium">Start this program</Text>
+              <Pressable onPress={() => startProgram(item.id)} className="bg-stone-100 rounded-full py-2 items-center active:bg-stone-200 dark:bg-slate-800">
+                <Text className="text-slate-800 text-xs font-medium dark:text-slate-200">Start this program</Text>
               </Pressable>
             </View>
           )}

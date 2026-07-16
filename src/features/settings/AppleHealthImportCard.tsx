@@ -12,33 +12,42 @@ import { parseAppleHealthFile } from './appleHealthImport';
  * import of a file Apple explicitly designed to be handed to any app.
  */
 export default function AppleHealthImportCard() {
-  const logWeight = useAppStore((s) => s.logWeight);
-  const logCycleForToday = useAppStore((s) => s.logCycleForToday);
+  const importWeightEntries = useAppStore((s) => s.importWeightEntries);
+  const importCycleLogs = useAppStore((s) => s.importCycleLogs);
   const [importing, setImporting] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [result, setResult] = useState<{ weights: number; cycleDays: number } | null>(null);
+  const [result, setResult] = useState<{ weights: number; cycleDays: number; ovulationDays: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Everything lives inside this try/catch, including the file-picker
+  // call itself — that call previously sat outside any try/catch, so
+  // if it ever threw (a real possibility across different mobile
+  // browsers' file-picker implementations), it was a genuine unhandled
+  // crash rather than a message shown in the card.
   const handleImport = async () => {
     setError(null);
     setResult(null);
-
-    const picked = await DocumentPicker.getDocumentAsync({
-      type: ['application/xml', 'text/xml', '*/*'],
-      copyToCacheDirectory: true,
-    });
-    if (picked.canceled || !picked.assets?.[0]) return;
-
-    const asset = picked.assets[0];
-    if (!asset.name?.toLowerCase().endsWith('.xml')) {
-      setError('Please upload export.xml directly, not the .zip. If you have the zip, open it in the Files app, copy export.xml out, then upload that.');
-      return;
-    }
-
     setImporting(true);
+
     try {
+      const picked = await DocumentPicker.getDocumentAsync({
+        type: '*/*',
+        copyToCacheDirectory: true,
+      });
+      if (picked.canceled || !picked.assets?.[0]) {
+        setImporting(false);
+        return;
+      }
+
+      const asset = picked.assets[0];
+      if (!asset.name?.toLowerCase().endsWith('.xml')) {
+        setError('Please upload export.xml directly, not the .zip. If you have the zip, open it in the Files app, copy export.xml out, then upload that.');
+        setImporting(false);
+        return;
+      }
+
       // On web, DocumentPicker's asset.file is a real browser File object.
-      const file: File | undefined = (asset as any).file;
+      const file: File | undefined = (asset as any)?.file;
       if (!file) {
         setError('Could not read that file on this platform.');
         setImporting(false);
@@ -47,26 +56,26 @@ export default function AppleHealthImportCard() {
 
       const health = await parseAppleHealthFile(file, setProgress);
 
-      // Weight history → real logged weight entries, feeding the
-      // existing trend/goal calculations in Progress directly.
-      const weightDates = Object.keys(health.weightByDate).sort();
-      for (const date of weightDates) {
-        const weight = health.weightByDate[date];
-        if (weight !== undefined) await logWeight(weight);
-      }
+      // Weight and cycle history import as one batch each — real dates
+      // preserved, one storage write per domain instead of one per
+      // entry, which matters a lot on a real export with months or
+      // years of records.
+      const weightEntries = Object.entries(health.weightByDate || {}).map(([date, weightLbs]) => ({ date, weightLbs }));
+      await importWeightEntries(weightEntries);
 
-      // Period dates → cycle log entries (phase left as 'unspecified'
-      // per-day, since Apple Health's flow records don't map cleanly
-      // onto our four-phase model without guessing).
-      let cycleDaysImported = 0;
-      for (const date of Array.from(health.periodDates)) {
-        await logCycleForToday('menstrual', undefined);
-        cycleDaysImported += 1;
-      }
+      const cycleEntries = [
+        ...Array.from(health.periodDates || []).map((date) => ({ date, phase: 'menstrual' as const })),
+        ...Array.from(health.ovulationDates || []).map((date) => ({ date, phase: 'ovulation' as const })),
+      ];
+      await importCycleLogs(cycleEntries);
 
-      setResult({ weights: weightDates.length, cycleDays: cycleDaysImported });
+      setResult({
+        weights: weightEntries.length,
+        cycleDays: health.periodDates?.size || 0,
+        ovulationDays: health.ovulationDates?.size || 0,
+      });
     } catch (err: any) {
-      setError(err?.message || 'Something went wrong reading that file.');
+      setError(err?.message || 'Something went wrong reading that file. Try again, or make sure it\'s the export.xml file itself.');
     } finally {
       setImporting(false);
       setProgress(0);
@@ -95,7 +104,7 @@ export default function AppleHealthImportCard() {
       {result && (
         <View className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-400 rounded-xl p-3 mt-3">
           <Text className="text-emerald-700 dark:text-emerald-300 text-sm">
-            Imported {result.weights} weight entries and {result.cycleDays} cycle days ✓
+            Imported {result.weights} weight entries, {result.cycleDays} period days, and {result.ovulationDays} ovulation days ✓
           </Text>
         </View>
       )}

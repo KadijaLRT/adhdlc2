@@ -6,6 +6,7 @@ export interface ScheduleItem {
   label: string;
   refId?: string; // optional link back to a Task or Routine id
   refKind?: 'task' | 'routine' | 'freeform';
+  date?: string; // YYYY-MM-DD — items saved before this existed are treated as today's
   time: string; // "HH:MM", 24hr
   isDone: boolean;
 }
@@ -24,7 +25,7 @@ export interface ScheduleSlice extends ScheduleState {
 
 function addMinutesToTime(time: string, minutes: number): string {
   const [h, m] = (time || '00:00').split(':').map(Number);
-  const total = h * 60 + m + minutes;
+  const total = (h || 0) * 60 + (m || 0) + minutes;
   const wrapped = ((total % 1440) + 1440) % 1440;
   const newH = Math.floor(wrapped / 60);
   const newM = wrapped % 60;
@@ -48,7 +49,8 @@ export const createScheduleSlice: StateCreator<ScheduleSlice> = (set, get) => ({
   runningBehindMinutes: 0,
 
   addScheduleItem: async (item) => {
-    const next = [...(get().scheduleItems || []), { ...item, isDone: false }].sort((a, b) => a.time.localeCompare(b.time));
+    const next = [...(get().scheduleItems || []), { ...item, isDone: false }]
+      .sort((a, b) => (a.date || '').localeCompare(b.date || '') || a.time.localeCompare(b.time));
     const nextState = { ...currentState(get), scheduleItems: next };
     set(nextState);
     await persist(nextState);

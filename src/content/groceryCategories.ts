@@ -8,28 +8,3 @@ export const GROCERY_CATEGORIES: Record<string, string[]> ={
   '\uD83C\uDF3F Herbs & Spice':['turmeric','paprika','cumin','coriander','cinnamon','thyme','rosemary','bay leaf','oregano','basil','cayenne','seasoning','salt','pepper','allspice','cardamom','fennel','dill'],
   '\uD83E\uDD5C Nuts & Seeds':['cashew','peanut','pecan','walnut','flax','chia','sesame','almond'],
 };
-export function catItem(it){const l=it.toLowerCase();for(const[c,kws]of Object.entries(GKW)){if(kws.some(k=>l.includes(k)))return c;}return '\uD83D\uDCE6 Other';}
-
-// Builds a de-duplicated grocery list from a week's meal plan, using each recipe's
-// ingredient group tags. Used by both the meal Plan screen and the Shop screen.
-export function buildGroceryFromPlan(plan, recipeDb) {
-  if (!plan) return [];
-  const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  const MEAL_TYPES = ['breakfast','lunch','dinner','snack'];
-  const map = {};
-  DAYS.forEach(day => {
-    MEAL_TYPES.forEach(type => {
-      const rid = plan[day]?.[type];
-      if (rid) {
-        const rec = recipeDb.find(r => r.id === rid);
-        if (rec) {
-          rec.g.forEach(item => {
-            const k = item.toLowerCase();
-            if (!map[k]) map[k] = { name: item, cat: catItem(item), id: k + '_plan' };
-          });
-        }
-      }
-    });
-  });
-  return Object.values(map);
-}

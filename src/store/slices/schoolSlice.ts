@@ -7,6 +7,7 @@ export interface Course {
   emoji: string;
   currentGrade?: number; // 0-100
   gradeGoal?: number; // 0-100
+  credits?: number; // credit hours, used for weighted GPA
   notes?: string;
 }
 
@@ -30,6 +31,9 @@ export interface Assignment {
 export interface SchoolState {
   courses: Course[];
   assignments: Assignment[];
+  gradeLevel?: string; // for middle/high school age brackets
+  programName?: string; // for college/adult age brackets
+  universityName?: string;
 }
 
 export interface SchoolSlice extends SchoolState {
@@ -41,6 +45,7 @@ export interface SchoolSlice extends SchoolState {
   toggleAssignmentComplete: (id: string) => Promise<void>;
   toggleAssignmentSubStep: (assignmentId: string, subStepId: string) => Promise<void>;
   removeAssignment: (id: string) => Promise<void>;
+  setSchoolSetup: (setup: { gradeLevel?: string; programName?: string; universityName?: string }) => Promise<void>;
 }
 
 async function persist(state: SchoolState) {
@@ -49,7 +54,13 @@ async function persist(state: SchoolState) {
 }
 
 function currentState(get: () => SchoolState): SchoolState {
-  return { courses: get().courses || [], assignments: get().assignments || [] };
+  return {
+    courses: get().courses || [],
+    assignments: get().assignments || [],
+    gradeLevel: get().gradeLevel,
+    programName: get().programName,
+    universityName: get().universityName,
+  };
 }
 
 export const createSchoolSlice: StateCreator<SchoolSlice> = (set, get) => ({
@@ -110,6 +121,12 @@ export const createSchoolSlice: StateCreator<SchoolSlice> = (set, get) => ({
 
   removeAssignment: async (id) => {
     const nextState = { ...currentState(get), assignments: (get().assignments || []).filter((a) => a.id !== id) };
+    set(nextState);
+    await persist(nextState);
+  },
+
+  setSchoolSetup: async (setup) => {
+    const nextState = { ...currentState(get), ...setup };
     set(nextState);
     await persist(nextState);
   },

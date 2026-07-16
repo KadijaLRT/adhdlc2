@@ -25,6 +25,7 @@ export interface BodyProgressSlice extends BodyProgressState {
   logWeight: (weightLbs: number) => Promise<void>;
   logMeasurement: (site: MeasurementSite, inches: number) => Promise<void>;
   setWeightGoal: (goalLbs: number | null, goalDate?: string | null) => Promise<void>;
+  importWeightEntries: (entries: WeightEntry[]) => Promise<void>;
 }
 
 async function persist(state: BodyProgressState) {
@@ -42,13 +43,14 @@ function currentState(get: () => BodyProgressState): BodyProgressState {
 }
 
 function today(): string {
-  return new Date().toISOString().split('T')[0];
+  return new Date().toISOString().split('T')[0] || '';
 }
 
 export const createBodyProgressSlice: StateCreator<BodyProgressSlice> = (set, get) => ({
   weightLog: [],
   measurementLog: [],
   weightGoalLbs: null,
+  weightGoalDate: null,
 
   logWeight: async (weightLbs) => {
     const t = today();
@@ -76,6 +78,25 @@ export const createBodyProgressSlice: StateCreator<BodyProgressSlice> = (set, ge
 
   setWeightGoal: async (weightGoalLbs, goalDate) => {
     const nextState = { ...currentState(get), weightGoalLbs, weightGoalDate: goalDate ?? currentState(get).weightGoalDate };
+    set(nextState);
+    await persist(nextState);
+  },
+
+  // For bulk historical import (Apple Health), not the daily manual
+  // logger. Two things logWeight would get wrong for this: it always
+  // writes to today's date regardless of the entry's real date (fine
+  // for "log today," wrong for importing history — every imported
+  // entry would collapse onto one "today" row), and calling it once
+  // per entry means one full-state localStorage write per entry, which
+  // gets slow and risks hitting storage limits on a large import.
+  // This does one date-correct merge and one write for the whole batch.
+  importWeightEntries: async (entries) => {
+    const existingByDate = new Map((get().weightLog || []).map((w) => [w.date, w]));
+    for (const entry of entries) {
+      if (entry?.date && typeof entry.weightLbs === 'number') existingByDate.set(entry.date, entry);
+    }
+    const next = Array.from(existingByDate.values()).sort((a, b) => a.date.localeCompare(b.date));
+    const nextState = { ...currentState(get), weightLog: next };
     set(nextState);
     await persist(nextState);
   },

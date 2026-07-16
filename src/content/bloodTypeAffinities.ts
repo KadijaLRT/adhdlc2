@@ -17,3 +17,23 @@ export const BLOOD_TYPE_AFFINITIES: Record<BloodType, { avoid: string[]; benefic
   'AB+': { avoid: ['red meat', 'beef', 'pork', 'corn', 'buckwheat', 'sesame'], beneficial: ['tofu', 'fish', 'dairy', 'egg', 'broccoli', 'cauliflower', 'celery', 'oat', 'rice', 'olive oil', 'walnut'] },
   'AB-': { avoid: ['red meat', 'beef', 'pork', 'corn', 'buckwheat', 'sesame'], beneficial: ['tofu', 'fish', 'dairy', 'egg', 'broccoli', 'celery', 'oat', 'rice', 'olive oil', 'walnut'] },
 };
+
+export type BloodTypeAffinity = 'beneficial' | 'avoid' | 'neutral';
+
+/**
+ * Returns 'beneficial' | 'avoid' | 'neutral' for a Recipes-screen recipe
+ * given a blood type, using soft keyword matching against the recipe's
+ * name and ingredients. Reuses the same affinity data used for meal
+ * suggestions elsewhere — one source of truth for both.
+ */
+export function getBloodTypeAffinity(
+  recipe: { n: string; ing?: string[]; g?: string[] },
+  bloodType: BloodType | null | undefined
+): BloodTypeAffinity {
+  if (!bloodType || !BLOOD_TYPE_AFFINITIES[bloodType]) return 'neutral';
+  const { avoid, beneficial } = BLOOD_TYPE_AFFINITIES[bloodType];
+  const haystack = [recipe.n, ...(recipe.ing || []), ...(recipe.g || [])].join(' ').toLowerCase();
+  if (avoid.some((k) => haystack.includes(k))) return 'avoid';
+  if (beneficial.some((k) => haystack.includes(k))) return 'beneficial';
+  return 'neutral';
+}

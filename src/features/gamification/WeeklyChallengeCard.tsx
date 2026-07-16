@@ -17,13 +17,13 @@ export default function WeeklyChallengeCard() {
   const percent = Math.round(Math.min(completedThisWeek / WEEKLY_TASK_GOAL, 1) * 100);
 
   return (
-    <View className="bg-white rounded-2xl p-5 w-full">
-      <Text className="text-slate-900 text-base font-semibold mb-1">This Week</Text>
+    <View className="bg-white rounded-2xl p-5 w-full dark:bg-slate-900">
+      <Text className="text-slate-900 text-base font-semibold mb-1 dark:text-slate-100">This Week</Text>
       <Text className="text-slate-500 text-xs mb-4">Cumulative progress, no penalty for a slow day.</Text>
-      <View className="h-3 bg-stone-100 rounded-full overflow-hidden mb-2">
+      <View className="h-3 bg-stone-100 rounded-full overflow-hidden mb-2 dark:bg-slate-800">
         <View className="h-3 bg-indigo-500 rounded-full" style={{ width: `${percent}%` }} />
       </View>
-      <Text className="text-slate-700 text-sm">{completedThisWeek} of {WEEKLY_TASK_GOAL} tasks completed</Text>
+      <Text className="text-slate-700 text-sm dark:text-slate-300">{completedThisWeek} of {WEEKLY_TASK_GOAL} tasks completed</Text>
     </View>
   );
 }

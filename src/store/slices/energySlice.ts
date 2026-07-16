@@ -8,7 +8,7 @@ export interface EnergySlice {
   logEnergyForToday: (level: EnergyLevel, note?: string) => Promise<void>;
 }
 
-function today(): string { return new Date().toISOString().split('T')[0]; }
+function today(): string { return new Date().toISOString().split('T')[0] || ''; }
 
 export const createEnergySlice: StateCreator<
   EnergySlice & UiSlice, [], [], EnergySlice

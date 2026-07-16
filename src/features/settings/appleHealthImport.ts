@@ -5,9 +5,15 @@
  * Apple Health data. It is NOT live HealthKit API access — no browser
  * on any iOS version can call HealthKit directly — this parses the
  * file Apple itself lets a person manually export and hand to any app,
- * website included. Adapted from a working implementation confirmed to
- * handle real multi-hundred-MB export files by streaming in chunks
- * rather than holding the whole file in memory at once.
+ * website included.
+ *
+ * Reads the file in manually-sliced chunks via FileReader rather than
+ * the Streams API (File.stream()/ReadableStream). That's a deliberate
+ * choice: Safari/WebKit — including installed iOS home-screen web
+ * apps specifically — has a long history of unreliable ReadableStream
+ * support, which was the actual cause of a hard crash on import.
+ * FileReader has been universally supported for well over a decade and
+ * doesn't have that problem.
  */
 
 export interface AppleHealthImportResult {
@@ -85,12 +91,19 @@ export function newHealthState(): AppleHealthImportResult {
   return { periodDates: new Set(), ovulationDates: new Set(), sleepByDate: {}, weightByDate: {} };
 }
 
-/**
- * Streams a browser File through the incremental extractor in chunks —
- * web only, since it uses File.stream(), a browser API. Handles
- * multi-byte UTF-8 characters split across chunk boundaries correctly
- * via TextDecoder's streaming mode.
- */
+const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB per slice — small enough to stay well within memory limits per read
+const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB — a real safety ceiling, not an arbitrary block
+
+/** Reads one Blob slice as text via FileReader, wrapped in a Promise. */
+function readSliceAsText(slice: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
+    reader.onerror = () => reject(reader.error || new Error('Failed to read file chunk.'));
+    reader.readAsText(slice);
+  });
+}
+
 export async function parseAppleHealthFile(
   file: File,
   onProgress?: (fraction: number) => void
@@ -98,29 +111,29 @@ export async function parseAppleHealthFile(
   if (typeof window === 'undefined') {
     throw new Error('Apple Health import is currently only available on web.');
   }
+  if (file.size === 0) {
+    throw new Error('That file is empty — please try exporting again.');
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error("That export is larger than this can handle right now (500MB+). Try a device with more recent history, or contact support if this is your only option.");
+  }
 
   const state = newHealthState();
-  const reader = (file as any).stream().getReader();
-  const decoder = new TextDecoder('utf-8');
   let buffer = '';
-  let bytesRead = 0;
+  let offset = 0;
   let sawAnyText = false;
 
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      sawAnyText = true;
-      bytesRead += value.byteLength;
-      const text = decoder.decode(value, { stream: true });
-      buffer = extractHealthRecordsFromChunk(buffer + text, state);
-      if (onProgress) onProgress(Math.min(1, bytesRead / file.size));
-    }
-    const finalText = decoder.decode();
-    if (finalText) extractHealthRecordsFromChunk(buffer + finalText, state);
-  } finally {
-    reader.releaseLock();
+  while (offset < file.size) {
+    const slice = file.slice(offset, offset + CHUNK_SIZE);
+    const text = await readSliceAsText(slice);
+    if (text) sawAnyText = true;
+    buffer = extractHealthRecordsFromChunk(buffer + text, state);
+    offset += CHUNK_SIZE;
+    if (onProgress) onProgress(Math.min(1, offset / file.size));
   }
+
+  // Final pass on whatever's left in the buffer after the loop ends.
+  if (buffer) extractHealthRecordsFromChunk(buffer, state);
 
   if (!sawAnyText) {
     throw new Error('No data received — please try again.');

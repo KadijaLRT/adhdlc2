@@ -23,7 +23,7 @@ async function persist(state: MomentumState) {
 }
 
 function today(): string {
-  return new Date().toISOString().split('T')[0];
+  return new Date().toISOString().split('T')[0] || '';
 }
 
 /**

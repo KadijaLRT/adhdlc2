@@ -47,11 +47,11 @@ export default function BrainDumpSheet({ visible, onClose }: { visible: boolean;
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View className="flex-1 justify-end bg-black/50">
-        <View className="bg-stone-50 rounded-t-3xl p-6 pb-safe max-h-[85%]">
-          <Text className="text-slate-900 text-xl font-semibold mb-1">Brain Dump</Text>
+        <View className="bg-stone-50 rounded-t-3xl p-6 pb-safe max-h-[85%] dark:bg-slate-950">
+          <Text className="text-slate-900 text-xl font-semibold mb-1 dark:text-slate-100">Brain Dump</Text>
           <Text className="text-slate-500 text-sm mb-4">Type whatever&apos;s in your head. Aviva will sort it out.</Text>
           <TextInput value={text} onChangeText={setText} placeholder="everything is chaos..." placeholderTextColor="#64748b" multiline
-            className="bg-white text-slate-900 rounded-xl p-4 min-h-[100px] mb-4" />
+            className="bg-white text-slate-900 rounded-xl p-4 min-h-[100px] mb-4 dark:text-slate-100 dark:bg-slate-900" />
           {!result && (
             <Pressable onPress={handleSubmit} disabled={loading} className="bg-indigo-600 rounded-full py-4 mb-2 active:bg-indigo-500">
               {loading ? <ActivityIndicator color="#fff" /> : <Text className="text-white text-center font-semibold">Sort this out</Text>}
@@ -59,10 +59,10 @@ export default function BrainDumpSheet({ visible, onClose }: { visible: boolean;
           )}
           {result && (
             <ScrollView className="mb-4 max-h-64">
-              <Text className="text-emerald-700 text-sm mb-3">{result?.reasoning || ''}</Text>
+              <Text className="text-emerald-700 text-sm mb-3 dark:text-emerald-400">{result?.reasoning || ''}</Text>
               {(result?.items || []).map((item) => (
-                <View key={item.id} className="bg-white rounded-xl p-3 mb-2">
-                  <Text className="text-slate-900">{item.text}</Text>
+                <View key={item.id} className="bg-white rounded-xl p-3 mb-2 dark:bg-slate-900">
+                  <Text className="text-slate-900 dark:text-slate-100">{item.text}</Text>
                   <Text className="text-slate-500 text-xs mt-1">{item.category} · {item.suggestedTiming}</Text>
                 </View>
               ))}

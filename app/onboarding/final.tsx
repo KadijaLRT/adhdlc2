@@ -8,6 +8,7 @@ import { useAppStore, type EnergyLevel, type ReminderStyle, type CoachingStyle }
 import { syncProfileIfSignedIn } from '@/core/supabase/client';
 import { avivaBrain } from '@/core/ai/AvivaBrain';
 import { OnboardingStepHeader, OnboardingProgressBar } from '@/features/onboarding/OnboardingStepHeader';
+import CloudBackupCard from '@/features/onboarding/CloudBackupCard';
 
 const REMINDER_STYLES: { id: ReminderStyle; label: string; blurb: string; emoji: string }[] = [
   { id: 'consequence', label: 'Consequence-based', blurb: '"Here\'s what happens if you skip this"', emoji: '⚡' },
@@ -34,7 +35,7 @@ function parseList(text: string): string[] {
 function parseTimeToHHMM(raw: string): string | null {
   const match = raw.trim().toLowerCase().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/);
   if (!match) return null;
-  let hour = parseInt(match[1], 10);
+  let hour = parseInt(match[1] || '0', 10);
   const minute = match[2] ? parseInt(match[2], 10) : 0;
   const meridiem = match[3];
   if (meridiem === 'pm' && hour < 12) hour += 12;
@@ -200,9 +201,7 @@ export default function FinalScreen() {
 
     // Fire-and-forget, never awaited in a way that could block navigation.
     try {
-      syncProfileIfSignedIn({
-        timezone, energyBaseline: o.energyBaseline, stressThreshold: o.stressThreshold, biggestHurdle: o.biggestHurdle,
-      });
+      syncProfileIfSignedIn(profile);
     } catch (error) {
       console.error('onboarding: cloud sync failed', error);
     }
@@ -232,6 +231,8 @@ export default function FinalScreen() {
               </Text>
             </Pressable>
           </View>
+
+          <CloudBackupCard />
 
           <Text className="text-slate-100 text-lg font-semibold mb-1">How should I coach you?</Text>
           <Text className="text-slate-400 text-sm mb-4">This shapes Aviva's tone in every conversation.</Text>

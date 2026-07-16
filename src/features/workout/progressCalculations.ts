@@ -1,7 +1,7 @@
 import type { SetLogEntry, PersonalRecord } from '@/store/slices/workoutSlice';
 
 function dateOnly(iso: string): string {
-  return (iso || '').split('T')[0];
+  return (iso || '').split('T')[0] || '';
 }
 
 /**

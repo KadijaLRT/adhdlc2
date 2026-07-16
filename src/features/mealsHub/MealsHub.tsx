@@ -1,11 +1,15 @@
 import { useMemo } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAppStore, selectSavedRecipeIds, selectEnergyLevel, selectWellnessPreferences } from '@/store/index';
+import { useAppStore, selectSavedRecipeIds, selectEnergyLevel, selectWellnessPreferences, selectFoodLog } from '@/store/index';
 import { RECIPES } from '@/content/recipes';
 import { getMealSuggestions } from '@/content/mealSuggestions';
 import { buildMergedGroceryList } from '@/content/groceryListBuilder';
 import { Heading, Subheading } from '@/shared/components/Heading';
+
+function todayLocal(): string {
+  return new Date().toISOString().split('T')[0] || '';
+}
 
 /**
  * Leads with an actual recommendation and this week's real grocery
@@ -17,6 +21,12 @@ export default function MealsHub() {
   const savedRecipeIds = useAppStore(selectSavedRecipeIds);
   const energyLevel = useAppStore(selectEnergyLevel);
   const wellnessPreferences = useAppStore(selectWellnessPreferences);
+  const foodLog = useAppStore(selectFoodLog);
+
+  const todaysCalories = useMemo(
+    () => (foodLog || []).filter((f) => f.date === todayLocal()).reduce((sum, f) => sum + f.calories, 0),
+    [foodLog]
+  );
 
   const savedRecipes = useMemo(() => (RECIPES || []).filter((r) => (savedRecipeIds || []).includes(r.id)), [savedRecipeIds]);
 
@@ -42,6 +52,10 @@ export default function MealsHub() {
         )}
 
         <View className="gap-3">
+          <Pressable onPress={() => router?.push?.('/nutrition/diary')} className="bg-white dark:bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
+            <Text className="text-slate-900 dark:text-slate-100 text-sm">📊 Nutrition diary</Text>
+            <Text className="text-slate-500 text-xs">{todaysCalories > 0 ? `${todaysCalories} cal today` : 'log today →'}</Text>
+          </Pressable>
           <Pressable onPress={() => router?.push?.('/nutrition/recipes')} className="bg-white dark:bg-slate-900 rounded-2xl p-4 flex-row items-center justify-between">
             <Text className="text-slate-900 dark:text-slate-100 text-sm">🍎 Browse recipes</Text>
             <Text className="text-slate-500 text-xs">{savedRecipes.length} saved</Text>

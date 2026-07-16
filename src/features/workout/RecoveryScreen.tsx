@@ -24,7 +24,7 @@ export default function RecoveryScreen() {
 
         {suggestRestDay && (
           <View className="bg-emerald-400/10 border-2 border-emerald-400 rounded-2xl p-4 mb-6">
-            <Text className="text-emerald-700 text-sm">
+            <Text className="text-emerald-700 text-sm dark:text-emerald-400">
               You've shown up {streak} days in a row. A rest day today is a completely valid choice, not a step backward.
             </Text>
           </View>
@@ -38,10 +38,10 @@ export default function RecoveryScreen() {
               <Pressable
                 key={routine.id}
                 onPress={() => setExpandedId(isExpanded ? null : routine.id)}
-                className="bg-white rounded-2xl p-4"
+                className="bg-white rounded-2xl p-4 dark:bg-slate-900"
               >
                 <View className="flex-row items-center justify-between">
-                  <Text className="text-slate-900 font-medium">{routine.title}</Text>
+                  <Text className="text-slate-900 font-medium dark:text-slate-100">{routine.title}</Text>
                   <Text className="text-slate-500 text-xs">{routine.durationMinutes} min</Text>
                 </View>
                 {isExpanded && (
@@ -58,20 +58,20 @@ export default function RecoveryScreen() {
 
         <Subheading className="mb-3">Good to know</Subheading>
         <View className="gap-2">
-          <View className="bg-white rounded-xl p-4">
-            <Text className="text-slate-700 text-xs font-medium mb-1">💧 Hydration</Text>
+          <View className="bg-white rounded-xl p-4 dark:bg-slate-900">
+            <Text className="text-slate-700 text-xs font-medium mb-1 dark:text-slate-300">💧 Hydration</Text>
             <Text className="text-slate-500 text-sm">{RECOVERY_TIPS.hydration}</Text>
           </View>
-          <View className="bg-white rounded-xl p-4">
-            <Text className="text-slate-700 text-xs font-medium mb-1">😴 Sleep</Text>
+          <View className="bg-white rounded-xl p-4 dark:bg-slate-900">
+            <Text className="text-slate-700 text-xs font-medium mb-1 dark:text-slate-300">😴 Sleep</Text>
             <Text className="text-slate-500 text-sm">{RECOVERY_TIPS.sleep}</Text>
           </View>
-          <View className="bg-white rounded-xl p-4">
-            <Text className="text-slate-700 text-xs font-medium mb-1">🩹 Soreness</Text>
+          <View className="bg-white rounded-xl p-4 dark:bg-slate-900">
+            <Text className="text-slate-700 text-xs font-medium mb-1 dark:text-slate-300">🩹 Soreness</Text>
             <Text className="text-slate-500 text-sm">{RECOVERY_TIPS.soreness}</Text>
           </View>
-          <View className="bg-white rounded-xl p-4">
-            <Text className="text-slate-700 text-xs font-medium mb-1">🛌 Rest days</Text>
+          <View className="bg-white rounded-xl p-4 dark:bg-slate-900">
+            <Text className="text-slate-700 text-xs font-medium mb-1 dark:text-slate-300">🛌 Rest days</Text>
             <Text className="text-slate-500 text-sm">{RECOVERY_TIPS.restDays}</Text>
           </View>
         </View>

@@ -83,4 +83,6 @@ export const sqliteRepository: TaskRepository = {
   saveProgramState: (v) => writeJson('programState', v),
   getGroceryState: () => readJson('groceryState', null),
   saveGroceryState: (v) => writeJson('groceryState', v),
+  getNutritionTrackingState: () => readJson('nutritionTrackingState', null),
+  saveNutritionTrackingState: (v) => writeJson('nutritionTrackingState', v),
 };

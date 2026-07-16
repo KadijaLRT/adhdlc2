@@ -74,10 +74,10 @@ export default function ExerciseBrowser() {
 function ExerciseCard({ exercise, exerciseId, completedCount, onLogCompletion }: { exercise: Exercise; exerciseId: string; completedCount: number; onLogCompletion: () => void }) {
   const router = useRouter();
   return (
-    <View className="bg-white rounded-2xl p-4">
+    <View className="bg-white rounded-2xl p-4 dark:bg-slate-900">
       <View className="flex-row items-center justify-between mb-1">
-        <Text className="text-slate-900 font-medium flex-1">{exercise?.icon} {exercise?.name}</Text>
-        {completedCount > 0 && <Text className="text-emerald-700 text-xs">done {completedCount}×</Text>}
+        <Text className="text-slate-900 font-medium flex-1 dark:text-slate-100">{exercise?.icon} {exercise?.name}</Text>
+        {completedCount > 0 && <Text className="text-emerald-700 text-xs dark:text-emerald-400">done {completedCount}×</Text>}
       </View>
       <Text className="text-slate-500 text-xs mb-2">{exercise?.muscle} · {exercise?.sets} sets · {exercise?.reps} reps · rest {exercise?.rest}s</Text>
       <Text className="text-slate-500 text-xs mb-3">{exercise?.cues}</Text>

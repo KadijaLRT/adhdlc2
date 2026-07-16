@@ -54,7 +54,7 @@ export default function AccessibilityScreen() {
             })}
           </View>
           <Text className="text-slate-500 text-xs mt-3">
-            Onboarding always stays dark by design. Applied to Home, Today, Meals, Wellness, and Profile so far — not yet every screen in the app.
+            Onboarding always stays dark by design. Now applied across the whole app.
           </Text>
         </View>
 

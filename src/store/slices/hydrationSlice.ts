@@ -20,6 +20,8 @@ import type { NutritionFitnessSlice } from './nutritionFitnessSlice';
 import type { WorkoutSlice } from './workoutSlice';
 import type { ProgramSlice } from './programSlice';
 import type { GrocerySlice } from './grocerySlice';
+import type { NutritionTrackingSlice } from './nutritionTrackingSlice';
+import type { UiSlice } from './uiSlice';
 
 export interface HydrationSlice {
   isHydrated: boolean;
@@ -27,9 +29,13 @@ export interface HydrationSlice {
   hydrate: () => Promise<void>;
 }
 
+function today(): string {
+  return new Date().toISOString().split('T')[0] || '';
+}
+
 type FullState = TaskSlice & StreakSlice & MilestoneSlice & EnergySlice &
   StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & RoutineSlice & RpgSlice & SettingsSlice & ReflectionSlice & ScheduleSlice & SchoolSlice & BodyProgressSlice & MomentumSlice &
-  NutritionFitnessSlice & WorkoutSlice & ProgramSlice & GrocerySlice;
+  NutritionFitnessSlice & WorkoutSlice & ProgramSlice & GrocerySlice & NutritionTrackingSlice & UiSlice;
 
 // The only place that reads every domain's storage at once. Adding a new
 // slice means adding one line here and one line in the destructure below,
@@ -48,12 +54,12 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
       const [
         tasks, streaks, milestones, energyLogs, cycleLogs, stressLogs,
         wellnessPreferences, profile, routines, rpgState, settingsState, reflectionState,
-        nutritionFitnessState, workoutState, programState, groceryState, scheduleState, schoolState, bodyProgressState, momentumState,
+        nutritionFitnessState, workoutState, programState, groceryState, scheduleState, schoolState, bodyProgressState, momentumState, nutritionTrackingState,
       ] = await Promise.all([
           repo.getTasks(), repo.getStreaks(), repo.getMilestones(),
           repo.getEnergyLogs(), repo.getCycleLogs(), repo.getStressLogs(),
           repo.getWellnessPreferences(), repo.getProfile(), repo.getRoutines(), repo.getRpgState(), repo.getSettingsState(), repo.getReflectionState(),
-          repo.getNutritionFitnessState(), repo.getWorkoutState(), repo.getProgramState(), repo.getGroceryState(), repo.getScheduleState(), repo.getSchoolState(), repo.getBodyProgressState(), repo.getMomentumState(),
+          repo.getNutritionFitnessState(), repo.getWorkoutState(), repo.getProgramState(), repo.getGroceryState(), repo.getScheduleState(), repo.getSchoolState(), repo.getBodyProgressState(), repo.getMomentumState(), repo.getNutritionTrackingState(),
         ]);
       set((state) => ({
         ...state,
@@ -61,6 +67,14 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
         streaks: streaks || [],
         milestones: milestones || [],
         energyLogs: energyLogs || [],
+        // energyLevel itself is intentionally not persisted directly —
+        // it's re-derived from today's entry in energyLogs, which is.
+        // Without this, reloading the page after setting today's
+        // energy silently reset it to the 'medium' default, even
+        // though the underlying log entry (and anything derived from
+        // it, like workout set reduction) should reflect the real
+        // selection.
+        energyLevel: (energyLogs || []).find((l) => l.date === today())?.energyLevel ?? state.energyLevel,
         cycleLogs: cycleLogs || [],
         stressLogs: stressLogs || [],
         wellnessPreferences: wellnessPreferences || state.wellnessPreferences,
@@ -80,6 +94,9 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
         runningBehindMinutes: scheduleState?.runningBehindMinutes ?? state.runningBehindMinutes,
         courses: schoolState?.courses ?? state.courses,
         assignments: schoolState?.assignments ?? state.assignments,
+        gradeLevel: schoolState?.gradeLevel ?? state.gradeLevel,
+        programName: schoolState?.programName ?? state.programName,
+        universityName: schoolState?.universityName ?? state.universityName,
         weightLog: bodyProgressState?.weightLog ?? state.weightLog,
         measurementLog: bodyProgressState?.measurementLog ?? state.measurementLog,
         weightGoalLbs: bodyProgressState?.weightGoalLbs ?? state.weightGoalLbs,
@@ -92,6 +109,7 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
         nutritionCardDismissed: nutritionFitnessState?.nutritionCardDismissed ?? state.nutritionCardDismissed,
         fitnessPreferences: nutritionFitnessState?.fitnessPreferences ?? state.fitnessPreferences,
         fitnessCardDismissed: nutritionFitnessState?.fitnessCardDismissed ?? state.fitnessCardDismissed,
+        aiGeneratedRecipes: nutritionFitnessState?.aiGeneratedRecipes ?? state.aiGeneratedRecipes,
 
         setLogs: workoutState?.setLogs ?? state.setLogs,
         personalRecords: workoutState?.personalRecords ?? state.personalRecords,
@@ -106,6 +124,11 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
 
         pantryItems: groceryState?.pantryItems ?? state.pantryItems,
         checkedIngredients: groceryState?.checkedIngredients ?? state.checkedIngredients,
+        mealPlan: groceryState?.mealPlan ?? state.mealPlan,
+        mealPlanChecked: groceryState?.mealPlanChecked ?? state.mealPlanChecked,
+
+        foodLog: nutritionTrackingState?.foodLog ?? state.foodLog,
+        dailyTargets: nutritionTrackingState?.dailyTargets ?? state.dailyTargets,
 
         isHydrated: true,
         storageWorking,

@@ -14,6 +14,7 @@ import type { NutritionFitnessState } from '@/store/slices/nutritionFitnessSlice
 import type { WorkoutState } from '@/store/slices/workoutSlice';
 import type { ProgramProgressState } from '@/store/slices/programSlice';
 import type { GroceryState } from '@/store/slices/grocerySlice';
+import type { NutritionTrackingState } from '@/store/slices/nutritionTrackingSlice';
 
 // Single storage contract. Every domain slice reads/writes through this,
 // never through SQLite or AsyncStorage directly, so adding a new domain
@@ -72,4 +73,6 @@ export interface TaskRepository {
   saveProgramState(state: ProgramProgressState): Promise<void>;
   getGroceryState(): Promise<GroceryState | null>;
   saveGroceryState(state: GroceryState): Promise<void>;
+  getNutritionTrackingState(): Promise<NutritionTrackingState | null>;
+  saveNutritionTrackingState(state: NutritionTrackingState): Promise<void>;
 }

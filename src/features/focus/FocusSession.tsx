@@ -60,12 +60,12 @@ export default function FocusSession({ taskTitle, durationMinutes }: FocusSessio
   const seconds = secondsLeft % 60;
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50">
+    <SafeAreaView className="flex-1 bg-stone-50 dark:bg-slate-950">
       <View className="flex-1 items-center justify-center px-8 pt-safe pb-safe">
         {phase === 'settling' && (
           <>
             <Animated.View style={{ transform: [{ scale: pulse }] }} className="w-32 h-32 rounded-full bg-indigo-600/20 border-2 border-indigo-500 mb-8" />
-            <Text className="text-slate-900 text-xl text-center font-medium mb-2">Getting settled...</Text>
+            <Text className="text-slate-900 text-xl text-center font-medium mb-2 dark:text-slate-100">Getting settled...</Text>
             <Text className="text-slate-500 text-center">{taskTitle || 'Just this, for now.'}</Text>
           </>
         )}

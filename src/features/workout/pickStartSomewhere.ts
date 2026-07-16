@@ -18,6 +18,6 @@ export function pickStartSomewhereExercise(preferences: FitnessPreferences | nul
     : entries;
 
   const pool = filtered.length ? filtered : entries; // never leave the person with nothing
-  const [id] = pool[Math.floor(Math.random() * pool.length)];
-  return { id };
+  const picked = pool[Math.floor(Math.random() * pool.length)];
+  return picked ? { id: picked[0] } : null;
 }

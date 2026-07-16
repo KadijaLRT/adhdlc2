@@ -46,6 +46,10 @@ export default function HomeScreen() {
   const isEvening = modeOverride === 'auto' ? timeBasedIsEvening : modeOverride === 'reflection';
   const todayLabel = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
 
+  const hour = new Date().getHours();
+  const timeGreeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const greeting = profile?.displayName ? `${timeGreeting}, ${profile.displayName} 👋` : `${timeGreeting} 👋`;
+
   const handleStartMyDay = () => {
     setTodaysPlan(buildTodaysPlan(tasks, routines, streaks, energyLevel));
     setPlanStarted(true);
@@ -60,12 +64,8 @@ export default function HomeScreen() {
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, gap: 14 }}>
       <View className="w-full max-w-md self-center gap-4">
-        <Pressable onPress={() => router?.push?.('/overwhelmed')} className="bg-amber-400/10 border-2 border-amber-400 rounded-2xl py-3 items-center">
-          <Text className="text-amber-700 text-sm font-medium">I need a reset</Text>
-        </Pressable>
-
         <View>
-          <Heading>Good day 👋</Heading>
+          <Heading>{greeting}</Heading>
           <Text className="text-slate-500 text-sm">{todayLabel}</Text>
           <StreakBadge />
         </View>
@@ -119,20 +119,9 @@ export default function HomeScreen() {
           <Text className="text-indigo-400 text-center text-sm font-medium">See all tasks →</Text>
         </Pressable>
 
-        <View className="flex-row flex-wrap gap-2">
-          <Pressable onPress={() => router?.push?.('/nutrition/recipes')} className="flex-1 bg-white dark:bg-slate-900 rounded-xl py-3 items-center min-w-[45%]">
-            <Text className="text-slate-700 dark:text-slate-300 text-sm">🍎 Recipes</Text>
-          </Pressable>
-          <Pressable onPress={() => router?.push?.('/fitness/workouts')} className="flex-1 bg-white dark:bg-slate-900 rounded-xl py-3 items-center min-w-[45%]">
-            <Text className="text-slate-700 dark:text-slate-300 text-sm">💪 Workout</Text>
-          </Pressable>
-          <Pressable onPress={() => router?.push?.('/routines')} className="flex-1 bg-white dark:bg-slate-900 rounded-xl py-3 items-center min-w-[45%]">
-            <Text className="text-slate-700 dark:text-slate-300 text-sm">🔁 Routines</Text>
-          </Pressable>
-          <Pressable onPress={() => router?.push?.('/nutrition/groceries')} className="flex-1 bg-white dark:bg-slate-900 rounded-xl py-3 items-center min-w-[45%]">
-            <Text className="text-slate-700 dark:text-slate-300 text-sm">🛒 Groceries</Text>
-          </Pressable>
-        </View>
+        <Pressable onPress={() => router?.push?.('/overwhelmed')} className="bg-amber-400/10 border-2 border-amber-400 rounded-2xl py-3 items-center">
+          <Text className="text-amber-700 dark:text-amber-400 text-sm font-medium">I need a reset</Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
