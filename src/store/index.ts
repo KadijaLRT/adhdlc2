@@ -117,11 +117,8 @@ export const selectPantryItems = (s: AppState) => s.pantryItems || [];
 export const selectCheckedIngredients = (s: AppState) => s.checkedIngredients || [];
 export const selectMealPlan = (s: AppState) => s.mealPlan;
 export const selectMealPlanChecked = (s: AppState) => s.mealPlanChecked || [];
-<<<<<<< HEAD
 export const selectFoodLog = (s: AppState) => s.foodLog || [];
 export const selectDailyTargets = (s: AppState) => s.dailyTargets;
-=======
->>>>>>> 6747cebc76b167f79fc422e98e2222335e4d5500
 export const selectRoutines = (s: AppState) => s.routines || [];
 export const selectTotalXp = (s: AppState) => s.totalXp || 0;
 export const selectCoins = (s: AppState) => s.coins || 0;
