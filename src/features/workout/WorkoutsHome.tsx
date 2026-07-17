@@ -183,20 +183,14 @@ export default function WorkoutsHome() {
   };
 
   const handleStartDay = (day: WeeklySplitDay) => {
-    const [first, ...rest] = day.exerciseIds;
-    if (!first) return;
-    const sessionTotalSets = day.exerciseIds.reduce((sum, id) => {
-      const sets = WORKOUT_EXERCISES?.[id]?.sets || 3;
-      return sum + (isLowEnergyToday ? Math.max(2, sets - 1) : sets);
-    }, 0);
+    if (!day.exerciseIds.length) return;
     router?.push?.({
-      pathname: `/workout/session/${first}`,
+      pathname: '/workout/day-session',
       params: {
+        exerciseIds: day.exerciseIds.join(','),
         programId: activeProgram?.id || '',
-        queue: rest.join(','),
+        dayTitle: day.title,
         sessionStartedAt: new Date().toISOString(),
-        sessionTotalSets: String(sessionTotalSets),
-        sessionDoneSets: '0',
         energyLightened: isLowEnergyToday ? '1' : '',
       },
     });

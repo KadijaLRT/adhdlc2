@@ -55,6 +55,7 @@ export interface UserProfile {
 export interface RoutineStep {
   id: string;
   text: string;
+  durationMinutes?: number; // when set, the guided runner counts down this step instead of just waiting for a tap
 }
 export interface Routine {
   id: string;

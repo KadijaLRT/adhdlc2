@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useAppStore, selectRoutines, selectStreaks } from '@/store/index';
 import { ROUTINE_TEMPLATES } from '@/content/routineTemplates';
 import { Heading } from '@/shared/components/Heading';
@@ -11,6 +12,7 @@ function today(): string {
 }
 
 export default function RoutinesScreen() {
+  const router = useRouter();
   const routines = useAppStore(selectRoutines);
   const streaks = useAppStore(selectStreaks);
   const addRoutine = useAppStore((s) => s.addRoutine);
@@ -30,7 +32,7 @@ export default function RoutinesScreen() {
       title: template.title,
       emoji: template.emoji,
       createdAt: new Date().toISOString(),
-      steps: template.steps.map((text, i) => ({ id: `${template.id}-${i}`, text })),
+      steps: template.steps.map((step, i) => ({ id: `${template.id}-${i}`, text: step.text, durationMinutes: step.durationMinutes })),
     });
   };
 
@@ -142,6 +144,12 @@ export default function RoutinesScreen() {
                   {streak?.count || 0} completions{streak?.isFrozen ? ' · frozen today' : ''}
                   {streak ? ` · ${streak.freezesAvailable} freeze${streak.freezesAvailable === 1 ? '' : 's'} left` : ''}
                 </Text>
+
+                {hasSteps && !doneToday && (
+                  <Pressable onPress={() => router?.push?.({ pathname: '/routines/run', params: { routineId: routine.id } })} className="bg-indigo-600 rounded-xl py-2.5 items-center active:bg-indigo-500 mb-3">
+                    <Text className="text-white text-sm font-semibold">▶ Start Routine</Text>
+                  </Pressable>
+                )}
 
                 {hasSteps && (
                   <View className="gap-1.5 mb-3">

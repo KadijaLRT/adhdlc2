@@ -19,7 +19,7 @@ export default function RightNowScreen() {
   const toggleScheduleItemDone = useAppStore((s) => s.toggleScheduleItemDone);
 
   const now = currentTimeString();
-  const current = (items || []).find((i) => !i.isDone && i.time >= now) || (items || []).find((i) => !i.isDone);
+  const current = (items || []).find((i) => !i.isDone && i.time && i.time >= now) || (items || []).find((i) => !i.isDone);
 
   const handleComplete = () => {
     if (current) toggleScheduleItemDone(current.id);

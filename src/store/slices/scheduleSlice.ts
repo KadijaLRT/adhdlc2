@@ -7,7 +7,7 @@ export interface ScheduleItem {
   refId?: string; // optional link back to a Task or Routine id
   refKind?: 'task' | 'routine' | 'freeform';
   date?: string; // YYYY-MM-DD — items saved before this existed are treated as today's
-  time: string; // "HH:MM", 24hr
+  time?: string; // "HH:MM", 24hr — left blank means "Anytime today," not locked to a specific time
   isDone: boolean;
 }
 
@@ -50,7 +50,7 @@ export const createScheduleSlice: StateCreator<ScheduleSlice> = (set, get) => ({
 
   addScheduleItem: async (item) => {
     const next = [...(get().scheduleItems || []), { ...item, isDone: false }]
-      .sort((a, b) => (a.date || '').localeCompare(b.date || '') || a.time.localeCompare(b.time));
+      .sort((a, b) => (a.date || '').localeCompare(b.date || '') || (a.time || '99:99').localeCompare(b.time || '99:99'));
     const nextState = { ...currentState(get), scheduleItems: next };
     set(nextState);
     await persist(nextState);
@@ -69,14 +69,15 @@ export const createScheduleSlice: StateCreator<ScheduleSlice> = (set, get) => ({
     await persist(nextState);
   },
 
-  // "I'm running behind": shifts every not-yet-done item later by the
-  // given number of minutes. Completed items are never touched, so
-  // marking things done and then running behind never re-schedules
-  // something already finished.
+  // "I'm running behind": shifts every not-yet-done, time-specific item
+  // later by the given number of minutes. Anytime items have no clock
+  // position to shift, so they're left alone — running late doesn't
+  // mean anything for something that was never tied to a time.
+  // Completed items are never touched either.
   shiftRemainingSchedule: async (minutes) => {
     const next = (get().scheduleItems || []).map((i) =>
-      i.isDone ? i : { ...i, time: addMinutesToTime(i.time, minutes) }
-    ).sort((a, b) => a.time.localeCompare(b.time));
+      i.isDone || !i.time ? i : { ...i, time: addMinutesToTime(i.time, minutes) }
+    ).sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
     const nextState = { scheduleItems: next, runningBehindMinutes: (get().runningBehindMinutes || 0) + minutes };
     set(nextState);
     await persist(nextState);

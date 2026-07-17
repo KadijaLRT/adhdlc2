@@ -18,10 +18,12 @@ import { createRpgSlice, type RpgSlice } from './slices/rpgSlice';
 import { createSettingsSlice, type SettingsSlice } from './slices/settingsSlice';
 import { createReflectionSlice, type ReflectionSlice } from './slices/reflectionSlice';
 import { createScheduleSlice, type ScheduleSlice } from './slices/scheduleSlice';
+export type { ScheduleItem } from './slices/scheduleSlice';
 import { createSchoolSlice, type SchoolSlice } from './slices/schoolSlice';
 import { createBodyProgressSlice, type BodyProgressSlice } from './slices/bodyProgressSlice';
 import { createMomentumSlice, type MomentumSlice } from './slices/momentumSlice';
 import { createNutritionTrackingSlice, type NutritionTrackingSlice } from './slices/nutritionTrackingSlice';
+import { createCountdownSlice, type CountdownSlice } from './slices/countdownSlice';
 
 export * from './slices/types';
 export type { NutritionPreferences, FitnessPreferences, Gender, WeightGoalDirection, BodyType, ActivityLevel } from './slices/nutritionFitnessSlice';
@@ -30,9 +32,10 @@ export type { MomentumEntry, MomentumActionType } from './slices/momentumSlice';
 export type { MeasurementSite, WeightEntry, MeasurementEntry } from './slices/bodyProgressSlice';
 export type { WeeklyMealPlan, PlanDay, PlanMealType, PlanMeal, DayPlan } from '@/features/nutrition/mealPlanGeneration';
 export type { MealType, FoodLogEntry, DailyTargets, CustomMeal, CustomMealIngredient } from './slices/nutritionTrackingSlice';
+export type { CountdownEvent } from './slices/countdownSlice';
 
 export type AppState = UiSlice & TaskSlice & StreakSlice & MilestoneSlice &
-  EnergySlice & StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & NutritionFitnessSlice & WorkoutSlice & ProgramSlice & GrocerySlice & RoutineSlice & RpgSlice & SettingsSlice & ReflectionSlice & ScheduleSlice & SchoolSlice & BodyProgressSlice & MomentumSlice & NutritionTrackingSlice;
+  EnergySlice & StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & NutritionFitnessSlice & WorkoutSlice & ProgramSlice & GrocerySlice & RoutineSlice & RpgSlice & SettingsSlice & ReflectionSlice & ScheduleSlice & SchoolSlice & BodyProgressSlice & MomentumSlice & NutritionTrackingSlice & CountdownSlice;
 
 // Combined store. To add a new domain: create slices/xSlice.ts exporting
 // createXSlice + XSlice, spread it in here, add its storage keys to
@@ -63,6 +66,7 @@ export const useAppStore = create<AppState>()((...args) => ({
   ...createBodyProgressSlice(...args),
   ...createMomentumSlice(...args),
   ...createNutritionTrackingSlice(...args),
+  ...createCountdownSlice(...args),
 }));
 
 // Individual selectors — components should always select a single slice
@@ -124,6 +128,7 @@ export const selectMealPlanChecked = (s: AppState) => s.mealPlanChecked || [];
 export const selectFoodLog = (s: AppState) => s.foodLog || [];
 export const selectDailyTargets = (s: AppState) => s.dailyTargets;
 export const selectCustomMeals = (s: AppState) => s.customMeals || [];
+export const selectCountdownEvents = (s: AppState) => s.countdownEvents || [];
 export const selectRoutines = (s: AppState) => s.routines || [];
 export const selectTotalXp = (s: AppState) => s.totalXp || 0;
 export const selectCoins = (s: AppState) => s.coins || 0;

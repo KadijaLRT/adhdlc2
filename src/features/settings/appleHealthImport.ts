@@ -1,20 +1,13 @@
-/**
- * Parses an Apple Health export (export.xml, from the Health app's own
- * "Export All Health Data" feature — Settings → tap your profile icon →
- * Export All Health Data). This is a genuine, working import of real
- * Apple Health data. It is NOT live HealthKit API access — no browser
- * on any iOS version can call HealthKit directly — this parses the
- * file Apple itself lets a person manually export and hand to any app,
- * website included.
- *
- * Reads the file in manually-sliced chunks via FileReader rather than
- * the Streams API (File.stream()/ReadableStream). That's a deliberate
- * choice: Safari/WebKit — including installed iOS home-screen web
- * apps specifically — has a long history of unreliable ReadableStream
- * support, which was the actual cause of a hard crash on import.
- * FileReader has been universally supported for well over a decade and
- * doesn't have that problem.
- */
+// -- APPLE HEALTH IMPORT -------------------------------------------------------
+// Parses Apple Health export XML to extract cycle, sleep, and weight data.
+// Supports both raw .xml and .zip, on web AND native.
+//
+// The reading strategy is deliberately unified across platforms rather than
+// branched: expo-file-system's `File` class implements the standard `Blob`
+// interface (`.slice()`, `.text()`, `.arrayBuffer()`) on native, exactly like
+// a browser `File` does on web. That means the same chunked-reading code
+// works for both — construct a `File`/native path once, then everything
+// downstream is platform-agnostic.
 
 export interface AppleHealthImportResult {
   periodDates: Set<string>;
@@ -91,52 +84,110 @@ export function newHealthState(): AppleHealthImportResult {
   return { periodDates: new Set(), ovulationDates: new Set(), sleepByDate: {}, weightByDate: {} };
 }
 
-const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB per slice — small enough to stay well within memory limits per read
-const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB — a real safety ceiling, not an arbitrary block
-
-/** Reads one Blob slice as text via FileReader, wrapped in a Promise. */
-function readSliceAsText(slice: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
-    reader.onerror = () => reject(reader.error || new Error('Failed to read file chunk.'));
-    reader.readAsText(slice);
-  });
+/** Minimal shape this module actually needs — satisfied by both a web File and expo-file-system's File. */
+interface BlobLike {
+  size: number;
+  slice(start?: number, end?: number): { text(): Promise<string> };
+  arrayBuffer(): Promise<ArrayBuffer>;
 }
 
-export async function parseAppleHealthFile(
-  file: File,
-  onProgress?: (fraction: number) => void
-): Promise<AppleHealthImportResult> {
-  if (typeof window === 'undefined') {
-    throw new Error('Apple Health import is currently only available on web.');
-  }
-  if (file.size === 0) {
-    throw new Error('That file is empty — please try exporting again.');
-  }
-  if (file.size > MAX_FILE_SIZE) {
-    throw new Error("That export is larger than this can handle right now (500MB+). Try a device with more recent history, or contact support if this is your only option.");
-  }
+const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB per slice
+const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB safety ceiling
 
+/**
+ * Reads a plain (non-zip) file in chunks via .slice().text() — the
+ * standard Blob interface, identical on web File and expo-file-system's
+ * File. Never holds more than one chunk in memory at a time, so an
+ * 800MB+ export is fine either way.
+ */
+async function parsePlainXmlFile(file: BlobLike, onProgress?: (fraction: number) => void): Promise<AppleHealthImportResult> {
   const state = newHealthState();
   let buffer = '';
   let offset = 0;
   let sawAnyText = false;
 
   while (offset < file.size) {
-    const slice = file.slice(offset, offset + CHUNK_SIZE);
-    const text = await readSliceAsText(slice);
+    const text = await file.slice(offset, offset + CHUNK_SIZE).text();
     if (text) sawAnyText = true;
     buffer = extractHealthRecordsFromChunk(buffer + text, state);
     offset += CHUNK_SIZE;
     if (onProgress) onProgress(Math.min(1, offset / file.size));
   }
-
-  // Final pass on whatever's left in the buffer after the loop ends.
   if (buffer) extractHealthRecordsFromChunk(buffer, state);
 
   if (!sawAnyText) {
     throw new Error('No data received — please try again.');
   }
   return state;
+}
+
+/**
+ * Extracts export.xml from a .zip and parses it. JSZip's `.async('string')`
+ * loads the full decompressed XML into memory at once — real tradeoff, but
+ * it's a well-supported, identical-everywhere API (unlike JSZip's Node-style
+ * internal stream, which isn't guaranteed to behave the same in React
+ * Native's JS engine as in a browser). Health export zips are compressed
+ * text, so even a large one decompresses to something manageable; the
+ * result is still processed in manual chunks so progress reports
+ * incrementally rather than blocking on one giant regex pass.
+ */
+async function parseZipFile(file: BlobLike, onProgress?: (fraction: number) => void): Promise<AppleHealthImportResult> {
+  const JSZip = (await import('jszip')).default;
+  const buffer = await file.arrayBuffer();
+  const zip = await JSZip.loadAsync(buffer);
+  const xmlFile = zip.file('apple_health_export/export.xml');
+  if (!xmlFile) {
+    throw new Error(
+      "Could not find export.xml inside the zip. Make sure this is the export from the Health app's \"Export All Health Data.\""
+    );
+  }
+
+  const fullText = await xmlFile.async('string');
+  const state = newHealthState();
+  let leftover = '';
+  const step = CHUNK_SIZE;
+  for (let offset = 0; offset < fullText.length; offset += step) {
+    const chunk = fullText.slice(offset, offset + step);
+    leftover = extractHealthRecordsFromChunk(leftover + chunk, state);
+    if (onProgress) onProgress(Math.min(1, (offset + step) / fullText.length));
+  }
+  if (leftover) extractHealthRecordsFromChunk(leftover, state);
+
+  if (!fullText) {
+    throw new Error('No data received — please try again.');
+  }
+  return state;
+}
+
+/**
+ * Top-level entry point. Accepts a web File directly, or (on native) call
+ * `openNativeHealthFile` first to get a Blob-compatible wrapper around the
+ * picked document's URI.
+ */
+export async function parseAppleHealthFile(
+  file: BlobLike & { name?: string; type?: string },
+  onProgress?: (fraction: number) => void
+): Promise<AppleHealthImportResult> {
+  if (file.size === 0) {
+    throw new Error('That file is empty — please try exporting again.');
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error('That export is larger than this can handle right now (500MB+). Contact support if this is your only option.');
+  }
+
+  const isZip = file.name?.toLowerCase().endsWith('.zip') || file.type === 'application/zip';
+  return isZip ? parseZipFile(file, onProgress) : parsePlainXmlFile(file, onProgress);
+}
+
+/**
+ * Native-only: wraps a picked document's file:// URI in expo-file-system's
+ * `File` class, which implements the same Blob interface (`.slice()`,
+ * `.text()`, `.arrayBuffer()`, `.size`) that the code above already expects
+ * from a web File — so nothing above this needs to know which platform it's
+ * running on.
+ */
+export async function openNativeHealthFile(uri: string, name: string): Promise<BlobLike & { name: string; type?: string }> {
+  const { File } = await import('expo-file-system');
+  const file = new File(uri);
+  return Object.assign(file, { name }) as unknown as BlobLike & { name: string; type?: string };
 }

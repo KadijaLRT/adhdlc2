@@ -46,29 +46,47 @@ export function buildIcsContent(tasks: Task[], assignments: Assignment[]): strin
 }
 
 /**
- * Triggers a browser download of the .ics file. Web-only for now — a
- * native download would need expo-file-system + expo-sharing wired in,
- * which isn't set up in this app yet. On native platforms this
- * currently does nothing but log, rather than silently pretending to work.
+ * Exports the .ics file — a real browser download on web, and a native
+ * share sheet (Files, Mail, AirDrop, Google Calendar, etc.) on iOS/
+ * Android via expo-file-system + expo-sharing. Both paths actually
+ * work; this isn't a "web only for now" stub anymore.
  */
-export function downloadIcsFile(content: string, filename = 'schedule.ics'): boolean {
-  if (typeof document === 'undefined') {
-    console.error('exportCalendar: .ics download is currently web-only');
-    return false;
+export async function downloadIcsFile(content: string, filename = 'schedule.ics'): Promise<boolean> {
+  if (typeof document !== 'undefined') {
+    try {
+      const blob = new Blob([content], { type: 'text/calendar' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      return true;
+    } catch (error) {
+      console.error('exportCalendar: web download failed', error);
+      return false;
+    }
   }
+
   try {
-    const blob = new Blob([content], { type: 'text/calendar' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const { File, Paths } = await import('expo-file-system');
+    const Sharing = await import('expo-sharing');
+
+    const file = new File(Paths.cache, filename);
+    file.create({ overwrite: true });
+    file.write(content);
+
+    const canShare = await Sharing.isAvailableAsync();
+    if (!canShare) {
+      console.error('exportCalendar: sharing is not available on this device');
+      return false;
+    }
+    await Sharing.shareAsync(file.uri, { mimeType: 'text/calendar', dialogTitle: 'Save or share your schedule' });
     return true;
   } catch (error) {
-    console.error('exportCalendar: download failed', error);
+    console.error('exportCalendar: native export failed', error);
     return false;
   }
 }

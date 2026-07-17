@@ -51,26 +51,18 @@ export default function BodyCheckinScreen({
 
   const handleContinue = () => {
     const adjustedIds = applySkipToExerciseIds(exerciseIds, adjustment.skipGroups, (id) => WORKOUT_EXERCISES?.[id]?.group);
-    const [first, ...rest] = adjustedIds;
-    if (!first) {
+    if (!adjustedIds.length) {
       router?.back?.();
       return;
     }
-    const sessionTotalSets = adjustedIds.reduce((sum, id) => {
-      const ex = WORKOUT_EXERCISES?.[id];
-      const isReduced = isLowEnergyToday || adjustment.reduceGroups.includes(ex?.group || '');
-      const setsForId = isReduced ? Math.max(2, (ex?.sets || 3) - 1) : (ex?.sets || 3);
-      return sum + setsForId;
-    }, 0);
 
     router?.replace?.({
-      pathname: `/workout/session/${first}`,
+      pathname: '/workout/day-session',
       params: {
+        exerciseIds: adjustedIds.join(','),
         programId: programId || '',
-        queue: rest.join(','),
+        dayTitle: dayTitle || '',
         sessionStartedAt: new Date().toISOString(),
-        sessionTotalSets: String(sessionTotalSets),
-        sessionDoneSets: '0',
         reducedGroups: adjustment.reduceGroups.join(','),
         energyLightened: isLowEnergyToday ? '1' : '',
       },

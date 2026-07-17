@@ -76,4 +76,6 @@ export const webRepository: TaskRepository = {
   saveGroceryState: async (v) => writeJson('groceryState', v),
   getNutritionTrackingState: async () => readJson('nutritionTrackingState', null),
   saveNutritionTrackingState: async (v) => writeJson('nutritionTrackingState', v),
+  getCountdownState: async () => readJson('countdownState', null),
+  saveCountdownState: async (v) => writeJson('countdownState', v),
 };

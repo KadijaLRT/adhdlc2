@@ -1,24 +1,32 @@
-import { useMemo, useState } from 'react';
-import { View, Text, Pressable, TextInput } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { View, Text, Pressable, TextInput, ActivityIndicator } from 'react-native';
 import { searchFoodDatabase, type FoodItem } from '@/content/foodDatabase';
+import { searchUsdaFoods } from '@/core/nutrition/usdaApi';
 import type { CustomMealIngredient } from '@/store/index';
 
 interface Props {
   onSave: (name: string, ingredients: CustomMealIngredient[]) => void;
   onCancel: () => void;
+  // The scanner modal needs to cover the full screen, which doesn't
+  // work reliably from this deeply-nested card via absolute
+  // positioning — so the parent screen owns the actual modal, and this
+  // just asks it to open with a callback for whatever gets scanned.
+  onOpenScanner: (onFound: (item: FoodItem) => void) => void;
 }
 
 /**
  * Builds a reusable meal out of multiple ingredients — distinct from
  * the single-item "Custom food" form. Ingredients can be pulled from
- * the local food database or typed in manually; totals are summed live
- * as you add them so the running macro count is always visible before
- * saving.
+ * the local food database, USDA's verified database, scanned via
+ * barcode, or typed in manually; totals are summed live as you add
+ * them so the running macro count is always visible before saving.
  */
-export default function CustomMealBuilder({ onSave, onCancel }: Props) {
+export default function CustomMealBuilder({ onSave, onCancel, onOpenScanner }: Props) {
   const [mealName, setMealName] = useState('');
   const [ingredients, setIngredients] = useState<CustomMealIngredient[]>([]);
   const [ingredientSearch, setIngredientSearch] = useState('');
+  const [usdaResults, setUsdaResults] = useState<FoodItem[]>([]);
+  const [usdaSearching, setUsdaSearching] = useState(false);
   const [manualMode, setManualMode] = useState(false);
   const [manualName, setManualName] = useState('');
   const [manualCal, setManualCal] = useState('');
@@ -26,7 +34,30 @@ export default function CustomMealBuilder({ onSave, onCancel }: Props) {
   const [manualCarb, setManualCarb] = useState('');
   const [manualFat, setManualFat] = useState('');
 
-  const searchResults = useMemo(() => (ingredientSearch.trim() ? searchFoodDatabase(ingredientSearch).slice(0, 8) : []), [ingredientSearch]);
+  const localResults = useMemo(() => (ingredientSearch.trim() ? searchFoodDatabase(ingredientSearch).slice(0, 8) : []), [ingredientSearch]);
+
+  // Local curated list shows instantly; USDA's verified database is
+  // searched live, debounced so it's not firing a request on every
+  // keystroke.
+  useEffect(() => {
+    const query = ingredientSearch.trim();
+    if (query.length < 2) {
+      setUsdaResults([]);
+      setUsdaSearching(false);
+      return;
+    }
+    setUsdaSearching(true);
+    const timeout = setTimeout(async () => {
+      const results = await searchUsdaFoods(query);
+      const localNames = new Set(localResults.map((r) => r.name.toLowerCase()));
+      setUsdaResults(results.filter((r) => !localNames.has(r.name.toLowerCase())));
+      setUsdaSearching(false);
+    }, 500);
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ingredientSearch]);
+
+  const searchResults = useMemo(() => [...localResults, ...usdaResults], [localResults, usdaResults]);
 
   const totals = useMemo(
     () => ingredients.reduce(
@@ -97,13 +128,18 @@ export default function CustomMealBuilder({ onSave, onCancel }: Props) {
 
       {!manualMode ? (
         <>
-          <TextInput
-            value={ingredientSearch}
-            onChangeText={setIngredientSearch}
-            placeholder="Search an ingredient to add…"
-            placeholderTextColor="#64748b"
-            className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2 mb-2"
-          />
+          <View className="flex-row gap-2 mb-2">
+            <TextInput
+              value={ingredientSearch}
+              onChangeText={setIngredientSearch}
+              placeholder="Search an ingredient to add…"
+              placeholderTextColor="#64748b"
+              className="flex-1 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2"
+            />
+            <Pressable onPress={() => onOpenScanner(addIngredientFromDatabase)} className="bg-indigo-600 rounded-xl px-3 justify-center active:bg-indigo-500">
+              <Text className="text-white text-sm">📷</Text>
+            </Pressable>
+          </View>
           {searchResults.length > 0 && (
             <View className="mb-2">
               {searchResults.map((f) => (
@@ -112,6 +148,12 @@ export default function CustomMealBuilder({ onSave, onCancel }: Props) {
                   <Text className="text-slate-500 text-xs">{f.servingLabel} · {f.calories} cal · {f.protein}p / {f.carbs}c / {f.fat}f</Text>
                 </Pressable>
               ))}
+              {usdaSearching && (
+                <View className="flex-row items-center gap-2 py-2">
+                  <ActivityIndicator size="small" />
+                  <Text className="text-slate-500 text-xs">Searching USDA database…</Text>
+                </View>
+              )}
             </View>
           )}
           <Pressable onPress={() => setManualMode(true)} className="py-2">

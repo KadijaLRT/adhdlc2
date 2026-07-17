@@ -1,15 +1,21 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, Platform } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { useAppStore } from '@/store/index';
-import { parseAppleHealthFile } from './appleHealthImport';
+import { parseAppleHealthFile, openNativeHealthFile } from './appleHealthImport';
 
 /**
- * Imports real Apple Health data by parsing export.xml, the file
- * Apple's own Health app lets a person manually export (Settings →
- * profile icon → Export All Health Data). This is not live HealthKit
- * access — no website can do that on any iOS version — it's a one-time
- * import of a file Apple explicitly designed to be handed to any app.
+ * Imports real Apple Health data by parsing the export the Health app
+ * itself produces (Settings → tap your profile icon → Export All
+ * Health Data). Accepts either the .zip Apple hands you directly, or
+ * export.xml if it's already been extracted — no manual unzipping
+ * required either way. Works on web and native: only how the picked
+ * file is opened differs by platform (web gets a browser File object
+ * directly; native wraps the picked file:// URI so it behaves the
+ * same way) — parsing itself is identical either way. This is not
+ * live HealthKit access — that would need a custom native module and
+ * a real device build — it's a one-time import of a file Apple
+ * explicitly designed to be handed to any app.
  */
 export default function AppleHealthImportCard() {
   const importWeightEntries = useAppStore((s) => s.importWeightEntries);
@@ -20,18 +26,17 @@ export default function AppleHealthImportCard() {
   const [error, setError] = useState<string | null>(null);
 
   // Everything lives inside this try/catch, including the file-picker
-  // call itself — that call previously sat outside any try/catch, so
-  // if it ever threw (a real possibility across different mobile
-  // browsers' file-picker implementations), it was a genuine unhandled
-  // crash rather than a message shown in the card.
+  // call itself, so nothing here can surface as an unhandled crash —
+  // any failure just shows as a message in the card.
   const handleImport = async () => {
     setError(null);
     setResult(null);
     setImporting(true);
+    setProgress(0);
 
     try {
       const picked = await DocumentPicker.getDocumentAsync({
-        type: '*/*',
+        type: ['application/zip', 'application/xml', 'text/xml', '*/*'],
         copyToCacheDirectory: true,
       });
       if (picked.canceled || !picked.assets?.[0]) {
@@ -40,16 +45,23 @@ export default function AppleHealthImportCard() {
       }
 
       const asset = picked.assets[0];
-      if (!asset.name?.toLowerCase().endsWith('.xml')) {
-        setError('Please upload export.xml directly, not the .zip. If you have the zip, open it in the Files app, copy export.xml out, then upload that.');
+      const lowerName = asset.name?.toLowerCase() || '';
+      if (!lowerName.endsWith('.xml') && !lowerName.endsWith('.zip')) {
+        setError('Please upload the export.zip from the Health app, or export.xml if you already extracted it.');
         setImporting(false);
         return;
       }
 
-      // On web, DocumentPicker's asset.file is a real browser File object.
-      const file: File | undefined = (asset as any)?.file;
+      // Web: the picked asset already carries a real browser File.
+      // Native: wrap the picked file:// URI so it behaves the same way
+      // (same .slice()/.text()/.size interface) — everything after
+      // this point doesn't need to know which platform it's on.
+      const file = Platform.OS === 'web'
+        ? (asset as any)?.file
+        : await openNativeHealthFile(asset.uri, asset.name || 'export');
+
       if (!file) {
-        setError('Could not read that file on this platform.');
+        setError('Could not read that file.');
         setImporting(false);
         return;
       }
@@ -75,7 +87,7 @@ export default function AppleHealthImportCard() {
         ovulationDays: health.ovulationDates?.size || 0,
       });
     } catch (err: any) {
-      setError(err?.message || 'Something went wrong reading that file. Try again, or make sure it\'s the export.xml file itself.');
+      setError(err?.message || "Something went wrong reading that file. Try again, or make sure it's the export from the Health app.");
     } finally {
       setImporting(false);
       setProgress(0);
@@ -87,7 +99,7 @@ export default function AppleHealthImportCard() {
       <Text className="text-indigo-600 text-xs font-bold uppercase tracking-wider mb-2">🍎 Apple Health Import</Text>
       <Text className="text-slate-900 dark:text-slate-100 text-base font-semibold mb-1">Import your weight and cycle history</Text>
       <Text className="text-slate-500 text-xs mb-4">
-        In the Health app: profile icon (top right) → Export All Health Data. That creates a .zip — open it in Files, copy out export.xml, and upload that file here. This reads the file directly on your device; nothing is uploaded anywhere.
+        In the Health app: profile icon (top right) → Export All Health Data. Upload the .zip it gives you directly — no need to extract it first. This reads the file on your device only; nothing is uploaded anywhere.
       </Text>
 
       <Pressable onPress={handleImport} disabled={importing} className="bg-indigo-600 rounded-2xl py-4 items-center active:bg-indigo-500">
@@ -97,7 +109,7 @@ export default function AppleHealthImportCard() {
             <Text className="text-white font-semibold">{Math.round(progress * 100)}%</Text>
           </View>
         ) : (
-          <Text className="text-white font-semibold">Choose export.xml</Text>
+          <Text className="text-white font-semibold">Choose file (.zip or .xml)</Text>
         )}
       </Pressable>
 

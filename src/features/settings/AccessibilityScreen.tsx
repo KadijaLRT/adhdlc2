@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, Text, Pressable, Switch, ScrollView } from 'react-native';
 import {
   useAppStore, selectTextSize, selectReduceMotion, selectHighContrast, selectDyslexiaFont,
@@ -37,9 +38,13 @@ export default function AccessibilityScreen() {
   const tasks = useAppStore(selectTasks);
   const assignments = useAppStore(selectAssignments);
 
-  const handleExportCalendar = () => {
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  const handleExportCalendar = async () => {
+    setExportError(null);
     const content = buildIcsContent(tasks, assignments);
-    downloadIcsFile(content);
+    const success = await downloadIcsFile(content);
+    if (!success) setExportError("Couldn't export just now — try again in a moment.");
   };
 
   return (
@@ -114,11 +119,12 @@ export default function AccessibilityScreen() {
           </View>
           <Text className="text-slate-900 text-base font-semibold mb-1">Send your schedule to any calendar app</Text>
           <Text className="text-slate-500 text-xs mb-4">
-            Downloads a .ics file with your open tasks and school assignments that have a due date. Import it into Google Calendar, Outlook, or Apple Calendar. Tasks show as all-day events since exact times aren't tracked yet. Currently available on web only.
+            Downloads a .ics file with your open tasks and school assignments that have a due date. Import it into Google Calendar, Outlook, or Apple Calendar. Tasks show as all-day events since exact times aren't tracked yet. On iOS/Android, this opens your device's share sheet so you can save or send it.
           </Text>
           <Pressable onPress={handleExportCalendar} className="bg-indigo-600 rounded-2xl py-4 items-center active:bg-indigo-500">
             <Text className="text-white font-semibold">🗓️ Export Schedule (.ics)</Text>
           </Pressable>
+          {exportError && <Text className="text-red-500 text-xs mt-2">{exportError}</Text>}
         </View>
 
         <View className="bg-white border border-stone-200 rounded-2xl p-4">

@@ -84,7 +84,7 @@ export default function NutritionDiaryScreen() {
   const [editPro, setEditPro] = useState('');
   const [editCarb, setEditCarb] = useState('');
   const [editFat, setEditFat] = useState('');
-  const [showScanner, setShowScanner] = useState(false);
+  const [scannerCallback, setScannerCallback] = useState<((item: FoodItem) => void) | null>(null);
   const [liveResults, setLiveResults] = useState<FoodItem[]>([]);
   const [liveSearching, setLiveSearching] = useState(false);
   const [showMealBuilder, setShowMealBuilder] = useState(false);
@@ -398,7 +398,13 @@ export default function NutritionDiaryScreen() {
                           autoFocus
                           className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2"
                         />
-                        <Pressable onPress={() => setShowScanner(true)} className="bg-indigo-600 rounded-xl px-3 justify-center active:bg-indigo-500">
+                        <Pressable
+                          onPress={() => setScannerCallback(() => (item: FoodItem) => {
+                            setPickedFood(item);
+                            setAddTab('search');
+                          })}
+                          className="bg-indigo-600 rounded-xl px-3 justify-center active:bg-indigo-500"
+                        >
                           <Text className="text-white text-sm">📷</Text>
                         </Pressable>
                       </View>
@@ -488,7 +494,11 @@ export default function NutritionDiaryScreen() {
                   {addTab === 'mymeals' && (
                     <>
                       {showMealBuilder ? (
-                        <CustomMealBuilder onSave={handleSaveNewMeal} onCancel={() => setShowMealBuilder(false)} />
+                        <CustomMealBuilder
+                          onSave={handleSaveNewMeal}
+                          onCancel={() => setShowMealBuilder(false)}
+                          onOpenScanner={(cb) => setScannerCallback(() => cb)}
+                        />
                       ) : pickedMeal ? (
                         <View className="bg-stone-50 dark:bg-slate-800 rounded-xl p-3 mb-2">
                           <Text className="text-slate-900 dark:text-slate-100 text-sm font-medium mb-2">{pickedMeal.name}</Text>
@@ -550,14 +560,13 @@ export default function NutritionDiaryScreen() {
         </View>
       </ScrollView>
 
-      {showScanner && (
+      {scannerCallback && (
         <BarcodeScannerModal
           onFound={(item) => {
-            setPickedFood(item);
-            setAddTab('search');
-            setShowScanner(false);
+            scannerCallback(item);
+            setScannerCallback(null);
           }}
-          onClose={() => setShowScanner(false)}
+          onClose={() => setScannerCallback(null)}
         />
       )}
     </View>

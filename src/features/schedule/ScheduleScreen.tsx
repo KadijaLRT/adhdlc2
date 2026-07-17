@@ -1,12 +1,30 @@
 import { useMemo, useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAppStore, selectScheduleItems, selectTasks, selectRoutines, selectStreaks, selectEnergyLevel } from '@/store/index';
+import { useAppStore, selectScheduleItems, selectTasks, selectRoutines, selectStreaks, selectEnergyLevel, type ScheduleItem } from '@/store/index';
 import { suggestNextTask } from '@/features/tasks/suggestNextTask';
 import { Heading } from '@/shared/components/Heading';
 
 const SHIFT_OPTIONS = [15, 30, 60];
 const WEEKDAY_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+type TimeBucket = 'anytime' | 'morning' | 'afternoon' | 'evening';
+const BUCKET_ORDER: TimeBucket[] = ['anytime', 'morning', 'afternoon', 'evening'];
+const BUCKET_LABELS: Record<TimeBucket, { label: string; icon: string }> = {
+  anytime: { label: 'Anytime', icon: '🕐' },
+  morning: { label: 'Morning', icon: '☀️' },
+  afternoon: { label: 'Afternoon', icon: '🌤️' },
+  evening: { label: 'Evening', icon: '🌙' },
+};
+
+function bucketForTime(time?: string): TimeBucket {
+  if (!time) return 'anytime';
+  const hour = Number(time.split(':')[0]);
+  if (isNaN(hour)) return 'anytime';
+  if (hour < 12) return 'morning';
+  if (hour < 17) return 'afternoon';
+  return 'evening';
+}
 
 function currentTimeString(): string {
   const now = new Date();
@@ -48,6 +66,7 @@ export default function ScheduleScreen() {
   const [newTime, setNewTime] = useState('');
   const [showBehindOptions, setShowBehindOptions] = useState(false);
   const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
+  const [collapsedBuckets, setCollapsedBuckets] = useState<Set<TimeBucket>>(new Set());
 
   const isToday = selectedDate === today;
   const itemsForSelectedDay = useMemo(
@@ -55,16 +74,36 @@ export default function ScheduleScreen() {
     [items, selectedDate, today]
   );
 
+  const groupedByBucket = useMemo(() => {
+    const groups: Record<TimeBucket, ScheduleItem[]> = { anytime: [], morning: [], afternoon: [], evening: [] };
+    for (const item of itemsForSelectedDay) {
+      groups[bucketForTime(item.time)].push(item);
+    }
+    for (const bucket of BUCKET_ORDER) {
+      groups[bucket].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+    }
+    return groups;
+  }, [itemsForSelectedDay]);
+
   const now = currentTimeString();
+  const timedItems = itemsForSelectedDay.filter((i) => i.time);
   const nextUp = isToday
-    ? (itemsForSelectedDay.find((i) => !i.isDone && i.time >= now) || itemsForSelectedDay.find((i) => !i.isDone))
+    ? (timedItems.find((i) => !i.isDone && (i.time || '') >= now) || itemsForSelectedDay.find((i) => !i.isDone))
     : null;
 
   const handleAdd = () => {
-    if (!newLabel.trim() || !newTime.trim()) return;
-    addScheduleItem({ id: `sched-${Date.now()}`, label: newLabel.trim(), time: newTime.trim(), date: selectedDate, refKind: 'freeform' });
+    if (!newLabel.trim()) return;
+    addScheduleItem({ id: `sched-${Date.now()}`, label: newLabel.trim(), time: newTime.trim() || undefined, date: selectedDate, refKind: 'freeform' });
     setNewLabel('');
     setNewTime('');
+  };
+
+  const toggleBucket = (bucket: TimeBucket) => {
+    setCollapsedBuckets((prev) => {
+      const next = new Set(prev);
+      if (next.has(bucket)) next.delete(bucket); else next.add(bucket);
+      return next;
+    });
   };
 
   // Pulls what already exists (the one suggested task, and routines not
@@ -138,15 +177,20 @@ export default function ScheduleScreen() {
 
         <View className="flex-row items-center justify-between mb-3">
           <Text className="text-slate-900 dark:text-slate-100 text-base font-semibold">{viewMode === 'day' ? dayLabel(selectedDate) : 'This week'}</Text>
-          <Pressable onPress={() => setViewMode(viewMode === 'day' ? 'week' : 'day')}>
-            <Text className="text-indigo-500 text-xs font-medium">{viewMode === 'day' ? 'View full week →' : '← Back to day view'}</Text>
-          </Pressable>
+          <View className="flex-row items-center gap-3">
+            <Pressable onPress={() => router?.push?.('/schedule/countdown')}>
+              <Text className="text-indigo-500 text-xs font-medium">🎉 Countdown</Text>
+            </Pressable>
+            <Pressable onPress={() => setViewMode(viewMode === 'day' ? 'week' : 'day')}>
+              <Text className="text-indigo-500 text-xs font-medium">{viewMode === 'day' ? 'View full week →' : '← Back to day view'}</Text>
+            </Pressable>
+          </View>
         </View>
 
         {viewMode === 'week' ? (
           <View className="gap-3">
             {weekDates.map((date, index) => {
-              const dayItems = (items || []).filter((i) => (i.date || today) === date).sort((a, b) => a.time.localeCompare(b.time));
+              const dayItems = (items || []).filter((i) => (i.date || today) === date).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
               const isThisToday = date === today;
               return (
                 <Pressable
@@ -166,7 +210,7 @@ export default function ScheduleScreen() {
                     <View className="gap-1">
                       {dayItems.map((item) => (
                         <View key={item.id} className="flex-row items-center gap-2">
-                          <Text className="text-slate-500 text-xs w-12">{item.time}</Text>
+                          <Text className="text-slate-500 text-xs w-12">{item.time || 'Anytime'}</Text>
                           <Text className={item.isDone ? 'text-slate-400 text-xs line-through flex-1' : 'text-slate-700 dark:text-slate-300 text-xs flex-1'}>{item.label}</Text>
                         </View>
                       ))}
@@ -180,7 +224,7 @@ export default function ScheduleScreen() {
           <>
             {nextUp && (
               <Pressable onPress={() => router?.push?.('/schedule/right-now')} className="bg-indigo-600 rounded-2xl p-5 mb-4 active:bg-indigo-500">
-                <Text className="text-indigo-100 text-xs uppercase tracking-wider mb-1">Next up · {nextUp.time}</Text>
+                <Text className="text-indigo-100 text-xs uppercase tracking-wider mb-1">Next up{nextUp.time ? ` · ${nextUp.time}` : ''}</Text>
                 <Text className="text-white text-lg font-semibold">{nextUp.label}</Text>
               </Pressable>
             )}
@@ -233,23 +277,46 @@ export default function ScheduleScreen() {
                   <Text className="text-white font-semibold">Add</Text>
                 </Pressable>
               </View>
+              <Text className="text-slate-400 text-[11px] mt-2">Leave the time blank for something you'll get to whenever — it'll sit in Anytime instead of a specific slot.</Text>
             </View>
 
-            <View className="gap-2">
-              {itemsForSelectedDay.length === 0 && <Text className="text-slate-500 text-center mt-6">Nothing on {isToday ? "today's" : "this day's"} timeline yet.</Text>}
-              {itemsForSelectedDay.map((item) => (
-                <Pressable key={item.id} onPress={() => toggleScheduleItemDone(item.id)} className="bg-white rounded-xl p-3 flex-row items-center gap-3 dark:bg-slate-900">
-                  <View className={item.isDone ? 'w-5 h-5 rounded-full bg-emerald-500 items-center justify-center' : 'w-5 h-5 rounded-full border-2 border-stone-300'}>
-                    {item.isDone && <Text className="text-white text-xs">✓</Text>}
-                  </View>
-                  <Text className="text-slate-500 text-xs w-12">{item.time}</Text>
-                  <Text className={item.isDone ? 'text-slate-500 line-through flex-1' : 'text-slate-900 flex-1'}>{item.label}</Text>
-                  <Pressable onPress={() => removeScheduleItem(item.id)}>
-                    <Text className="text-slate-700 text-xs dark:text-slate-300">✕</Text>
-                  </Pressable>
-                </Pressable>
-              ))}
-            </View>
+            {itemsForSelectedDay.length === 0 ? (
+              <Text className="text-slate-500 text-center mt-6">Nothing on {isToday ? "today's" : "this day's"} timeline yet.</Text>
+            ) : (
+              <View className="gap-3">
+                {BUCKET_ORDER.map((bucket) => {
+                  const bucketItems = groupedByBucket[bucket];
+                  if (bucketItems.length === 0) return null;
+                  const isCollapsed = collapsedBuckets.has(bucket);
+                  return (
+                    <View key={bucket}>
+                      <Pressable onPress={() => toggleBucket(bucket)} className="flex-row items-center gap-2 mb-2">
+                        <Text className="text-slate-500 text-xs font-bold uppercase tracking-wide">
+                          {BUCKET_LABELS[bucket].icon} {BUCKET_LABELS[bucket].label} ({bucketItems.length})
+                        </Text>
+                        <Text className="text-slate-400 text-xs">{isCollapsed ? '▸' : '▾'}</Text>
+                      </Pressable>
+                      {!isCollapsed && (
+                        <View className="gap-2">
+                          {bucketItems.map((item) => (
+                            <Pressable key={item.id} onPress={() => toggleScheduleItemDone(item.id)} className="bg-white rounded-xl p-3 flex-row items-center gap-3 dark:bg-slate-900">
+                              <View className={item.isDone ? 'w-5 h-5 rounded-full bg-emerald-500 items-center justify-center' : 'w-5 h-5 rounded-full border-2 border-stone-300'}>
+                                {item.isDone && <Text className="text-white text-xs">✓</Text>}
+                              </View>
+                              {item.time && <Text className="text-slate-500 text-xs w-12">{item.time}</Text>}
+                              <Text className={item.isDone ? 'text-slate-500 line-through flex-1' : 'text-slate-900 dark:text-slate-100 flex-1'}>{item.label}</Text>
+                              <Pressable onPress={() => removeScheduleItem(item.id)}>
+                                <Text className="text-slate-700 text-xs dark:text-slate-300">✕</Text>
+                              </Pressable>
+                            </Pressable>
+                          ))}
+                        </View>
+                      )}
+                    </View>
+                  );
+                })}
+              </View>
+            )}
           </>
         )}
       </View>
