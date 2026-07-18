@@ -122,6 +122,7 @@ export const createHydrationSlice: StateCreator<FullState, [], [], HydrationSlic
         gyms: workoutState?.gyms ?? state.gyms,
         activeGymId: workoutState?.activeGymId ?? state.activeGymId,
         weekdayAssignment: workoutState?.weekdayAssignment ?? state.weekdayAssignment,
+        recoveryLogs: workoutState?.recoveryLogs ?? state.recoveryLogs,
 
         activeProgramId: programState?.activeProgramId ?? state.activeProgramId,
         programStartedAt: programState?.programStartedAt ?? state.programStartedAt,

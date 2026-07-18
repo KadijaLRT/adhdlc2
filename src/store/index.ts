@@ -33,6 +33,7 @@ export type { MeasurementSite, WeightEntry, MeasurementEntry } from './slices/bo
 export type { WeeklyMealPlan, PlanDay, PlanMealType, PlanMeal, DayPlan } from '@/features/nutrition/mealPlanGeneration';
 export type { MealType, FoodLogEntry, DailyTargets, CustomMeal, CustomMealIngredient } from './slices/nutritionTrackingSlice';
 export type { CountdownEvent } from './slices/countdownSlice';
+export type { RecoveryLogEntry } from './slices/workoutSlice';
 
 export type AppState = UiSlice & TaskSlice & StreakSlice & MilestoneSlice &
   EnergySlice & StressSlice & CycleSlice & WellnessSlice & ProfileSlice & HydrationSlice & NutritionFitnessSlice & WorkoutSlice & ProgramSlice & GrocerySlice & RoutineSlice & RpgSlice & SettingsSlice & ReflectionSlice & ScheduleSlice & SchoolSlice & BodyProgressSlice & MomentumSlice & NutritionTrackingSlice & CountdownSlice;
@@ -108,6 +109,7 @@ export const selectNutritionCardDismissed = (s: AppState) => s.nutritionCardDism
 export const selectFitnessPreferences = (s: AppState) => s.fitnessPreferences;
 export const selectFitnessCardDismissed = (s: AppState) => s.fitnessCardDismissed;
 export const selectSetLogs = (s: AppState) => s.setLogs || [];
+export const selectRecoveryLogs = (s: AppState) => s.recoveryLogs || [];
 export const selectPersonalRecords = (s: AppState) => s.personalRecords || [];
 export const selectAdhdFocusModeEnabled = (s: AppState) => s.adhdFocusModeEnabled ?? true;
 export const selectGyms = (s: AppState) => s.gyms || [];

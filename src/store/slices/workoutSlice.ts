@@ -21,6 +21,15 @@ export interface Gym {
   equipment: string[];
 }
 
+export interface RecoveryLogEntry {
+  date: string; // YYYY-MM-DD, one entry per day
+  stretchRoutineId?: string;
+  stretchDone?: boolean;
+  hydrationCups?: number;
+  sleepHours?: number;
+  sorenessLevel?: number; // 1 (barely) – 5 (a lot) — self-reported, never diagnostic
+}
+
 export interface WorkoutState {
   setLogs: SetLogEntry[];
   personalRecords: PersonalRecord[];
@@ -28,6 +37,7 @@ export interface WorkoutState {
   gyms: Gym[];
   activeGymId: string | null;
   weekdayAssignment: (string | null)[]; // length 7, index=weekday (0=Sun), value=day letter or null for rest
+  recoveryLogs: RecoveryLogEntry[];
 }
 
 export interface WorkoutSlice extends WorkoutState {
@@ -38,6 +48,7 @@ export interface WorkoutSlice extends WorkoutState {
   removeGym: (gymId: string) => Promise<void>;
   setActiveGym: (gymId: string | null) => Promise<void>;
   setWeekdayAssignment: (weekdayIndex: number, dayLetter: string | null) => Promise<void>;
+  logRecoveryUpdate: (date: string, updates: Partial<Omit<RecoveryLogEntry, 'date'>>) => Promise<void>;
 }
 
 const DEFAULT_STATE: WorkoutState = {
@@ -48,6 +59,7 @@ const DEFAULT_STATE: WorkoutState = {
   gyms: [],
   activeGymId: null,
   weekdayAssignment: [null, 'A', 'B', 'C', 'D', 'E', 'F'], // default: Sun rest, Mon–Sat A–F
+  recoveryLogs: [],
 };
 
 async function persist(state: WorkoutState) {
@@ -63,6 +75,7 @@ function currentState(get: () => WorkoutState): WorkoutState {
     gyms: get().gyms || [],
     activeGymId: get().activeGymId ?? null,
     weekdayAssignment: get().weekdayAssignment || DEFAULT_STATE.weekdayAssignment,
+    recoveryLogs: get().recoveryLogs || [],
   };
 }
 
@@ -151,6 +164,20 @@ export const createWorkoutSlice: StateCreator<WorkoutSlice> = (set, get) => ({
     const next = [...current];
     next[weekdayIndex] = dayLetter;
     const nextState = { ...currentState(get), weekdayAssignment: next };
+    set(nextState);
+    await persist(nextState);
+  },
+
+  // One entry per date, merged rather than overwritten — logging
+  // hydration doesn't erase an already-logged soreness level for the
+  // same day, and vice versa.
+  logRecoveryUpdate: async (date, updates) => {
+    const existing = get().recoveryLogs || [];
+    const already = existing.some((r) => r.date === date);
+    const next = already
+      ? existing.map((r) => (r.date === date ? { ...r, ...updates } : r))
+      : [...existing, { date, ...updates }];
+    const nextState = { ...currentState(get), recoveryLogs: next };
     set(nextState);
     await persist(nextState);
   },

@@ -12,6 +12,7 @@ import { getWeightProgressLabel } from './weightProgress';
 import { pickStartSomewhereExercise } from './pickStartSomewhere';
 import { WORKOUT_EXERCISES } from '@/content/exercises';
 import PersonalizeFitnessCard from './PersonalizeFitnessCard';
+import RecoveryPlanCard from './RecoveryPlanCard';
 import { Heading, Subheading } from '@/shared/components/Heading';
 
 function DayStrip({
@@ -62,7 +63,8 @@ function DayCard({
       >
         <Text className="text-2xl mb-2">😌</Text>
         <Text className="text-slate-900 text-lg font-semibold mb-1 dark:text-slate-100">Rest day</Text>
-        <Text className="text-slate-500 text-sm text-center">Recovery is part of the program, not a break from it.</Text>
+        <Text className="text-slate-500 text-sm text-center mb-4">Recovery is part of the program, not a break from it.</Text>
+        <RecoveryPlanCard compact />
       </View>
     );
   }
