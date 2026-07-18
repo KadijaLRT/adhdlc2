@@ -7,7 +7,7 @@ import {
 } from '@/store/index';
 import { PROGRAMS } from '@/content/programs';
 import { getCurrentProgramWeek, getSessionsThisWeek } from './buildProgramSession';
-import { buildWeeklySplit, getAvailableDayLetters, type WeeklySplitDay } from './buildWeeklySplit';
+import { buildWeeklySplit, type WeeklySplitDay } from './buildWeeklySplit';
 import { getWeightProgressLabel } from './weightProgress';
 import { pickStartSomewhereExercise } from './pickStartSomewhere';
 import { WORKOUT_EXERCISES } from '@/content/exercises';
@@ -16,11 +16,10 @@ import RecoveryPlanCard from './RecoveryPlanCard';
 import { Heading, Subheading } from '@/shared/components/Heading';
 
 function DayStrip({
-  days, activeIndex, editing, onCycleDay, onJumpTo,
+  days, activeIndex, onJumpTo, onEditDay,
 }: {
   days: WeeklySplitDay[]; activeIndex: number;
-  editing: boolean; onCycleDay: (weekdayIndex: number, current: string | null) => void;
-  onJumpTo: (index: number) => void;
+  onJumpTo: (index: number) => void; onEditDay: (weekdayIndex: number) => void;
 }) {
   return (
     <FlatList
@@ -32,15 +31,17 @@ function DayStrip({
       renderItem={({ item, index }) => {
         const isActive = index === activeIndex;
         return (
-          <Pressable
-            onPress={() => (editing ? onCycleDay(index, item.dayLetter) : onJumpTo(index))}
-            className={isActive ? 'bg-indigo-600/10 border-2 border-indigo-500 rounded-2xl p-3 items-center w-20' : editing ? 'bg-amber-50 border-2 border-amber-400 rounded-2xl p-3 items-center w-20' : 'bg-white border-2 border-transparent rounded-2xl p-3 items-center w-20'}
-          >
-            <Text className={isActive ? 'text-indigo-700 text-xs font-bold' : 'text-slate-500 text-xs font-bold'}>{item.weekdayLabel}</Text>
-            <Text className={isActive ? 'text-indigo-700 text-sm font-semibold mt-1' : 'text-slate-700 text-sm mt-1'}>
-              {item.isRestDay ? 'Rest' : `Day ${item.dayLetter}`}
-            </Text>
-          </Pressable>
+          <View className={isActive ? 'bg-indigo-600/10 border-2 border-indigo-500 rounded-2xl p-3 items-center w-24' : 'bg-white border-2 border-transparent rounded-2xl p-3 items-center w-24'}>
+            <Pressable onPress={() => onJumpTo(index)} className="items-center">
+              <Text className={isActive ? 'text-indigo-700 text-xs font-bold' : 'text-slate-500 text-xs font-bold'}>{item.weekdayLabel}</Text>
+              <Text className={isActive ? 'text-indigo-700 text-sm font-semibold mt-1' : 'text-slate-700 text-sm mt-1'}>
+                {item.isRestDay ? 'Rest' : `Day ${item.dayLetter}`}
+              </Text>
+            </Pressable>
+            <Pressable onPress={() => onEditDay(index)} className="mt-1.5">
+              <Text className="text-slate-400 text-[10px]">✏️ edit</Text>
+            </Pressable>
+          </View>
         );
       }}
     />
@@ -131,11 +132,9 @@ export default function WorkoutsHome() {
   const gyms = useAppStore(selectGyms);
   const activeGymId = useAppStore(selectActiveGymId);
   const weekdayAssignment = useAppStore(selectWeekdayAssignment);
-  const setWeekdayAssignment = useAppStore((s) => s.setWeekdayAssignment);
   const sessionsCompletedInProgram = useAppStore((s) => s.sessionsCompletedInProgram);
   const autoAssignDefaultProgram = useAppStore((s) => s.autoAssignDefaultProgram);
 
-  const [editingDays, setEditingDays] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [hasCheckedAutoAssign, setHasCheckedAutoAssign] = useState(false);
 
@@ -161,7 +160,6 @@ export default function WorkoutsHome() {
     () => (activeProgram ? buildWeeklySplit(activeProgram, fitnessPreferences, weekdayAssignment, activeGym?.equipment) : []),
     [activeProgram, fitnessPreferences, weekdayAssignment, activeGym]
   );
-  const availableLetters = activeProgram ? getAvailableDayLetters(activeProgram) : [];
 
   // getDay() is already Sunday-indexed (0=Sun...6=Sat), matching the array directly.
   useEffect(() => {
@@ -169,11 +167,8 @@ export default function WorkoutsHome() {
     setActiveIndex(todayIndex);
   }, [weeklySplit.length]);
 
-  const handleCycleDay = (weekdayIndex: number, current: string | null) => {
-    const options: (string | null)[] = [null, ...availableLetters];
-    const currentPos = options.indexOf(current);
-    const next = options[(currentPos + 1) % options.length] ?? null;
-    setWeekdayAssignment(weekdayIndex, next);
+  const handleEditDay = (weekdayIndex: number) => {
+    router?.push?.({ pathname: '/workout/schedule-day', params: { weekdayIndex: String(weekdayIndex) } });
   };
 
   const handleJumpTo = (index: number) => {
@@ -249,35 +244,19 @@ export default function WorkoutsHome() {
 
         {activeProgram && weeklySplit.length > 0 && (
           <View onLayout={(e) => { stripOffsetY.current = e.nativeEvent.layout.y; }}>
-            <View className="flex-row items-center justify-between mb-2">
-              <Subheading>{activeProgram.emoji} {activeProgram.title}</Subheading>
-              <View className="flex-row gap-3">
-                <Pressable onPress={() => setEditingDays(!editingDays)}>
-                  <Text className={editingDays ? 'text-amber-700 text-xs font-semibold' : 'text-indigo-600 text-xs font-semibold'}>
-                    {editingDays ? 'Done editing' : 'Edit days'}
-                  </Text>
-                </Pressable>
-              </View>
-            </View>
+            <Subheading className="mb-2">{activeProgram.emoji} {activeProgram.title}</Subheading>
             <Text className="text-slate-500 text-xs mb-3">
               Week {currentWeek} of {activeProgram.durationWeeks} · {sessionsThisWeek} of {activeProgram.daysPerWeek} sessions this week
             </Text>
 
-            {editingDays && (
-              <View className="bg-amber-50 border border-amber-400 rounded-xl p-3 mb-3">
-                <Text className="text-amber-800 text-xs">Tap a day to cycle it through Rest and your available training days.</Text>
-              </View>
-            )}
-
             <DayStrip
               days={weeklySplit}
               activeIndex={activeIndex}
-              editing={editingDays}
-              onCycleDay={handleCycleDay}
               onJumpTo={handleJumpTo}
+              onEditDay={handleEditDay}
             />
 
-            {!editingDays && weeklySplit.map((day, index) => (
+            {weeklySplit.map((day, index) => (
               <DayCard
                 key={day.weekdayLabel}
                 day={day}

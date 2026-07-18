@@ -18,23 +18,27 @@ export interface WeeklySplitDay {
   isRestDay: boolean;
 }
 
+export interface DayLetterContent {
+  exerciseIds: string[];
+  muscleGroups: string[];
+  title: string;
+  estimatedMinutes: number;
+}
+
 /**
- * Splits the program's matched exercise pool into up to 6 fixed days
- * (Day A–F), one per weekday Mon–Sat. Unlike the multi-week rotation
- * used elsewhere in Programs, this is a fixed weekly split — Day A is
- * always the same exercises until the person edits it, matching a
- * traditional gym split structure (Lower Body A, Upper Body A, etc).
+ * Computes what each lettered day (A, B, C...) actually contains —
+ * independent of which weekday it's assigned to. Shared by
+ * buildWeeklySplit (which places these onto the calendar) and the
+ * schedule picker (which needs to show every option's real content,
+ * not just its letter, so a person can choose based on what a day
+ * actually is rather than guessing from "Day C").
  */
-export function buildWeeklySplit(
+export function buildDayLetterContent(
   program: ProgramDefinition,
   preferences: FitnessPreferences | null,
-  customAssignment?: (string | null)[],
   gymEquipment?: string[] | null
-): WeeklySplitDay[] {
+): Map<string, DayLetterContent> {
   const entries = Object.entries(WORKOUT_EXERCISES || {});
-  // A selected gym's specific equipment takes priority over the
-  // generic equipment set from onboarding — that's what actually makes
-  // a workout tailored to that specific gym's machines, not just a label.
   const equipment = gymEquipment && gymEquipment.length > 0 ? gymEquipment : preferences?.equipment;
 
   const matchesGroup = ([, ex]: [string, any]) =>
@@ -49,9 +53,7 @@ export function buildWeeklySplit(
   const perDay = Math.max(1, program.sessionExerciseCount || 4);
   const trainingDayCount = Math.min(DAY_LETTERS.length, Math.max(1, Math.ceil(filtered.length / perDay)));
 
-  // Build each lettered day's content once, independent of which
-  // weekday it lands on.
-  const lettersToContent = new Map<string, { exerciseIds: string[]; muscleGroups: string[]; title: string; estimatedMinutes: number }>();
+  const lettersToContent = new Map<string, DayLetterContent>();
   for (let i = 0; i < trainingDayCount; i++) {
     const chunk = filtered.slice(i * perDay, i * perDay + perDay);
     if (!chunk.length) break;
@@ -68,6 +70,24 @@ export function buildWeeklySplit(
       estimatedMinutes: chunk.length * 10,
     });
   }
+  return lettersToContent;
+}
+
+/**
+ * Splits the program's matched exercise pool into up to 6 fixed days
+ * (Day A–F), one per weekday Mon–Sat. Unlike the multi-week rotation
+ * used elsewhere in Programs, this is a fixed weekly split — Day A is
+ * always the same exercises until the person edits it, matching a
+ * traditional gym split structure (Lower Body A, Upper Body A, etc).
+ */
+export function buildWeeklySplit(
+  program: ProgramDefinition,
+  preferences: FitnessPreferences | null,
+  customAssignment?: (string | null)[],
+  gymEquipment?: string[] | null
+): WeeklySplitDay[] {
+  const lettersToContent = buildDayLetterContent(program, preferences, gymEquipment);
+  const trainingDayCount = lettersToContent.size;
 
   // Default assignment: Sunday rest, Monday–Saturday get A–F in order.
   const defaultAssignment: (string | null)[] = [null, ...DAY_LETTERS.slice(0, trainingDayCount)];
