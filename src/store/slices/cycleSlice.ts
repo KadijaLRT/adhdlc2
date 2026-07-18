@@ -11,7 +11,7 @@ export interface CycleSlice {
   importCycleLogs: (entries: CycleLogEntry[]) => Promise<void>;
 }
 
-function today(): string { return new Date().toISOString().split('T')[0] || ''; }
+function today(): string { return (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })(); }
 
 function upsertLog(existing: CycleLogEntry[], date: string, phase: CycleLogEntry['phase'], note?: string): CycleLogEntry[] {
   const already = existing.some((l) => l.date === date);

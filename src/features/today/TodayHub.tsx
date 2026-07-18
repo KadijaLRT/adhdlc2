@@ -20,7 +20,7 @@ export default function TodayHub() {
   const momentumLog = useAppStore(selectMomentumLog);
 
   const suggested = suggestNextTask(tasks, energyLevel);
-  const today = new Date().toISOString().split('T')[0];
+  const today = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
   const momentumToday = (momentumLog || []).filter((m) => m.date === today).length;
   const pendingRoutineCount = (routines || []).filter((r) => {
     const streak = (streaks || []).find((s) => s.routineId === r.id);

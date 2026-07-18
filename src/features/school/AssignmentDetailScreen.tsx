@@ -72,7 +72,7 @@ export default function AssignmentDetailScreen({ assignmentId }: { assignmentId:
             {groupStepsByDate(assignment.subSteps || []).map((group) => (
               <View key={group.date}>
                 <Text className="text-slate-500 text-xs font-medium mb-2">
-                  {group.date === new Date().toISOString().split('T')[0] ? 'Today' : formatDate(group.date, dateFormat)}
+                  {group.date === (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })() ? 'Today' : formatDate(group.date, dateFormat)}
                 </Text>
                 <View className="gap-2">
                   {group.steps.map((step) => (

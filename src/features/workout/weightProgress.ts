@@ -1,4 +1,5 @@
 import type { SetLogEntry } from '@/store/slices/workoutSlice';
+import { toLocalDateString } from '@/shared/formatDate';
 
 /**
  * Compares the most recent logged weight for an exercise against the
@@ -18,7 +19,7 @@ export function getWeightProgressLabel(exerciseId: string, setLogs: SetLogEntry[
   // Group by day so multiple sets in one session don't count as separate data points.
   const byDay = new Map<string, number>();
   for (const log of logsForExercise) {
-    const day = log.date.split('T')[0] || log.date;
+    const day = log.date ? toLocalDateString(new Date(log.date)) : log.date;
     byDay.set(day, Math.max(byDay.get(day) || 0, log.weight));
   }
 

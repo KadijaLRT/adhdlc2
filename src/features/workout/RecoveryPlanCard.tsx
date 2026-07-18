@@ -7,7 +7,7 @@ import { STRETCH_ROUTINES } from '@/content/recoveryContent';
 const SORENESS_LABELS: Record<number, string> = { 1: 'Barely', 2: 'A little', 3: 'Noticeable', 4: 'Sore', 5: 'A lot' };
 
 function todayLocal(): string {
-  return new Date().toISOString().split('T')[0] || '';
+  return (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
 }
 
 export default function RecoveryPlanCard({ compact = false }: { compact?: boolean }) {

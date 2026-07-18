@@ -1,5 +1,6 @@
 import type { Task } from '@/store/index';
 import type { Assignment } from '@/store/slices/schoolSlice';
+import { parseLocalDate, toLocalDateString } from '@/shared/formatDate';
 
 /**
  * Builds a minimal, valid .ics file from open tasks/assignments that
@@ -9,7 +10,7 @@ import type { Assignment } from '@/store/slices/schoolSlice';
  */
 function formatIcsDate(dateStr: string): string {
   const clean = (dateStr || '').replace(/-/g, '');
-  return clean.length === 8 ? clean : (new Date(dateStr).toISOString().split('T')[0] || '').replace(/-/g, '');
+  return clean.length === 8 ? clean : toLocalDateString(parseLocalDate(dateStr)).replace(/-/g, '');
 }
 
 export function buildIcsContent(tasks: Task[], assignments: Assignment[]): string {

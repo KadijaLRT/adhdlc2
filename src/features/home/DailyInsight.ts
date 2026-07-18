@@ -14,7 +14,7 @@ export function getDailyInsight(
   tasks: Task[] = [],
   momentumLog: MomentumEntry[] = []
 ): string {
-  const today = new Date().toISOString().split('T')[0];
+  const today = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
   const todaysStress = (stressLogs || []).find((l) => l.date === today);
 
   if (todaysStress?.stressLevel === 'high') {

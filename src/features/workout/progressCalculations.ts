@@ -1,7 +1,14 @@
 import type { SetLogEntry, PersonalRecord } from '@/store/slices/workoutSlice';
+import { toLocalDateString } from '@/shared/formatDate';
 
+// SetLogEntry.date is a full ISO timestamp (UTC-based). Splitting that
+// string naively on 'T' reads back the UTC calendar day, which can be
+// tomorrow's date for anyone logging a workout in the evening in a
+// timezone behind UTC. Parsing it as a real Date and reading its local
+// date parts gives the day it actually was where the person is.
 function dateOnly(iso: string): string {
-  return (iso || '').split('T')[0] || '';
+  if (!iso) return '';
+  return toLocalDateString(new Date(iso));
 }
 
 /**
@@ -22,7 +29,7 @@ export function calculateWorkoutStreak(setLogs: SetLogEntry[]): number {
   let cursor = new Date(today);
 
   for (const day of uniqueDays) {
-    const cursorStr = cursor.toISOString().split('T')[0];
+    const cursorStr = toLocalDateString(cursor);
     if (day === cursorStr) {
       streak += 1;
       cursor.setDate(cursor.getDate() - 1);
@@ -31,7 +38,7 @@ export function calculateWorkoutStreak(setLogs: SetLogEntry[]): number {
       // was yesterday, not just today.
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
-      if (day === yesterday.toISOString().split('T')[0]) {
+      if (day === toLocalDateString(yesterday)) {
         streak += 1;
         cursor = new Date(yesterday);
         cursor.setDate(cursor.getDate() - 1);

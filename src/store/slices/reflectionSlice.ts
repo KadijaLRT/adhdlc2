@@ -23,7 +23,7 @@ export const createReflectionSlice: StateCreator<ReflectionSlice> = (set, get) =
   reflections: [],
 
   saveReflectionForToday: async (note) => {
-    const today = new Date().toISOString().split('T')[0] || '';
+    const today = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
     const existing = get().reflections || [];
     const already = existing.some((r) => r.date === today);
     const next = already

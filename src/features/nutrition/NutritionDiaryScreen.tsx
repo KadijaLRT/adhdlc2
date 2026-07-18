@@ -8,6 +8,7 @@ import { searchFoodDatabase, parseGramString, type FoodItem } from '@/content/fo
 import { searchOpenFoodFacts } from '@/core/nutrition/openFoodFactsApi';
 import { RECIPES, type Recipe } from '@/content/recipes';
 import { Heading } from '@/shared/components/Heading';
+import { parseLocalDate, toLocalDateString } from '@/shared/formatDate';
 import BarcodeScannerModal from './BarcodeScannerModal';
 import CustomMealBuilder from './CustomMealBuilder';
 
@@ -21,23 +22,23 @@ const MEAL_TYPES: { id: MealType; label: string; icon: string }[] = [
 type AddTab = 'search' | 'recipes' | 'mymeals';
 
 function todayLocal(): string {
-  return new Date().toISOString().split('T')[0] || '';
+  return toLocalDateString(new Date());
 }
 
 function formatDateLabel(dateStr: string): string {
   const today = todayLocal();
   if (dateStr === today) return 'Today';
-  const date = new Date(dateStr);
+  const date = parseLocalDate(dateStr);
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  if (dateStr === (yesterday.toISOString().split('T')[0] || '')) return 'Yesterday';
+  if (dateStr === toLocalDateString(yesterday)) return 'Yesterday';
   return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
 function shiftDate(dateStr: string, days: number): string {
-  const date = new Date(dateStr);
+  const date = parseLocalDate(dateStr);
   date.setDate(date.getDate() + days);
-  return date.toISOString().split('T')[0] || dateStr;
+  return toLocalDateString(date);
 }
 
 /** Fills toward 100% but never implies failure past it — matches this app's cumulative, non-punitive progress style elsewhere. */

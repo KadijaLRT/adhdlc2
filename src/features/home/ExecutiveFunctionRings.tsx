@@ -29,7 +29,7 @@ export default function ExecutiveFunctionRings() {
   const completedToday = (tasks || []).filter((t) => t?.isComplete).length;
   const focusScore = Math.min(completedToday * 20, 100);
   const energyScore = energyToScore(energyLevel);
-  const today = new Date().toISOString().split('T')[0];
+  const today = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
   const todaysStress = (stressLogs || []).find((l) => l.date === today);
   const stressScore = todaysStress ? 100 - energyToScore(todaysStress.stressLevel) : 70;
 

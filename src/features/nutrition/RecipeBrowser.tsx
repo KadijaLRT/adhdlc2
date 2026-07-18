@@ -20,7 +20,7 @@ const DIARY_MEAL_TYPES: { id: MealType; label: string; icon: string }[] = [
 ];
 
 function todayLocal(): string {
-  return new Date().toISOString().split('T')[0] || '';
+  return (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
 }
 
 const CUISINES = ['all', 'jamaican', 'american', 'southern', 'italian', 'mexican', 'caribbean', 'japanese'];

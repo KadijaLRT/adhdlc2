@@ -17,7 +17,7 @@ export default function CycleTracking() {
   const cycleLogs = useAppStore(selectCycleLogs);
   const dateFormat = useAppStore(selectDateFormat);
   const logCycleForToday = useAppStore((s) => s.logCycleForToday);
-  const today = new Date().toISOString().split('T')[0];
+  const today = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
   const todaysLog = (cycleLogs || []).find((l) => l.date === today);
 
   const periodStarts = useMemo(() => getPeriodStartDates(cycleLogs || []), [cycleLogs]);

@@ -1,4 +1,5 @@
 import type { WeightEntry } from '@/store/slices/bodyProgressSlice';
+import { toLocalDateString } from '@/shared/formatDate';
 
 /**
  * Emphasizes trend over any single day's number, on purpose — per the
@@ -20,7 +21,7 @@ export function getThirtyDayChange(weightLog: WeightEntry[]): number | null {
 
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  const cutoff = thirtyDaysAgo.toISOString().split('T')[0] || '';
+  const cutoff = toLocalDateString(thirtyDaysAgo);
 
   const oldEntry = sorted.find((e) => e.date >= cutoff) || sorted[0];
   const latestEntry = sorted[sorted.length - 1];
@@ -47,5 +48,5 @@ export function projectGoalDate(weightLog: WeightEntry[], goalLbs: number | null
   const daysNeeded = Math.abs(remaining / dailyRate);
   const projectedDate = new Date();
   projectedDate.setDate(projectedDate.getDate() + Math.round(daysNeeded));
-  return projectedDate.toISOString().split('T')[0] || null;
+  return toLocalDateString(projectedDate);
 }

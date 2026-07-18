@@ -24,7 +24,7 @@ const PRIORITY_GROUP_LABELS: Record<TaskPriority, string> = { critical: 'HIGH', 
 const PRIORITY_ORDER: TaskPriority[] = ['critical', 'important', 'nice'];
 
 function todayLocal(): string {
-  return new Date().toISOString().split('T')[0] || '';
+  return (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
 }
 
 /** Urgency is purely about timing (due today or overdue), kept separate from priority so the matrix's two axes actually mean different things. */

@@ -1,4 +1,5 @@
 import type { CycleLogEntry } from '@/store/slices/types';
+import { parseLocalDate, toLocalDateString } from '@/shared/formatDate';
 
 /**
  * Groups consecutive menstrual-flagged dates into distinct periods and
@@ -48,7 +49,7 @@ export function getPredictedNextPeriod(periodStarts: string[], averageCycleLengt
   if (!periodStarts.length || !averageCycleLength) return null;
   const lastStart = periodStarts[periodStarts.length - 1];
   if (!lastStart) return null;
-  const predicted = new Date(lastStart);
+  const predicted = parseLocalDate(lastStart);
   predicted.setDate(predicted.getDate() + averageCycleLength);
-  return predicted.toISOString().split('T')[0] || null;
+  return toLocalDateString(predicted);
 }

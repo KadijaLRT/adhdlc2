@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useAppStore, selectScheduleItems, selectTasks, selectRoutines, selectStreaks, selectEnergyLevel, type ScheduleItem } from '@/store/index';
 import { suggestNextTask } from '@/features/tasks/suggestNextTask';
 import { Heading } from '@/shared/components/Heading';
+import { parseLocalDate, toLocalDateString } from '@/shared/formatDate';
 
 const SHIFT_OPTIONS = [15, 30, 60];
 const WEEKDAY_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -32,7 +33,7 @@ function currentTimeString(): string {
 }
 
 function todayLocal(): string {
-  return new Date().toISOString().split('T')[0] || '';
+  return (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
 }
 
 /** The 7 dates of the current week, Sunday first, as YYYY-MM-DD strings. */
@@ -43,7 +44,7 @@ function getWeekDates(): string[] {
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(sunday);
     d.setDate(sunday.getDate() + i);
-    return d.toISOString().split('T')[0] || '';
+    return toLocalDateString(d);
   });
 }
 
@@ -137,10 +138,10 @@ export default function ScheduleScreen() {
 
   const dayLabel = (date: string) => {
     if (date === today) return 'Today';
-    const d = new Date(date);
+    const d = parseLocalDate(date);
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    if (date === (yesterday.toISOString().split('T')[0] || '')) return 'Yesterday';
+    if (date === toLocalDateString(yesterday)) return 'Yesterday';
     return d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
   };
 
@@ -167,7 +168,7 @@ export default function ScheduleScreen() {
                   className={isActive ? 'bg-indigo-600/10 border-2 border-indigo-500 rounded-2xl p-2.5 items-center w-16' : isThisToday ? 'bg-white dark:bg-slate-900 border-2 border-indigo-300 rounded-2xl p-2.5 items-center w-16' : 'bg-white dark:bg-slate-900 border-2 border-transparent rounded-2xl p-2.5 items-center w-16'}
                 >
                   <Text className={isActive ? 'text-indigo-700 dark:text-indigo-300 text-xs font-bold' : 'text-slate-500 text-xs font-bold'}>{WEEKDAY_LABELS[index] || ''}</Text>
-                  <Text className={isActive ? 'text-indigo-700 dark:text-indigo-300 text-sm font-semibold mt-1' : 'text-slate-700 dark:text-slate-300 text-sm mt-1'}>{new Date(date).getDate()}</Text>
+                  <Text className={isActive ? 'text-indigo-700 dark:text-indigo-300 text-sm font-semibold mt-1' : 'text-slate-700 dark:text-slate-300 text-sm mt-1'}>{parseLocalDate(date).getDate()}</Text>
                   {dayItemCount > 0 && <View className={isActive ? 'w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1' : 'w-1.5 h-1.5 rounded-full bg-slate-400 mt-1'} />}
                 </Pressable>
               );

@@ -2,25 +2,25 @@ import { useMemo, useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppStore, selectCountdownEvents, selectDateFormat } from '@/store/index';
-import { formatDate } from '@/shared/formatDate';
+import { formatDate, parseLocalDate, toLocalDateString } from '@/shared/formatDate';
 import { Heading } from '@/shared/components/Heading';
 import { ScreenBackButton } from '@/shared/components/ScreenBackButton';
 
 const EMOJI_OPTIONS = ['🎂', '💰', '🎉', '🎁', '💍', '✈️', '🎓', '📅'];
 
 function todayLocal(): string {
-  return new Date().toISOString().split('T')[0] || '';
+  return toLocalDateString(new Date());
 }
 
 /** For yearly-recurring events, rolls the date forward to the next future occurrence, keeping month/day fixed. */
 function nextOccurrence(dateStr: string, isRecurringYearly?: boolean): string {
   if (!isRecurringYearly) return dateStr;
-  const today = new Date(todayLocal());
-  const original = new Date(dateStr);
+  const today = parseLocalDate(todayLocal());
+  const original = parseLocalDate(dateStr);
   const candidate = new Date(original);
   candidate.setFullYear(today.getFullYear());
   if (candidate < today) candidate.setFullYear(today.getFullYear() + 1);
-  return candidate.toISOString().split('T')[0] || dateStr;
+  return toLocalDateString(candidate);
 }
 
 function daysBetween(fromDate: string, toDate: string): number {
@@ -51,13 +51,13 @@ export default function CountdownScreen() {
 
   const handleAdd = async () => {
     if (!label.trim() || !dateInput.trim()) return;
-    const parsed = new Date(dateInput.trim());
+    const parsed = parseLocalDate(dateInput.trim());
     if (isNaN(parsed.getTime())) return;
     await addCountdownEvent({
       id: `countdown-${Date.now()}`,
       label: label.trim(),
       emoji,
-      date: parsed.toISOString().split('T')[0] || dateInput.trim(),
+      date: toLocalDateString(parsed),
       isRecurringYearly,
     });
     setLabel('');

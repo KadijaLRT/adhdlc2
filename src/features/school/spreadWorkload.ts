@@ -1,4 +1,5 @@
 import type { AssignmentSubStep } from '@/store/slices/schoolSlice';
+import { parseLocalDate, toLocalDateString } from '@/shared/formatDate';
 
 /**
  * Distributes sub-steps evenly across the days between today and the
@@ -10,7 +11,7 @@ import type { AssignmentSubStep } from '@/store/slices/schoolSlice';
 export function spreadStepsAcrossDays(subSteps: AssignmentSubStep[], dueDate: string): AssignmentSubStep[] {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const due = new Date(dueDate);
+  const due = parseLocalDate(dueDate);
   due.setHours(0, 0, 0, 0);
 
   const totalDays = Math.max(1, Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
@@ -21,7 +22,7 @@ export function spreadStepsAcrossDays(subSteps: AssignmentSubStep[], dueDate: st
     const dayOffset = Math.min(index * daysPerStep, totalDays - 1);
     const date = new Date(today);
     date.setDate(today.getDate() + Math.max(0, dayOffset));
-    return { ...step, suggestedDate: date.toISOString().split('T')[0] };
+    return { ...step, suggestedDate: toLocalDateString(date) };
   });
 }
 

@@ -8,7 +8,7 @@ import { buildMergedGroceryList } from '@/content/groceryListBuilder';
 import { Heading, Subheading } from '@/shared/components/Heading';
 
 function todayLocal(): string {
-  return new Date().toISOString().split('T')[0] || '';
+  return (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
 }
 
 /**
