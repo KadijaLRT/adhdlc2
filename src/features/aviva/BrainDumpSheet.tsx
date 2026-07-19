@@ -8,6 +8,7 @@ export default function BrainDumpSheet({ visible, onClose }: { visible: boolean;
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<BrainDumpResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const energyLevel = useAppStore((s) => s.energyLevel);
   const isOverwhelmed = useAppStore((s) => s.isOverwhelmed);
   const addTask = useAppStore((s) => s.addTask);
@@ -15,11 +16,22 @@ export default function BrainDumpSheet({ visible, onClose }: { visible: boolean;
   const handleSubmit = async () => {
     if (!text?.trim()) return;
     setLoading(true);
+    setError(null);
+    setResult(null);
     const hour = new Date().getHours();
     const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : hour < 21 ? 'evening' : 'night';
-    const parsed = await avivaBrain.parseBrainDump(text, { currentEnergyLevel: energyLevel, isOverwhelmed, timeOfDay });
-    setResult(parsed);
-    setLoading(false);
+    try {
+      const parsed = await avivaBrain.parseBrainDump(text, { currentEnergyLevel: energyLevel, isOverwhelmed, timeOfDay });
+      if (parsed) {
+        setResult(parsed);
+      } else {
+        setError("Aviva couldn't sort this out just now. This usually means the AI service is temporarily unreachable — try again in a moment.");
+      }
+    } catch (err) {
+      setError('Something went wrong. Try again in a moment.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const mapBrainDumpCategory = (category: string): TaskCategory => {
@@ -52,6 +64,11 @@ export default function BrainDumpSheet({ visible, onClose }: { visible: boolean;
           <Text className="text-slate-500 text-sm mb-4">Type whatever&apos;s in your head. Aviva will sort it out.</Text>
           <TextInput value={text} onChangeText={setText} placeholder="everything is chaos..." placeholderTextColor="#64748b" multiline
             className="bg-white text-slate-900 rounded-xl p-4 min-h-[100px] mb-4 dark:text-slate-100 dark:bg-slate-900" />
+          {error && (
+            <View className="bg-amber-50 border border-amber-400 rounded-xl p-3 mb-3 dark:bg-amber-500/10">
+              <Text className="text-amber-700 dark:text-amber-300 text-sm">{error}</Text>
+            </View>
+          )}
           {!result && (
             <Pressable onPress={handleSubmit} disabled={loading} className="bg-indigo-600 rounded-full py-4 mb-2 active:bg-indigo-500">
               {loading ? <ActivityIndicator color="#fff" /> : <Text className="text-white text-center font-semibold">Sort this out</Text>}

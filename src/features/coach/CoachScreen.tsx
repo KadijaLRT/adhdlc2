@@ -12,21 +12,33 @@ export default function CoachScreen() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [reply, setReply] = useState<{ agentLabel: string; message: string; reasoning: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleAsk = async () => {
     if (!message?.trim()) return;
     setLoading(true);
+    setError(null);
+    setReply(null);
     const hour = new Date().getHours();
     const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : hour < 21 ? 'evening' : 'night';
 
-    const { agentLabel, response } = await askOrchestrator(
-      message,
-      { energyLevel, isOverwhelmed, timeOfDay },
-      selectedAgentId || undefined
-    );
+    try {
+      const { agentLabel, response } = await askOrchestrator(
+        message,
+        { energyLevel, isOverwhelmed, timeOfDay },
+        selectedAgentId || undefined
+      );
 
-    setReply(response ? { agentLabel, message: response.message, reasoning: response.reasoning } : null);
-    setLoading(false);
+      if (response) {
+        setReply({ agentLabel, message: response.message, reasoning: response.reasoning });
+      } else {
+        setError("Aviva couldn't get a response back just now. This usually means the AI service is temporarily unreachable — try again in a moment.");
+      }
+    } catch (err) {
+      setError("Something went wrong reaching Aviva. Try again in a moment.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -67,6 +79,12 @@ export default function CoachScreen() {
         <Pressable onPress={handleAsk} disabled={loading} className="bg-indigo-600 rounded-full py-4 mb-6 active:bg-indigo-500">
           {loading ? <ActivityIndicator color="#fff" /> : <Text className="text-white text-center font-semibold">Ask</Text>}
         </Pressable>
+
+        {error && (
+          <View className="bg-amber-50 border border-amber-400 rounded-2xl p-4 mb-4 dark:bg-amber-500/10">
+            <Text className="text-amber-700 dark:text-amber-300 text-sm">{error}</Text>
+          </View>
+        )}
 
         {reply && (
           <View className="bg-white rounded-2xl p-4 dark:bg-slate-900">
