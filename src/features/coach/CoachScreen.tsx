@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView, ActivityIndicator } from 'react-native';
-import { useAppStore } from '@/store/index';
+import { useAppStore, selectReflections } from '@/store/index';
 import { AGENTS } from '@/core/ai/agents';
 import { askOrchestrator } from '@/core/ai/orchestrator';
 import { Heading } from '@/shared/components/Heading';
@@ -8,6 +8,7 @@ import { Heading } from '@/shared/components/Heading';
 export default function CoachScreen() {
   const energyLevel = useAppStore((s) => s.energyLevel);
   const isOverwhelmed = useAppStore((s) => s.isOverwhelmed);
+  const reflections = useAppStore(selectReflections);
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,11 +22,12 @@ export default function CoachScreen() {
     setReply(null);
     const hour = new Date().getHours();
     const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : hour < 21 ? 'evening' : 'night';
+    const mostRecentReflection = [...(reflections || [])].sort((a, b) => b.date.localeCompare(a.date))[0];
 
     try {
       const { agentLabel, response } = await askOrchestrator(
         message,
-        { energyLevel, isOverwhelmed, timeOfDay },
+        { energyLevel, isOverwhelmed, timeOfDay, recentReflection: mostRecentReflection?.note },
         selectedAgentId || undefined
       );
 

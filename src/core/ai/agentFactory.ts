@@ -30,6 +30,7 @@ export interface AgentContext {
   energyLevel: 'low' | 'medium' | 'high';
   isOverwhelmed: boolean;
   timeOfDay: 'morning' | 'afternoon' | 'evening' | 'night';
+  recentReflection?: string; // the person's own most recent evening check-in note, so Aviva can actually reference it instead of it sitting unread
 }
 
 /**
@@ -48,13 +49,14 @@ export function createAgent(config: AgentConfig) {
 
       const fullSystemPrompt = `${config.systemPrompt}
 Never use guilt, urgency, or shaming language. Keep responses short and concrete.
+If a recent reflection note is provided, you may reference it naturally if it's relevant to what the person is asking — but never quote it back verbatim or make it the focus unless they bring it up themselves.
 Respond with ONLY valid JSON, no markdown fences:
 {"message": string, "reasoning": string, "suggestedNextStep": string}`;
 
       const userPrompt = `User message: "${cleanMessage}"
 Energy: ${cleanContext.energyLevel}
 Overwhelmed: ${cleanContext.isOverwhelmed}
-Time of day: ${cleanContext.timeOfDay}`;
+Time of day: ${cleanContext.timeOfDay}${cleanContext.recentReflection ? `\nTheir most recent evening reflection: "${cleanContext.recentReflection}"` : ''}`;
 
       try {
         const response = await client.chat.completions.create({

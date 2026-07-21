@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, TextInput, Pressable, Modal, ActivityIndicator, ScrollView } from 'react-native';
 import { avivaBrain, type BrainDumpResult } from '@/core/ai/AvivaBrain';
 import type { TaskCategory } from '@/store/index';
-import { useAppStore } from '@/store/index';
+import { useAppStore, selectReflections } from '@/store/index';
 
 export default function BrainDumpSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const [text, setText] = useState('');
@@ -10,6 +10,7 @@ export default function BrainDumpSheet({ visible, onClose }: { visible: boolean;
   const [result, setResult] = useState<BrainDumpResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const energyLevel = useAppStore((s) => s.energyLevel);
+  const reflections = useAppStore(selectReflections);
   const isOverwhelmed = useAppStore((s) => s.isOverwhelmed);
   const addTask = useAppStore((s) => s.addTask);
 
@@ -21,7 +22,8 @@ export default function BrainDumpSheet({ visible, onClose }: { visible: boolean;
     const hour = new Date().getHours();
     const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : hour < 21 ? 'evening' : 'night';
     try {
-      const parsed = await avivaBrain.parseBrainDump(text, { currentEnergyLevel: energyLevel, isOverwhelmed, timeOfDay });
+      const mostRecentReflection = [...(reflections || [])].sort((a, b) => b.date.localeCompare(a.date))[0];
+      const parsed = await avivaBrain.parseBrainDump(text, { currentEnergyLevel: energyLevel, isOverwhelmed, timeOfDay, recentReflection: mostRecentReflection?.note });
       if (parsed) {
         setResult(parsed);
       } else {

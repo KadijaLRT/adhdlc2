@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TextInput, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useAppStore, selectReflections } from '@/store/index';
 
 /**
@@ -9,6 +10,7 @@ import { useAppStore, selectReflections } from '@/store/index';
  * replaces it with a quick, optional day-review prompt.
  */
 export default function ReflectionCard() {
+  const router = useRouter();
   const reflections = useAppStore(selectReflections);
   const saveReflectionForToday = useAppStore((s) => s.saveReflectionForToday);
   const today = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
@@ -24,7 +26,14 @@ export default function ReflectionCard() {
 
   return (
     <View className="bg-white rounded-2xl p-5 dark:bg-slate-900">
-      <Text className="text-indigo-700 text-xs uppercase tracking-wider mb-1 dark:text-indigo-300">Evening check-in</Text>
+      <View className="flex-row items-center justify-between mb-1">
+        <Text className="text-indigo-700 text-xs uppercase tracking-wider dark:text-indigo-300">Evening check-in</Text>
+        {reflections.length > 0 && (
+          <Pressable onPress={() => router?.push?.('/reflections/history')}>
+            <Text className="text-indigo-500 text-xs">Past entries →</Text>
+          </Pressable>
+        )}
+      </View>
       <Text className="text-slate-900 text-base font-medium mb-3 dark:text-slate-100">How was today?</Text>
 
       <TextInput

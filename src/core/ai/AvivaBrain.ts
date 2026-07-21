@@ -11,6 +11,7 @@ export interface AvivaContext {
   currentEnergyLevel: 'low' | 'medium' | 'high';
   isOverwhelmed: boolean;
   timeOfDay: 'morning' | 'afternoon' | 'evening' | 'night';
+  recentReflection?: string; // the person's own most recent evening check-in note
 }
 
 const SubStepSchema = z.object({
@@ -106,13 +107,14 @@ Time of day: ${cleanContext.timeOfDay}`;
     const systemPrompt = `You are Aviva, a compassionate executive-function assistant.
 The user will paste unstructured, chaotic thoughts. Break them into distinct,
 concrete items. Never add urgency or guilt language. Explain your reasoning briefly.
+If a recent reflection note is provided, use it only as light context — never quote it back verbatim.
 Respond with ONLY valid JSON, no markdown fences:
 {"items": [{"id": string, "text": string, "category": "task"|"appointment"|"errand"|"phone_call"|"reminder"|"bill", "suggestedEnergyLevel": "low"|"medium"|"high", "suggestedTiming": "morning"|"afternoon"|"evening"|"no_preference"}], "reasoning": string}`;
 
     const userPrompt = `Brain dump: "${cleanText}"
 Energy level: ${cleanContext.currentEnergyLevel}
 Overwhelmed: ${cleanContext.isOverwhelmed}
-Time of day: ${cleanContext.timeOfDay}`;
+Time of day: ${cleanContext.timeOfDay}${cleanContext.recentReflection ? `\nTheir most recent evening reflection: "${cleanContext.recentReflection}"` : ''}`;
 
     try {
       const response = await this.client.chat.completions.create({
