@@ -1,34 +1,56 @@
+export interface StretchStep {
+  text: string;
+  holdSeconds: number;
+}
+
 export interface StretchRoutine {
   id: string;
   title: string;
   durationMinutes: number;
-  steps: string[];
+  steps: StretchStep[];
 }
 
 // Deliberately generic, low-risk stretches — nothing here is specific
 // to an injury or medical condition. If soreness is sharp, localized,
 // or lasts more than a few days, that's outside what general stretching
 // guidance should address, and the UI says so directly.
+//
+// "Each leg/side/arm" stretches are split into two separate timed
+// steps (Right then Left) rather than one step covering both sides,
+// so the guided timer actually walks through each side individually
+// instead of one countdown silently meaning "do this twice."
 export const STRETCH_ROUTINES: StretchRoutine[] = [
-  { id: 'lower-body', title: 'Lower Body Reset', durationMinutes: 5, steps: [
-    'Standing quad stretch, 30 sec each leg',
-    'Seated forward fold, 30 sec',
-    'Figure-4 glute stretch, 30 sec each side',
-    'Standing calf stretch against a wall, 30 sec each leg',
-  ] },
-  { id: 'desk-break', title: 'Desk Break Loosener', durationMinutes: 3, steps: [
-    'Neck tilts side to side, 5 each way',
-    'Shoulder rolls, 10 slow reps',
-    'Seated spinal twist, 20 sec each side',
-    'Wrist and finger stretches, 20 sec',
-  ] },
-  { id: 'full-body', title: 'Full Body Cooldown', durationMinutes: 6, steps: [
-    'Standing forward fold, 30 sec',
-    "Child's pose, 30 sec",
-    'Cross-body shoulder stretch, 20 sec each arm',
-    'Standing quad stretch, 20 sec each leg',
-    'Deep breathing, 5 slow breaths',
-  ] },
+  {
+    id: 'lower-body', title: 'Lower Body Reset', durationMinutes: 5, steps: [
+      { text: 'Standing quad stretch — Right leg', holdSeconds: 30 },
+      { text: 'Standing quad stretch — Left leg', holdSeconds: 30 },
+      { text: 'Seated forward fold', holdSeconds: 30 },
+      { text: 'Figure-4 glute stretch — Right side', holdSeconds: 30 },
+      { text: 'Figure-4 glute stretch — Left side', holdSeconds: 30 },
+      { text: 'Standing calf stretch against a wall — Right leg', holdSeconds: 30 },
+      { text: 'Standing calf stretch against a wall — Left leg', holdSeconds: 30 },
+    ],
+  },
+  {
+    id: 'desk-break', title: 'Desk Break Loosener', durationMinutes: 3, steps: [
+      { text: 'Neck tilts side to side (5 each way)', holdSeconds: 20 },
+      { text: 'Shoulder rolls (10 slow reps)', holdSeconds: 20 },
+      { text: 'Seated spinal twist — Right side', holdSeconds: 20 },
+      { text: 'Seated spinal twist — Left side', holdSeconds: 20 },
+      { text: 'Wrist and finger stretches', holdSeconds: 20 },
+    ],
+  },
+  {
+    id: 'full-body', title: 'Full Body Cooldown', durationMinutes: 6, steps: [
+      { text: 'Standing forward fold', holdSeconds: 30 },
+      { text: "Child's pose", holdSeconds: 30 },
+      { text: 'Cross-body shoulder stretch — Right arm', holdSeconds: 20 },
+      { text: 'Cross-body shoulder stretch — Left arm', holdSeconds: 20 },
+      { text: 'Standing quad stretch — Right leg', holdSeconds: 20 },
+      { text: 'Standing quad stretch — Left leg', holdSeconds: 20 },
+      { text: 'Deep breathing (5 slow breaths)', holdSeconds: 30 },
+    ],
+  },
 ];
 
 export const RECOVERY_TIPS = {

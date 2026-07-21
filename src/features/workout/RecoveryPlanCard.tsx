@@ -97,13 +97,19 @@ export default function RecoveryPlanCard({ compact = false }: { compact?: boolea
                 {isExpanded && (
                   <View className="mt-2 ml-2 gap-1">
                     {(routine.steps || []).map((step, index) => (
-                      <Text key={index} className="text-slate-500 text-sm">• {step}</Text>
+                      <Text key={index} className="text-slate-500 text-sm">• {step.text} ({step.holdSeconds}s)</Text>
                     ))}
                     <Pressable
-                      onPress={() => logRecoveryUpdate(today, { stretchRoutineId: routine.id, stretchDone: true })}
-                      className="bg-emerald-500 rounded-xl py-2 items-center active:bg-emerald-400 mt-2"
+                      onPress={() => router?.push?.({ pathname: '/fitness/stretch-run', params: { routineId: routine.id } })}
+                      className="bg-indigo-600 rounded-xl py-2 items-center active:bg-indigo-500 mt-2"
                     >
-                      <Text className="text-white text-xs font-semibold">{isSelectedToday && todaysLog?.stretchDone ? 'Done ✓' : 'Mark done'}</Text>
+                      <Text className="text-white text-xs font-semibold">▶ Start guided timer</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => logRecoveryUpdate(today, { stretchRoutineId: routine.id, stretchDone: true })}
+                      className="py-2 items-center"
+                    >
+                      <Text className="text-slate-500 text-xs">{isSelectedToday && todaysLog?.stretchDone ? 'Done ✓' : 'Or just mark it done'}</Text>
                     </Pressable>
                   </View>
                 )}

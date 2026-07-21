@@ -280,12 +280,12 @@ export default function NutritionDiaryScreen() {
           {editingTargets ? (
             <View>
               <View className="flex-row gap-2 mb-2">
-                <TextInput value={targetCalInput} onChangeText={setTargetCalInput} placeholder="Calories" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" />
-                <TextInput value={targetProInput} onChangeText={setTargetProInput} placeholder="Protein g" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" />
+                <View className="flex-1"><TextInput value={targetCalInput} onChangeText={setTargetCalInput} placeholder="Calories" placeholderTextColor="#64748b" keyboardType="numeric" className="w-full bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" /></View>
+                <View className="flex-1"><TextInput value={targetProInput} onChangeText={setTargetProInput} placeholder="Protein g" placeholderTextColor="#64748b" keyboardType="numeric" className="w-full bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" /></View>
               </View>
               <View className="flex-row gap-2 mb-3">
-                <TextInput value={targetCarbInput} onChangeText={setTargetCarbInput} placeholder="Carbs g" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" />
-                <TextInput value={targetFatInput} onChangeText={setTargetFatInput} placeholder="Fat g" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" />
+                <View className="flex-1"><TextInput value={targetCarbInput} onChangeText={setTargetCarbInput} placeholder="Carbs g" placeholderTextColor="#64748b" keyboardType="numeric" className="w-full bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" /></View>
+                <View className="flex-1"><TextInput value={targetFatInput} onChangeText={setTargetFatInput} placeholder="Fat g" placeholderTextColor="#64748b" keyboardType="numeric" className="w-full bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" /></View>
               </View>
               <Text className="text-slate-500 text-[11px] mb-3">These are numbers you choose for yourself — set whatever you want to track toward, or leave blank to just log without targets.</Text>
               <Pressable onPress={handleSaveTargets} className="bg-indigo-600 rounded-xl py-2.5 items-center active:bg-indigo-500">
@@ -341,12 +341,12 @@ export default function NutritionDiaryScreen() {
                   <View key={entry.id} className="py-2 border-t border-stone-100 dark:border-slate-800">
                     <TextInput value={editName} onChangeText={setEditName} placeholder="Food name" placeholderTextColor="#64748b" className="bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2 mb-2" />
                     <View className="flex-row gap-2 mb-2">
-                      <TextInput value={editCal} onChangeText={setEditCal} placeholder="Calories" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" />
-                      <TextInput value={editPro} onChangeText={setEditPro} placeholder="Protein g" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" />
+                      <View className="flex-1"><TextInput value={editCal} onChangeText={setEditCal} placeholder="Calories" placeholderTextColor="#64748b" keyboardType="numeric" className="w-full bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" /></View>
+                      <View className="flex-1"><TextInput value={editPro} onChangeText={setEditPro} placeholder="Protein g" placeholderTextColor="#64748b" keyboardType="numeric" className="w-full bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" /></View>
                     </View>
                     <View className="flex-row gap-2 mb-2">
-                      <TextInput value={editCarb} onChangeText={setEditCarb} placeholder="Carbs g" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" />
-                      <TextInput value={editFat} onChangeText={setEditFat} placeholder="Fat g" placeholderTextColor="#64748b" keyboardType="numeric" className="flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" />
+                      <View className="flex-1"><TextInput value={editCarb} onChangeText={setEditCarb} placeholder="Carbs g" placeholderTextColor="#64748b" keyboardType="numeric" className="w-full bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" /></View>
+                      <View className="flex-1"><TextInput value={editFat} onChangeText={setEditFat} placeholder="Fat g" placeholderTextColor="#64748b" keyboardType="numeric" className="w-full bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" /></View>
                     </View>
                     <View className="flex-row gap-2">
                       <Pressable onPress={handleSaveEdit} disabled={!editName.trim()} className={editName.trim() ? 'flex-1 bg-indigo-600 rounded-xl py-2 items-center active:bg-indigo-500' : 'flex-1 bg-slate-300 dark:bg-slate-700 rounded-xl py-2 items-center'}>

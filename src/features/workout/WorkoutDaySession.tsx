@@ -4,18 +4,43 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppStore, selectAdhdFocusModeEnabled, selectSetLogs } from '@/store/index';
 import { WORKOUT_EXERCISES } from '@/content/exercises';
+import { getWarmupForGroups } from '@/content/warmupContent';
+import InlineStepTimer from '@/shared/components/InlineStepTimer';
 import { Heading } from '@/shared/components/Heading';
 
 interface SetRow {
   weight: string;
   reps: string;
   done: boolean;
+  side?: 'right' | 'left'; // set for unilateral exercises (Glute Kickback, Bulgarian Split Squat, etc.) — each "set" becomes a distinct Right and Left entry rather than one row silently meaning "do both sides"
 }
 
 function formatElapsed(totalSeconds: number): string {
   const m = Math.floor(totalSeconds / 60);
   const s = totalSeconds % 60;
   return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+/** Builds `count` sets worth of rows — for a unilateral exercise, that's `count` Right/Left pairs, not `count` generic rows. */
+function buildSetRows(count: number, repsMin: number, isUnilateral: boolean): SetRow[] {
+  if (!isUnilateral) {
+    return Array.from({ length: count }, () => ({ weight: '', reps: String(repsMin || 10), done: false }));
+  }
+  const rows: SetRow[] = [];
+  for (let i = 0; i < count; i++) {
+    rows.push({ weight: '', reps: String(repsMin || 10), done: false, side: 'right' });
+    rows.push({ weight: '', reps: String(repsMin || 10), done: false, side: 'left' });
+  }
+  return rows;
+}
+
+function searchExercises(query: string, excludeIds: string[]): { id: string; name: string; muscle: string; icon: string }[] {
+  const q = query.trim().toLowerCase();
+  const excluded = new Set(excludeIds);
+  return Object.entries(WORKOUT_EXERCISES || {})
+    .filter(([id, ex]) => !excluded.has(id) && (!q || ex.name.toLowerCase().includes(q) || ex.muscle.toLowerCase().includes(q)))
+    .slice(0, 20)
+    .map(([id, ex]) => ({ id, name: ex.name, muscle: ex.muscle, icon: ex.icon }));
 }
 
 /**
@@ -38,11 +63,23 @@ export default function WorkoutDaySession({
   const setAdhdFocusMode = useAppStore((s) => s.setAdhdFocusMode);
   const setLogs = useAppStore(selectSetLogs);
 
+  const [sessionExerciseIds, setSessionExerciseIds] = useState<string[]>(exerciseIds);
   const [expandedId, setExpandedId] = useState<string | null>(exerciseIds[0] || null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [recordBanner, setRecordBanner] = useState<string | null>(null);
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
   const [sessionRecorded, setSessionRecorded] = useState(false);
+  const [showAddExercise, setShowAddExercise] = useState(false);
+  const [exerciseSearch, setExerciseSearch] = useState('');
+  const [swappingId, setSwappingId] = useState<string | null>(null);
+  const [warmupExpanded, setWarmupExpanded] = useState(true);
+  const [warmupDone, setWarmupDone] = useState(false);
+
+  const dayMuscleGroups = useMemo(
+    () => Array.from(new Set(exerciseIds.map((id) => WORKOUT_EXERCISES?.[id]?.group).filter((g): g is string => !!g))),
+    [exerciseIds]
+  );
+  const warmup = useMemo(() => getWarmupForGroups(dayMuscleGroups), [dayMuscleGroups]);
 
   const startedAtMs = useMemo(() => (sessionStartedAt ? new Date(sessionStartedAt).getTime() : Date.now()), [sessionStartedAt]);
 
@@ -56,7 +93,7 @@ export default function WorkoutDaySession({
       if (!exercise) continue;
       const isReduced = energyLightened || (reducedGroups?.length && reducedGroups.includes(exercise.group));
       const setCount = isReduced ? Math.max(2, exercise.sets - 1) : exercise.sets;
-      initial[id] = Array.from({ length: setCount }, () => ({ weight: '', reps: String(exercise.repsMin || 10), done: false }));
+      initial[id] = buildSetRows(setCount, exercise.repsMin, !!exercise.uni);
     }
     return initial;
   });
@@ -72,19 +109,54 @@ export default function WorkoutDaySession({
 
   const handleAddSet = (exerciseId: string) => {
     const exercise = WORKOUT_EXERCISES?.[exerciseId];
-    setRowsByExercise((prev) => ({
-      ...prev,
-      [exerciseId]: [...(prev[exerciseId] || []), { weight: '', reps: String(exercise?.repsMin || 10), done: false }],
-    }));
+    const reps = String(exercise?.repsMin || 10);
+    setRowsByExercise((prev) => {
+      const newRows = exercise?.uni
+        ? [{ weight: '', reps, done: false, side: 'right' as const }, { weight: '', reps, done: false, side: 'left' as const }]
+        : [{ weight: '', reps, done: false }];
+      return { ...prev, [exerciseId]: [...(prev[exerciseId] || []), ...newRows] };
+    });
   };
 
   const handleRemoveSet = (exerciseId: string) => {
+    const exercise = WORKOUT_EXERCISES?.[exerciseId];
+    const removeCount = exercise?.uni ? 2 : 1;
     setRowsByExercise((prev) => {
       const rows = prev[exerciseId] || [];
-      if (rows.length <= 1) return prev; // never go below one set for an exercise that's still in the session
-      return { ...prev, [exerciseId]: rows.slice(0, -1) };
+      if (rows.length <= removeCount) return prev; // never go below one set (one pair, for unilateral) for an exercise still in the session
+      return { ...prev, [exerciseId]: rows.slice(0, -removeCount) };
     });
   };
+
+  // Adds a whole new exercise to just this session — never touches the
+  // program itself, so tomorrow's version of this day is unaffected.
+  const handleAddExercise = (exerciseId: string) => {
+    const exercise = WORKOUT_EXERCISES?.[exerciseId];
+    if (!exercise || sessionExerciseIds.includes(exerciseId)) return;
+    setSessionExerciseIds((prev) => [...prev, exerciseId]);
+    setRowsByExercise((prev) => ({
+      ...prev,
+      [exerciseId]: buildSetRows(exercise.sets, exercise.repsMin, !!exercise.uni),
+    }));
+    setExpandedId(exerciseId);
+    setShowAddExercise(false);
+    setExerciseSearch('');
+  };
+
+  const handleRemoveExercise = (exerciseId: string) => {
+    setSessionExerciseIds((prev) => prev.filter((id) => id !== exerciseId));
+    setRowsByExercise((prev) => {
+      const next = { ...prev };
+      delete next[exerciseId];
+      return next;
+    });
+    if (expandedId === exerciseId) setExpandedId(null);
+  };
+
+  const exerciseSearchResults = useMemo(
+    () => searchExercises(exerciseSearch, sessionExerciseIds),
+    [exerciseSearch, sessionExerciseIds]
+  );
 
   const updateRow = (exerciseId: string, index: number, updates: Partial<SetRow>) => {
     setRowsByExercise((prev) => ({
@@ -104,6 +176,55 @@ export default function WorkoutDaySession({
     }
   };
 
+  // The one-tap way to mark a whole exercise done at once, rather than
+  // requiring every set to be checked off individually. Still logs
+  // each set (so PRs and volume tracking stay accurate) — just does it
+  // for all of them in one action. Tapping again when already fully
+  // done un-checks everything, so it's a real toggle, not a one-way door.
+  const handleToggleExerciseDone = async (exerciseId: string) => {
+    const rows = rowsByExercise[exerciseId] || [];
+    const allDone = rows.length > 0 && rows.every((r) => r.done);
+    if (allDone) {
+      setRowsByExercise((prev) => ({
+        ...prev,
+        [exerciseId]: (prev[exerciseId] || []).map((row) => ({ ...row, done: false })),
+      }));
+      return;
+    }
+    for (let i = 0; i < rows.length; i++) {
+      if (!rows[i]?.done) await handleCompleteSet(exerciseId, i);
+    }
+  };
+
+  // Replaces one exercise with another, in place — keeps the same slot
+  // in the list and carries the set count forward rather than
+  // resetting to the new exercise's default, so swapping mid-session
+  // (equipment taken, an injury flare-up) doesn't lose what was
+  // already planned for that slot.
+  const handleSwapExercise = (oldExerciseId: string, newExerciseId: string) => {
+    const oldExercise = WORKOUT_EXERCISES?.[oldExerciseId];
+    const newExercise = WORKOUT_EXERCISES?.[newExerciseId];
+    if (!newExercise || sessionExerciseIds.includes(newExerciseId)) return;
+    const oldRowCount = rowsByExercise[oldExerciseId]?.length || newExercise.sets;
+    // A "set" is one row normally, but one Right+Left pair for a
+    // unilateral exercise — divide back down to the actual set count
+    // before rebuilding for the new exercise, so swapping a unilateral
+    // exercise for a bilateral one (or vice versa) still carries over
+    // the intended number of sets, not the raw row count.
+    const existingSetCount = oldExercise?.uni ? Math.max(1, Math.round(oldRowCount / 2)) : oldRowCount;
+
+    setSessionExerciseIds((prev) => prev.map((id) => (id === oldExerciseId ? newExerciseId : id)));
+    setRowsByExercise((prev) => {
+      const next = { ...prev };
+      delete next[oldExerciseId];
+      next[newExerciseId] = buildSetRows(existingSetCount, newExercise.repsMin, !!newExercise.uni);
+      return next;
+    });
+    if (expandedId === oldExerciseId) setExpandedId(newExerciseId);
+    setSwappingId(null);
+    setExerciseSearch('');
+  };
+
   const handleFinish = async () => {
     if (programId && !sessionRecorded) {
       setSessionRecorded(true);
@@ -121,7 +242,7 @@ export default function WorkoutDaySession({
         <View className="flex-row justify-between items-start">
           <View className="flex-1 pr-2">
             <Text className="text-slate-900 dark:text-slate-100 text-base font-bold">{dayTitle || "Today's workout"}</Text>
-            <Text className="text-slate-500 text-xs mt-0.5">{exerciseIds.length} exercise{exerciseIds.length === 1 ? '' : 's'}</Text>
+            <Text className="text-slate-500 text-xs mt-0.5">{sessionExerciseIds.length} exercise{sessionExerciseIds.length === 1 ? '' : 's'}</Text>
           </View>
           <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">{formatElapsed(elapsedSeconds)}</Text>
         </View>
@@ -141,7 +262,27 @@ export default function WorkoutDaySession({
             </View>
           )}
 
-          {exerciseIds.map((exerciseId) => {
+          <View className="bg-white dark:bg-slate-900 rounded-2xl mb-3 overflow-hidden">
+            <Pressable onPress={() => setWarmupExpanded(!warmupExpanded)} className="p-4 flex-row items-center justify-between">
+              <View className="flex-row items-center gap-2 flex-1 pr-2">
+                <View className={warmupDone ? 'w-6 h-6 rounded-full bg-emerald-500 items-center justify-center' : 'w-6 h-6 rounded-full border-2 border-stone-300 dark:border-slate-700 items-center justify-center'}>
+                  {warmupDone && <Text className="text-white text-xs">✓</Text>}
+                </View>
+                <View className="flex-1">
+                  <Text className="text-slate-900 dark:text-slate-100 text-sm font-semibold">🔥 {warmup.title}</Text>
+                  <Text className="text-slate-500 text-xs">{warmup.steps.length} moves, matched to today's session</Text>
+                </View>
+              </View>
+              <Text className="text-slate-400 text-xs">{warmupExpanded ? '▲' : '▼'}</Text>
+            </Pressable>
+            {warmupExpanded && (
+              <View className="px-4 pb-4">
+                <InlineStepTimer steps={warmup.steps} onFinish={() => setWarmupDone(true)} />
+              </View>
+            )}
+          </View>
+
+          {sessionExerciseIds.map((exerciseId) => {
             const exercise = WORKOUT_EXERCISES?.[exerciseId];
             if (!exercise) return null;
             const rows = rowsByExercise[exerciseId] || [];
@@ -153,61 +294,116 @@ export default function WorkoutDaySession({
               <View key={exerciseId} className="bg-white dark:bg-slate-900 rounded-2xl mb-3 overflow-hidden">
                 <Pressable onPress={() => setExpandedId(isExpanded ? null : exerciseId)} className="p-4 flex-row items-center justify-between">
                   <View className="flex-row items-center gap-2 flex-1 pr-2">
-                    <View className={exerciseDone ? 'w-6 h-6 rounded-full bg-emerald-500 items-center justify-center' : 'w-6 h-6 rounded-full border-2 border-stone-300 dark:border-slate-700 items-center justify-center'}>
+                    <Pressable
+                      onPress={() => handleToggleExerciseDone(exerciseId)}
+                      hitSlop={8}
+                      className={exerciseDone ? 'w-6 h-6 rounded-full bg-emerald-500 items-center justify-center' : 'w-6 h-6 rounded-full border-2 border-stone-300 dark:border-slate-700 items-center justify-center'}
+                    >
                       {exerciseDone && <Text className="text-white text-xs">✓</Text>}
-                    </View>
+                    </Pressable>
                     <View className="flex-1">
                       <Text className="text-slate-900 dark:text-slate-100 text-sm font-semibold">{exercise.icon} {exercise.name}</Text>
-                      <Text className="text-slate-500 text-xs">{exercise.muscle} · {rows.length} set{rows.length === 1 ? '' : 's'}{isReducedThisExercise ? ' · lightened' : ''}</Text>
+                      <Text className="text-slate-500 text-xs">
+                        {exercise.muscle} · {exercise.uni ? Math.round(rows.length / 2) : rows.length} set{(exercise.uni ? Math.round(rows.length / 2) : rows.length) === 1 ? '' : 's'}{exercise.uni ? ' · each side' : ''}{isReducedThisExercise ? ' · lightened' : ''}
+                      </Text>
                     </View>
                   </View>
+                  <Pressable onPress={() => { setSwappingId(exerciseId); setShowAddExercise(false); setExerciseSearch(''); }} className="px-2">
+                    <Text className="text-slate-400 text-xs">🔄</Text>
+                  </Pressable>
+                  <Pressable onPress={() => handleRemoveExercise(exerciseId)} className="px-2">
+                    <Text className="text-slate-400 text-xs">✕</Text>
+                  </Pressable>
                   <Text className="text-slate-400 text-xs">{isExpanded ? '▲' : '▼'}</Text>
                 </Pressable>
 
-                {isExpanded && (
+                {swappingId === exerciseId && (
+                  <View className="px-4 pb-4">
+                    <Text className="text-slate-900 dark:text-slate-100 text-sm font-semibold mb-2">Swap for…</Text>
+                    <TextInput
+                      value={exerciseSearch}
+                      onChangeText={setExerciseSearch}
+                      placeholder="Search by name or muscle…"
+                      placeholderTextColor="#64748b"
+                      autoFocus
+                      className="bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2 mb-2"
+                    />
+                    <View className="max-h-64">
+                      {exerciseSearchResults.map((ex) => (
+                        <Pressable key={ex.id} onPress={() => handleSwapExercise(exerciseId, ex.id)} className="py-2 border-b border-stone-100 dark:border-slate-800 flex-row items-center gap-2">
+                          <Text className="text-base">{ex.icon}</Text>
+                          <View>
+                            <Text className="text-slate-800 dark:text-slate-200 text-sm">{ex.name}</Text>
+                            <Text className="text-slate-500 text-xs">{ex.muscle}</Text>
+                          </View>
+                        </Pressable>
+                      ))}
+                      {exerciseSearchResults.length === 0 && (
+                        <Text className="text-slate-500 text-xs py-2">No matches.</Text>
+                      )}
+                    </View>
+                    <Pressable onPress={() => { setSwappingId(null); setExerciseSearch(''); }} className="py-2 mt-1">
+                      <Text className="text-slate-500 text-center text-xs">Cancel</Text>
+                    </Pressable>
+                  </View>
+                )}
+
+                {isExpanded && swappingId !== exerciseId && (
                   <View className="px-4 pb-4">
                     {!adhdFocusModeEnabled && <Text className="text-slate-500 text-xs mb-3">{exercise.cues}</Text>}
 
                     <View className="flex-row items-center px-1 mb-1">
-                      <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wide w-8">Set</Text>
+                      <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wide w-10">Set</Text>
                       <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wide flex-1 text-center">Weight</Text>
                       <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wide flex-1 text-center">Reps</Text>
-                      <View className="w-9" />
+                      <View className="w-8" />
                     </View>
 
-                    {rows.map((row, index) => (
-                      <View key={index} className="flex-row items-center gap-2 mb-2">
-                        <Text className="text-slate-500 text-sm w-8 text-center">{index + 1}</Text>
-                        <TextInput
-                          value={row.weight}
-                          onChangeText={(v) => updateRow(exerciseId, index, { weight: v })}
-                          placeholder="0"
-                          placeholderTextColor="#64748b"
-                          keyboardType="numeric"
-                          editable={!row.done}
-                          className={row.done ? 'flex-1 bg-stone-100 dark:bg-slate-800 text-slate-400 text-center rounded-lg py-2' : 'flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-center rounded-lg py-2'}
-                        />
-                        <TextInput
-                          value={row.reps}
-                          onChangeText={(v) => updateRow(exerciseId, index, { reps: v })}
-                          keyboardType="numeric"
-                          editable={!row.done}
-                          className={row.done ? 'flex-1 bg-stone-100 dark:bg-slate-800 text-slate-400 text-center rounded-lg py-2' : 'flex-1 bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-center rounded-lg py-2'}
-                        />
-                        <Pressable onPress={() => handleCompleteSet(exerciseId, index)} className="w-9 items-center">
+                    {rows.map((row, index) => {
+                      const setNumber = row.side ? Math.floor(index / 2) + 1 : index + 1;
+                      const sideLabel = row.side === 'right' ? 'R' : row.side === 'left' ? 'L' : null;
+                      return (
+                      <View key={index} className="flex-row items-center gap-1.5 mb-2">
+                        <Text className="text-slate-500 text-xs w-10 text-center">{setNumber}{sideLabel ? ` ${sideLabel}` : ''}</Text>
+                        <View className="flex-1">
+                          <TextInput
+                            value={row.weight}
+                            onChangeText={(v) => updateRow(exerciseId, index, { weight: v })}
+                            placeholder="0"
+                            placeholderTextColor="#64748b"
+                            keyboardType="numeric"
+                            editable={!row.done}
+                            className={row.done ? 'w-full bg-stone-100 dark:bg-slate-800 text-slate-400 text-center rounded-lg py-2' : 'w-full bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-center rounded-lg py-2'}
+                          />
+                        </View>
+                        <View className="flex-1">
+                          <TextInput
+                            value={row.reps}
+                            onChangeText={(v) => updateRow(exerciseId, index, { reps: v })}
+                            keyboardType="numeric"
+                            editable={!row.done}
+                            className={row.done ? 'w-full bg-stone-100 dark:bg-slate-800 text-slate-400 text-center rounded-lg py-2' : 'w-full bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-center rounded-lg py-2'}
+                          />
+                        </View>
+                        <Pressable onPress={() => handleCompleteSet(exerciseId, index)} className="w-8 items-center">
                           <View className={row.done ? 'w-7 h-7 rounded-full bg-emerald-500 items-center justify-center' : 'w-7 h-7 rounded-full border-2 border-emerald-500 items-center justify-center'}>
                             {row.done && <Text className="text-white text-xs">✓</Text>}
                           </View>
                         </Pressable>
                       </View>
-                    ))}
+                      );
+                    })}
 
                     <View className="flex-row gap-2 mt-2">
                       <Pressable onPress={() => handleAddSet(exerciseId)} className="flex-1 border border-dashed border-stone-300 dark:border-slate-700 rounded-lg py-2 items-center">
-                        <Text className="text-slate-500 text-xs">+ Add set</Text>
+                        <Text className="text-slate-500 text-xs">+ Add set{exercise.uni ? ' (R+L)' : ''}</Text>
                       </Pressable>
-                      <Pressable onPress={() => handleRemoveSet(exerciseId)} disabled={rows.length <= 1} className={rows.length <= 1 ? 'flex-1 border border-stone-200 dark:border-slate-800 rounded-lg py-2 items-center opacity-40' : 'flex-1 border border-dashed border-stone-300 dark:border-slate-700 rounded-lg py-2 items-center'}>
-                        <Text className="text-slate-500 text-xs">− Remove set</Text>
+                      <Pressable
+                        onPress={() => handleRemoveSet(exerciseId)}
+                        disabled={rows.length <= (exercise.uni ? 2 : 1)}
+                        className={rows.length <= (exercise.uni ? 2 : 1) ? 'flex-1 border border-stone-200 dark:border-slate-800 rounded-lg py-2 items-center opacity-40' : 'flex-1 border border-dashed border-stone-300 dark:border-slate-700 rounded-lg py-2 items-center'}
+                      >
+                        <Text className="text-slate-500 text-xs">− Remove set{exercise.uni ? ' (R+L)' : ''}</Text>
                       </Pressable>
                     </View>
                   </View>
@@ -215,6 +411,41 @@ export default function WorkoutDaySession({
               </View>
             );
           })}
+
+          {showAddExercise ? (
+            <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-4">
+              <Text className="text-slate-900 dark:text-slate-100 text-sm font-semibold mb-3">Add an exercise</Text>
+              <TextInput
+                value={exerciseSearch}
+                onChangeText={setExerciseSearch}
+                placeholder="Search by name or muscle…"
+                placeholderTextColor="#64748b"
+                autoFocus
+                className="bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2 mb-2"
+              />
+              <View className="max-h-64">
+                {exerciseSearchResults.map((ex) => (
+                  <Pressable key={ex.id} onPress={() => handleAddExercise(ex.id)} className="py-2 border-b border-stone-100 dark:border-slate-800 flex-row items-center gap-2">
+                    <Text className="text-base">{ex.icon}</Text>
+                    <View>
+                      <Text className="text-slate-800 dark:text-slate-200 text-sm">{ex.name}</Text>
+                      <Text className="text-slate-500 text-xs">{ex.muscle}</Text>
+                    </View>
+                  </Pressable>
+                ))}
+                {exerciseSearchResults.length === 0 && (
+                  <Text className="text-slate-500 text-xs py-2">No matches.</Text>
+                )}
+              </View>
+              <Pressable onPress={() => { setShowAddExercise(false); setExerciseSearch(''); }} className="py-2 mt-1">
+                <Text className="text-slate-500 text-center text-xs">Cancel</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable onPress={() => setShowAddExercise(true)} className="border-2 border-dashed border-stone-300 dark:border-slate-700 rounded-2xl py-3 items-center mb-4">
+              <Text className="text-slate-500 text-sm">+ Add an exercise</Text>
+            </Pressable>
+          )}
 
           <Pressable
             onPress={() => setAdhdFocusMode(!adhdFocusModeEnabled)}
