@@ -63,6 +63,7 @@ export default function NutritionDiaryScreen() {
   const updateFoodLogEntry = useAppStore((s) => s.updateFoodLogEntry);
   const setDailyTargets = useAppStore((s) => s.setDailyTargets);
   const saveCustomMeal = useAppStore((s) => s.saveCustomMeal);
+  const updateCustomMeal = useAppStore((s) => s.updateCustomMeal);
   const removeCustomMeal = useAppStore((s) => s.removeCustomMeal);
 
   const [selectedDate, setSelectedDate] = useState(todayLocal());
@@ -91,6 +92,19 @@ export default function NutritionDiaryScreen() {
   const [showMealBuilder, setShowMealBuilder] = useState(false);
   const [pickedMeal, setPickedMeal] = useState<CustomMeal | null>(null);
   const [mealServings, setMealServings] = useState('1');
+  const [mealSearch, setMealSearch] = useState('');
+  const [editingMealId, setEditingMealId] = useState<string | null>(null);
+  const [editMealName, setEditMealName] = useState('');
+  const [editMealCal, setEditMealCal] = useState('');
+  const [editMealPro, setEditMealPro] = useState('');
+  const [editMealCarb, setEditMealCarb] = useState('');
+  const [editMealFat, setEditMealFat] = useState('');
+  const [showQuickFood, setShowQuickFood] = useState(false);
+  const [qfName, setQfName] = useState('');
+  const [qfCal, setQfCal] = useState('');
+  const [qfPro, setQfPro] = useState('');
+  const [qfCarb, setQfCarb] = useState('');
+  const [qfFat, setQfFat] = useState('');
 
   const entriesForDay = useMemo(() => (foodLog || []).filter((f) => f.date === selectedDate), [foodLog, selectedDate]);
 
@@ -132,12 +146,28 @@ export default function NutritionDiaryScreen() {
 
   const combinedSearchResults = useMemo(() => [...searchResults, ...liveResults], [searchResults, liveResults]);
 
+  // Anything logged before as a custom meal/food is saved to
+  // customMeals — surfacing name matches for it right in the main
+  // Search tab is what makes a once-entered food actually reusable
+  // next time, instead of only being findable by digging into My Meals.
+  const savedFoodMatches = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return [];
+    return (customMeals || []).filter((m) => m.name.toLowerCase().includes(q)).slice(0, 8);
+  }, [customMeals, search]);
+
   const allRecipes = useMemo(() => [...(RECIPES || []), ...(aiGeneratedRecipes || [])], [aiGeneratedRecipes]);
   const recipeResults = useMemo(() => {
     const q = recipeSearch.trim().toLowerCase();
     const pool = q ? allRecipes.filter((r) => r.n.toLowerCase().includes(q)) : allRecipes.filter((r) => savedRecipeIds.includes(r.id));
     return pool.slice(0, 12);
   }, [allRecipes, recipeSearch, savedRecipeIds]);
+
+  const mealListResults = useMemo(() => {
+    const q = mealSearch.trim().toLowerCase();
+    const pool = q ? (customMeals || []).filter((m) => m.name.toLowerCase().includes(q)) : (customMeals || []);
+    return pool.slice(0, 20);
+  }, [customMeals, mealSearch]);
 
   const resetAddFlow = () => {
     setAddingToMeal(null);
@@ -151,6 +181,10 @@ export default function NutritionDiaryScreen() {
     setShowMealBuilder(false);
     setPickedMeal(null);
     setMealServings('1');
+    setMealSearch('');
+    setEditingMealId(null);
+    setShowQuickFood(false);
+    setQfName(''); setQfCal(''); setQfPro(''); setQfCarb(''); setQfFat('');
   };
 
   const handleLogPickedFood = async () => {
@@ -219,6 +253,42 @@ export default function NutritionDiaryScreen() {
       fat: saved.fat,
     });
     resetAddFlow();
+  };
+
+  const handleSaveQuickFood = async () => {
+    if (!qfName.trim()) return;
+    const ingredient: CustomMealIngredient = {
+      name: qfName.trim(),
+      calories: Number(qfCal) || 0,
+      protein: Number(qfPro) || 0,
+      carbs: Number(qfCarb) || 0,
+      fat: Number(qfFat) || 0,
+    };
+    // Reuses the same save-and-log path as "My Meals" — a single-food
+    // quick add is just a one-ingredient meal under the hood, so it
+    // gets the exact same reuse/search/edit behavior for free.
+    await handleSaveNewMeal(qfName.trim(), [ingredient]);
+  };
+
+  const handleStartEditMeal = (meal: CustomMeal) => {
+    setEditingMealId(meal.id);
+    setEditMealName(meal.name);
+    setEditMealCal(String(meal.calories));
+    setEditMealPro(String(meal.protein));
+    setEditMealCarb(String(meal.carbs));
+    setEditMealFat(String(meal.fat));
+  };
+
+  const handleSaveEditMeal = async () => {
+    if (!editingMealId || !editMealName.trim()) return;
+    await updateCustomMeal(editingMealId, {
+      name: editMealName.trim(),
+      calories: Number(editMealCal) || 0,
+      protein: Number(editMealPro) || 0,
+      carbs: Number(editMealCarb) || 0,
+      fat: Number(editMealFat) || 0,
+    });
+    setEditingMealId(null);
   };
 
   const handleSaveTargets = async () => {
@@ -425,6 +495,21 @@ export default function NutritionDiaryScreen() {
                           </View>
                         </View>
                       )}
+                      {!pickedFood && savedFoodMatches.length > 0 && (
+                        <View className="mb-2">
+                          <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wide mb-1">⭐ Your saved foods</Text>
+                          {savedFoodMatches.map((m) => (
+                            <Pressable
+                              key={m.id}
+                              onPress={() => { setPickedMeal(m); setAddTab('mymeals'); }}
+                              className="py-2 border-b border-stone-100 dark:border-slate-800"
+                            >
+                              <Text className="text-slate-800 dark:text-slate-200 text-sm">{m.name}</Text>
+                              <Text className="text-slate-500 text-xs">{m.calories} cal · {m.protein}p / {m.carbs}c / {m.fat}f — logged before, tap to add again</Text>
+                            </Pressable>
+                          ))}
+                        </View>
+                      )}
                       {!pickedFood && (
                         <View className="max-h-48">
                           {combinedSearchResults.map((f) => (
@@ -439,9 +524,42 @@ export default function NutritionDiaryScreen() {
                               <Text className="text-slate-500 text-xs">Searching more foods…</Text>
                             </View>
                           )}
-                          {combinedSearchResults.length === 0 && !liveSearching && (
-                            <Text className="text-slate-500 text-xs py-2">No matches — try My Meals to build one manually, or scan a barcode.</Text>
+                          {combinedSearchResults.length === 0 && !liveSearching && savedFoodMatches.length === 0 && (
+                            <Text className="text-slate-500 text-xs py-2">No matches — log it as a custom food below (it'll be searchable next time too), or scan a barcode.</Text>
                           )}
+                        </View>
+                      )}
+                      {!pickedFood && !showQuickFood && (
+                        <Pressable onPress={() => setShowQuickFood(true)} className="border-2 border-dashed border-stone-300 dark:border-slate-700 rounded-xl py-2 items-center mt-1">
+                          <Text className="text-slate-500 text-xs">+ Log a custom food</Text>
+                        </Pressable>
+                      )}
+                      {!pickedFood && showQuickFood && (
+                        <View className="bg-stone-50 dark:bg-slate-800 rounded-xl p-3 mt-1">
+                          <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wide mb-2">Custom food — saved for next time too</Text>
+                          <TextInput
+                            value={qfName}
+                            onChangeText={setQfName}
+                            placeholder="Food name"
+                            placeholderTextColor="#64748b"
+                            className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2 mb-2"
+                          />
+                          <View className="flex-row gap-2 mb-2">
+                            <View className="flex-1"><TextInput value={qfCal} onChangeText={setQfCal} placeholder="Calories" placeholderTextColor="#64748b" keyboardType="numeric" className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" /></View>
+                            <View className="flex-1"><TextInput value={qfPro} onChangeText={setQfPro} placeholder="Protein g" placeholderTextColor="#64748b" keyboardType="numeric" className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" /></View>
+                          </View>
+                          <View className="flex-row gap-2 mb-3">
+                            <View className="flex-1"><TextInput value={qfCarb} onChangeText={setQfCarb} placeholder="Carbs g" placeholderTextColor="#64748b" keyboardType="numeric" className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" /></View>
+                            <View className="flex-1"><TextInput value={qfFat} onChangeText={setQfFat} placeholder="Fat g" placeholderTextColor="#64748b" keyboardType="numeric" className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" /></View>
+                          </View>
+                          <View className="flex-row gap-2">
+                            <Pressable onPress={handleSaveQuickFood} disabled={!qfName.trim()} className={qfName.trim() ? 'flex-1 bg-emerald-500 rounded-xl py-2 items-center active:bg-emerald-400' : 'flex-1 bg-slate-300 dark:bg-slate-700 rounded-xl py-2 items-center'}>
+                              <Text className="text-white text-sm font-semibold">Add to {meal.label.toLowerCase()}</Text>
+                            </Pressable>
+                            <Pressable onPress={() => { setShowQuickFood(false); setQfName(''); setQfCal(''); setQfPro(''); setQfCarb(''); setQfFat(''); }} className="flex-1 bg-stone-100 dark:bg-slate-800 rounded-xl py-2 items-center">
+                              <Text className="text-slate-600 dark:text-slate-300 text-sm font-semibold">Cancel</Text>
+                            </Pressable>
+                          </View>
                         </View>
                       )}
                       {pickedFood && (
@@ -538,20 +656,57 @@ export default function NutritionDiaryScreen() {
                         </View>
                       ) : (
                         <>
-                          <View className="max-h-48 mb-2">
+                          {customMeals.length > 0 && (
+                            <TextInput
+                              value={mealSearch}
+                              onChangeText={setMealSearch}
+                              placeholder="Search your saved foods & meals…"
+                              placeholderTextColor="#64748b"
+                              className="bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2 mb-2"
+                            />
+                          )}
+                          <View className="max-h-56 mb-2">
                             {customMeals.length === 0 && (
-                              <Text className="text-slate-500 text-xs py-2">No saved meals yet — build one below.</Text>
+                              <Text className="text-slate-500 text-xs py-2">No saved meals yet — build one below, or log a custom food from Search. Either way, it'll be here to reuse and edit next time.</Text>
                             )}
-                            {customMeals.map((m) => (
-                              <View key={m.id} className="flex-row items-center justify-between py-2 border-b border-stone-100 dark:border-slate-800">
-                                <Pressable onPress={() => setPickedMeal(m)} className="flex-1">
-                                  <Text className="text-slate-800 dark:text-slate-200 text-sm">{m.name}</Text>
-                                  <Text className="text-slate-500 text-xs">{m.ingredients.length} ingredient{m.ingredients.length === 1 ? '' : 's'} · {m.calories} cal · {m.protein}p / {m.carbs}c / {m.fat}f</Text>
-                                </Pressable>
-                                <Pressable onPress={() => removeCustomMeal(m.id)} className="p-2">
-                                  <Text className="text-slate-400 text-xs">✕</Text>
-                                </Pressable>
-                              </View>
+                            {customMeals.length > 0 && mealListResults.length === 0 && (
+                              <Text className="text-slate-500 text-xs py-2">No matches.</Text>
+                            )}
+                            {mealListResults.map((m) => (
+                              editingMealId === m.id ? (
+                                <View key={m.id} className="py-2 border-b border-stone-100 dark:border-slate-800">
+                                  <TextInput value={editMealName} onChangeText={setEditMealName} placeholder="Name" placeholderTextColor="#64748b" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2 mb-2" />
+                                  <View className="flex-row gap-2 mb-2">
+                                    <View className="flex-1"><TextInput value={editMealCal} onChangeText={setEditMealCal} placeholder="Calories" placeholderTextColor="#64748b" keyboardType="numeric" className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" /></View>
+                                    <View className="flex-1"><TextInput value={editMealPro} onChangeText={setEditMealPro} placeholder="Protein g" placeholderTextColor="#64748b" keyboardType="numeric" className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" /></View>
+                                  </View>
+                                  <View className="flex-row gap-2 mb-2">
+                                    <View className="flex-1"><TextInput value={editMealCarb} onChangeText={setEditMealCarb} placeholder="Carbs g" placeholderTextColor="#64748b" keyboardType="numeric" className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" /></View>
+                                    <View className="flex-1"><TextInput value={editMealFat} onChangeText={setEditMealFat} placeholder="Fat g" placeholderTextColor="#64748b" keyboardType="numeric" className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2" /></View>
+                                  </View>
+                                  <View className="flex-row gap-2">
+                                    <Pressable onPress={handleSaveEditMeal} disabled={!editMealName.trim()} className={editMealName.trim() ? 'flex-1 bg-indigo-600 rounded-xl py-2 items-center active:bg-indigo-500' : 'flex-1 bg-slate-300 dark:bg-slate-700 rounded-xl py-2 items-center'}>
+                                      <Text className="text-white text-sm font-semibold">Save</Text>
+                                    </Pressable>
+                                    <Pressable onPress={() => setEditingMealId(null)} className="flex-1 bg-stone-100 dark:bg-slate-800 rounded-xl py-2 items-center">
+                                      <Text className="text-slate-600 dark:text-slate-300 text-sm font-semibold">Cancel</Text>
+                                    </Pressable>
+                                  </View>
+                                </View>
+                              ) : (
+                                <View key={m.id} className="flex-row items-center justify-between py-2 border-b border-stone-100 dark:border-slate-800">
+                                  <Pressable onPress={() => setPickedMeal(m)} className="flex-1">
+                                    <Text className="text-slate-800 dark:text-slate-200 text-sm">{m.name}</Text>
+                                    <Text className="text-slate-500 text-xs">{m.ingredients.length} ingredient{m.ingredients.length === 1 ? '' : 's'} · {m.calories} cal · {m.protein}p / {m.carbs}c / {m.fat}f</Text>
+                                  </Pressable>
+                                  <Pressable onPress={() => handleStartEditMeal(m)} className="p-2">
+                                    <Text className="text-indigo-500 text-xs">Edit</Text>
+                                  </Pressable>
+                                  <Pressable onPress={() => removeCustomMeal(m.id)} className="p-2">
+                                    <Text className="text-slate-400 text-xs">✕</Text>
+                                  </Pressable>
+                                </View>
+                              )
                             ))}
                           </View>
                           <Pressable onPress={() => setShowMealBuilder(true)} className="border-2 border-dashed border-stone-300 dark:border-slate-700 rounded-xl py-2 items-center">
