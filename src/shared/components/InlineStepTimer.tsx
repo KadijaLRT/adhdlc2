@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
+import WarmupMoveAnimation, { type WarmupAnimationType } from './WarmupMoveAnimation';
 
 export interface TimedStep {
   text: string;
   durationSeconds: number;
+  emoji?: string;
+  animation?: WarmupAnimationType;
 }
 
 function formatCountdown(totalSeconds: number): string {
@@ -77,6 +80,14 @@ export default function InlineStepTimer({ steps, onFinish }: { steps: TimedStep[
       <Text className="text-slate-900 dark:text-slate-100 text-base font-semibold mb-3">{currentStep?.text}</Text>
 
       <View className="items-center mb-3">
+        {currentStep?.emoji && (
+          <WarmupMoveAnimation
+            key={currentIndex}
+            emoji={currentStep.emoji}
+            animation={currentStep.animation}
+            paused={isPaused}
+          />
+        )}
         <Text className="text-slate-900 dark:text-slate-100 text-4xl font-bold mb-2">{formatCountdown(secondsLeft)}</Text>
         <View className="w-full h-1.5 rounded-full bg-stone-200 dark:bg-slate-800 overflow-hidden">
           <View className="h-full bg-indigo-500 rounded-full" style={{ width: `${progressPct}%` }} />

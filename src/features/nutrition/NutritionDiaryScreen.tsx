@@ -4,7 +4,7 @@ import {
   useAppStore, selectFoodLog, selectDailyTargets, selectSavedRecipeIds, selectAiGeneratedRecipes, selectCustomMeals,
   type MealType, type FoodLogEntry, type CustomMeal, type CustomMealIngredient,
 } from '@/store/index';
-import { searchFoodDatabase, parseGramString, type FoodItem } from '@/content/foodDatabase';
+import { searchFoodDatabase, parseGramString, FAST_FOOD_CHAINS, type FoodItem } from '@/content/foodDatabase';
 import { searchOpenFoodFacts } from '@/core/nutrition/openFoodFactsApi';
 import { RECIPES, type Recipe } from '@/content/recipes';
 import { Heading } from '@/shared/components/Heading';
@@ -159,7 +159,7 @@ export default function NutritionDiaryScreen() {
     await logFood({
       date: selectedDate,
       mealType: addingToMeal,
-      foodName: pickedFood.name,
+      foodName: pickedFood.chain ? `${pickedFood.name} — ${pickedFood.chain}` : pickedFood.name,
       servings: multiplier,
       calories: Math.round(pickedFood.calories * multiplier),
       protein: Math.round(pickedFood.protein * multiplier),
@@ -409,11 +409,27 @@ export default function NutritionDiaryScreen() {
                           <Text className="text-white text-sm">📷</Text>
                         </Pressable>
                       </View>
+                      {!pickedFood && !search.trim() && (
+                        <View className="mb-2">
+                          <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wide mb-1.5">Quick add: fast food</Text>
+                          <View className="flex-row flex-wrap gap-2">
+                            {FAST_FOOD_CHAINS.map((chain) => (
+                              <Pressable
+                                key={chain}
+                                onPress={() => setSearch(chain)}
+                                className="bg-stone-100 dark:bg-slate-800 border-2 border-transparent rounded-full py-1.5 px-3"
+                              >
+                                <Text className="text-slate-700 dark:text-slate-300 text-xs font-medium">{chain}</Text>
+                              </Pressable>
+                            ))}
+                          </View>
+                        </View>
+                      )}
                       {!pickedFood && (
                         <View className="max-h-48">
                           {combinedSearchResults.map((f) => (
                             <Pressable key={f.id} onPress={() => setPickedFood(f)} className="py-2 border-b border-stone-100 dark:border-slate-800">
-                              <Text className="text-slate-800 dark:text-slate-200 text-sm">{f.name}</Text>
+                              <Text className="text-slate-800 dark:text-slate-200 text-sm">{f.name}{f.chain ? ` — ${f.chain}` : ''}</Text>
                               <Text className="text-slate-500 text-xs">{f.servingLabel} · {f.calories} cal · {f.protein}p / {f.carbs}c / {f.fat}f</Text>
                             </Pressable>
                           ))}
@@ -430,7 +446,7 @@ export default function NutritionDiaryScreen() {
                       )}
                       {pickedFood && (
                         <View className="bg-stone-50 dark:bg-slate-800 rounded-xl p-3 mb-2">
-                          <Text className="text-slate-900 dark:text-slate-100 text-sm font-medium mb-2">{pickedFood.name}</Text>
+                          <Text className="text-slate-900 dark:text-slate-100 text-sm font-medium mb-2">{pickedFood.name}{pickedFood.chain ? ` — ${pickedFood.chain}` : ''}</Text>
                           <View className="flex-row items-center gap-2 mb-2">
                             <Text className="text-slate-500 text-xs">Servings ({pickedFood.servingLabel} each)</Text>
                             <TextInput
