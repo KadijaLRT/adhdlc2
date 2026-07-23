@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView, ActivityIndicator } from 'react-native';
+import { useRouter } from 'expo-router';
 import {
   useAppStore, selectFoodLog, selectDailyTargets, selectSavedRecipeIds, selectAiGeneratedRecipes, selectCustomMeals,
+  selectWeightLog, selectFitnessPreferences,
   type MealType, type FoodLogEntry, type CustomMeal, type CustomMealIngredient,
 } from '@/store/index';
 import { searchFoodDatabase, parseGramString, FAST_FOOD_CHAINS, type FoodItem } from '@/content/foodDatabase';
@@ -9,8 +11,15 @@ import { searchOpenFoodFacts } from '@/core/nutrition/openFoodFactsApi';
 import { RECIPES, type Recipe } from '@/content/recipes';
 import { Heading } from '@/shared/components/Heading';
 import { parseLocalDate, toLocalDateString } from '@/shared/formatDate';
+import { estimateDailyTargets } from './estimateNutritionTargets';
 import BarcodeScannerModal from './BarcodeScannerModal';
 import CustomMealBuilder from './CustomMealBuilder';
+
+const GOAL_LABEL: Record<'lose' | 'gain' | 'maintain', string> = {
+  lose: 'for weight loss',
+  gain: 'for weight gain',
+  maintain: 'to maintain your weight',
+};
 
 const MEAL_TYPES: { id: MealType; label: string; icon: string }[] = [
   { id: 'breakfast', label: 'Breakfast', icon: '🍳' },
@@ -53,8 +62,11 @@ function ProgressBar({ value, target, color }: { value: number; target: number |
 }
 
 export default function NutritionDiaryScreen() {
+  const router = useRouter();
   const foodLog = useAppStore(selectFoodLog);
   const dailyTargets = useAppStore(selectDailyTargets);
+  const weightLog = useAppStore(selectWeightLog);
+  const fitnessPreferences = useAppStore(selectFitnessPreferences);
   const savedRecipeIds = useAppStore(selectSavedRecipeIds);
   const aiGeneratedRecipes = useAppStore(selectAiGeneratedRecipes);
   const customMeals = useAppStore(selectCustomMeals);
@@ -76,6 +88,7 @@ export default function NutritionDiaryScreen() {
   const [pickedRecipe, setPickedRecipe] = useState<Recipe | null>(null);
   const [recipeServings, setRecipeServings] = useState('1');
   const [editingTargets, setEditingTargets] = useState(false);
+  const [suggestionDismissed, setSuggestionDismissed] = useState(false);
   const [targetCalInput, setTargetCalInput] = useState(dailyTargets?.calories ? String(dailyTargets.calories) : '');
   const [targetProInput, setTargetProInput] = useState(dailyTargets?.protein ? String(dailyTargets.protein) : '');
   const [targetCarbInput, setTargetCarbInput] = useState(dailyTargets?.carbs ? String(dailyTargets.carbs) : '');
@@ -119,6 +132,34 @@ export default function NutritionDiaryScreen() {
       { calories: 0, protein: 0, carbs: 0, fat: 0 }
     );
   }, [entriesForDay]);
+
+  // The most recent logged weight is the input to the estimate — an
+  // old entry from months ago would produce a stale/wrong suggestion,
+  // but there's no freshness cutoff enforced here since even a dated
+  // entry is a better starting point than nothing, and the person can
+  // always adjust the numbers after accepting the suggestion.
+  const latestWeightLbs = useMemo(() => {
+    const sorted = [...(weightLog || [])].sort((a, b) => b.date.localeCompare(a.date));
+    return sorted[0]?.weightLbs ?? null;
+  }, [weightLog]);
+
+  const suggestedTargets = useMemo(
+    () => estimateDailyTargets(latestWeightLbs, fitnessPreferences),
+    [latestWeightLbs, fitnessPreferences]
+  );
+
+  const showSuggestionBanner = !dailyTargets?.calories && !!suggestedTargets && !suggestionDismissed && !editingTargets;
+  const showLogWeightNudge = !dailyTargets?.calories && !suggestedTargets && !suggestionDismissed && !editingTargets;
+
+  const handleUseSuggestedTargets = async () => {
+    if (!suggestedTargets) return;
+    await setDailyTargets({
+      calories: suggestedTargets.calories,
+      protein: suggestedTargets.protein,
+      carbs: suggestedTargets.carbs,
+      fat: suggestedTargets.fat,
+    });
+  };
 
   const searchResults = useMemo(() => searchFoodDatabase(search).slice(0, 12), [search]);
 
@@ -347,6 +388,42 @@ export default function NutritionDiaryScreen() {
             </Pressable>
           </View>
 
+          {showSuggestionBanner && suggestedTargets && (
+            <View className="bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3 mb-3">
+              <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold mb-1">
+                Suggested {GOAL_LABEL[suggestedTargets.basedOnGoal]}, based on your logged weight and activity level
+              </Text>
+              <Text className="text-slate-600 dark:text-slate-300 text-xs mb-3">
+                {suggestedTargets.calories} cal · {suggestedTargets.protein}p / {suggestedTargets.carbs}c / {suggestedTargets.fat}f — a starting point, not a prescription. Adjust it anytime.
+              </Text>
+              <View className="flex-row gap-2">
+                <Pressable onPress={handleUseSuggestedTargets} className="flex-1 bg-emerald-500 rounded-xl py-2 items-center active:bg-emerald-400">
+                  <Text className="text-white text-xs font-semibold">Use these targets</Text>
+                </Pressable>
+                <Pressable onPress={() => setSuggestionDismissed(true)} className="py-2 px-3">
+                  <Text className="text-slate-500 text-xs">Not now</Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
+
+          {showLogWeightNudge && (
+            <View className="bg-indigo-400/10 border-2 border-indigo-400 rounded-xl p-3 mb-3">
+              <Text className="text-indigo-700 dark:text-indigo-300 text-xs font-semibold mb-1">Want targets based on your goals?</Text>
+              <Text className="text-slate-600 dark:text-slate-300 text-xs mb-3">
+                Log your current weight in Body Progress and Aviva can suggest a calorie and macro target that matches your weight goal and activity level.
+              </Text>
+              <View className="flex-row gap-2">
+                <Pressable onPress={() => router?.push?.('/body/progress')} className="flex-1 bg-indigo-600 rounded-xl py-2 items-center active:bg-indigo-500">
+                  <Text className="text-white text-xs font-semibold">Log my weight</Text>
+                </Pressable>
+                <Pressable onPress={() => setSuggestionDismissed(true)} className="py-2 px-3">
+                  <Text className="text-slate-500 text-xs">Not now</Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
+
           {editingTargets ? (
             <View>
               <View className="flex-row gap-2 mb-2">
@@ -511,7 +588,7 @@ export default function NutritionDiaryScreen() {
                         </View>
                       )}
                       {!pickedFood && (
-                        <View className="max-h-48">
+                        <ScrollView className="max-h-48" nestedScrollEnabled keyboardShouldPersistTaps="handled">
                           {combinedSearchResults.map((f) => (
                             <Pressable key={f.id} onPress={() => setPickedFood(f)} className="py-2 border-b border-stone-100 dark:border-slate-800">
                               <Text className="text-slate-800 dark:text-slate-200 text-sm">{f.name}{f.chain ? ` — ${f.chain}` : ''}</Text>
@@ -527,7 +604,7 @@ export default function NutritionDiaryScreen() {
                           {combinedSearchResults.length === 0 && !liveSearching && savedFoodMatches.length === 0 && (
                             <Text className="text-slate-500 text-xs py-2">No matches — log it as a custom food below (it'll be searchable next time too), or scan a barcode.</Text>
                           )}
-                        </View>
+                        </ScrollView>
                       )}
                       {!pickedFood && !showQuickFood && (
                         <Pressable onPress={() => setShowQuickFood(true)} className="border-2 border-dashed border-stone-300 dark:border-slate-700 rounded-xl py-2 items-center mt-1">
@@ -592,7 +669,7 @@ export default function NutritionDiaryScreen() {
                         className="bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2 mb-2"
                       />
                       {!pickedRecipe && (
-                        <View className="max-h-48">
+                        <ScrollView className="max-h-48" nestedScrollEnabled keyboardShouldPersistTaps="handled">
                           {recipeResults.map((r) => (
                             <Pressable key={r.id} onPress={() => setPickedRecipe(r)} className="py-2 border-b border-stone-100 dark:border-slate-800">
                               <Text className="text-slate-800 dark:text-slate-200 text-sm">{r.n}</Text>
@@ -604,7 +681,7 @@ export default function NutritionDiaryScreen() {
                               {recipeSearch.trim() ? 'No matches.' : "No saved recipes yet — search above, or save some from Recipes first."}
                             </Text>
                           )}
-                        </View>
+                        </ScrollView>
                       )}
                       {pickedRecipe && (
                         <View className="bg-stone-50 dark:bg-slate-800 rounded-xl p-3 mb-2">
@@ -665,7 +742,7 @@ export default function NutritionDiaryScreen() {
                               className="bg-stone-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl px-3 py-2 mb-2"
                             />
                           )}
-                          <View className="max-h-56 mb-2">
+                          <ScrollView className="max-h-56 mb-2" nestedScrollEnabled keyboardShouldPersistTaps="handled">
                             {customMeals.length === 0 && (
                               <Text className="text-slate-500 text-xs py-2">No saved meals yet — build one below, or log a custom food from Search. Either way, it'll be here to reuse and edit next time.</Text>
                             )}
@@ -708,7 +785,7 @@ export default function NutritionDiaryScreen() {
                                 </View>
                               )
                             ))}
-                          </View>
+                          </ScrollView>
                           <Pressable onPress={() => setShowMealBuilder(true)} className="border-2 border-dashed border-stone-300 dark:border-slate-700 rounded-xl py-2 items-center">
                             <Text className="text-slate-500 text-xs">+ Build a new meal</Text>
                           </Pressable>

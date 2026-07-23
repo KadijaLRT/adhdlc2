@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { View, Text, Pressable, TextInput, FlatList, ActivityIndicator } from 'react-native';
 import {
   useAppStore, selectSavedRecipeIds, selectNutritionPreferences, selectNutritionCardDismissed,
-  selectWellnessPreferences, selectAiGeneratedRecipes, type MealType,
+  selectWellnessPreferences, selectAiGeneratedRecipes, selectFitnessPreferences, type MealType,
 } from '@/store/index';
 import PersonalizeNutritionCard from './PersonalizeNutritionCard';
 import { RECIPES, type Recipe } from '@/content/recipes';
@@ -33,6 +33,7 @@ export default function RecipeBrowser() {
   const nutritionPreferences = useAppStore(selectNutritionPreferences);
   const nutritionCardDismissed = useAppStore(selectNutritionCardDismissed);
   const wellnessPreferences = useAppStore(selectWellnessPreferences);
+  const fitnessPreferences = useAppStore(selectFitnessPreferences);
   const aiGeneratedRecipes = useAppStore(selectAiGeneratedRecipes);
   const addAiGeneratedRecipe = useAppStore((s) => s.addAiGeneratedRecipe);
 
@@ -50,6 +51,31 @@ export default function RecipeBrowser() {
   const foodsLoved = (nutritionPreferences?.foodsLoved || []).map((f) => f.toLowerCase());
   const foodsAvoided = (nutritionPreferences?.foodsAvoided || []).map((f) => f.toLowerCase());
   const bloodType = wellnessPreferences?.bloodTypeEnabled ? wellnessPreferences?.bloodType : null;
+
+  // Same soft-boost pattern as the dietary-restriction sort below: a
+  // weight goal reorders results toward recipes that fit it better, it
+  // never hides anything. No goal set at all just leaves order
+  // untouched — this only ever activates once someone has actually told
+  // the app what they're going for (in Fitness Preferences).
+  const weightGoalDirections = fitnessPreferences?.weightGoalDirections || [];
+  const weightGoal: 'lose' | 'gain' | null = weightGoalDirections.includes('lose')
+    ? 'lose'
+    : weightGoalDirections.includes('gain')
+      ? 'gain'
+      : null;
+
+  const recipeMatchesGoal = (r: Recipe): boolean => {
+    if (!weightGoal) return false;
+    const protein = parseGramString(r.pro);
+    const proteinPerCal = r.cal > 0 ? protein / r.cal : 0;
+    if (weightGoal === 'lose') return r.cal <= 700 && proteinPerCal >= 0.05;
+    return r.cal >= 780; // gain: favor higher-calorie meals
+  };
+
+  const goalBadge = (r: Recipe): string | null => {
+    if (!recipeMatchesGoal(r)) return null;
+    return weightGoal === 'lose' ? '🥗 Lighter, high-protein pick' : '💪 Higher-calorie pick';
+  };
 
   const allRecipes = useMemo(() => [...(RECIPES || []), ...(aiGeneratedRecipes || [])], [aiGeneratedRecipes]);
 
@@ -70,13 +96,20 @@ export default function RecipeBrowser() {
     return true;
   });
 
-  const sortedByRestrictions = restrictions.length
+  const sortedByRestrictions = restrictions.length || weightGoal
     ? [...filteredByPreferences].sort((a, b) => {
-        // Soft boost only — dietary preference reorders results, it
-        // never hides anything the way an allergy does.
-        const aMatch = restrictions.some((r) => (a.g || []).some((i) => i.toLowerCase().includes(r))) ? 0 : 1;
-        const bMatch = restrictions.some((r) => (b.g || []).some((i) => i.toLowerCase().includes(r))) ? 0 : 1;
-        return aMatch - bMatch;
+        // Soft boost only — dietary preference and weight goal reorder
+        // results, neither ever hides anything the way an allergy does.
+        // Restriction match is the primary key (it was here first and
+        // reflects a stated food need); goal match only breaks ties
+        // within that, so someone's restrictions are never overridden
+        // by a lighter/higher-calorie pick.
+        const aRestriction = restrictions.some((r) => (a.g || []).some((i) => i.toLowerCase().includes(r))) ? 0 : 1;
+        const bRestriction = restrictions.some((r) => (b.g || []).some((i) => i.toLowerCase().includes(r))) ? 0 : 1;
+        if (aRestriction !== bRestriction) return aRestriction - bRestriction;
+        const aGoal = recipeMatchesGoal(a) ? 0 : 1;
+        const bGoal = recipeMatchesGoal(b) ? 0 : 1;
+        return aGoal - bGoal;
       })
     : filteredByPreferences;
 
@@ -229,6 +262,7 @@ export default function RecipeBrowser() {
             onToggleSave={() => toggleSavedRecipe(item.id)}
             bloodTypeAffinity={bloodType ? getBloodTypeAffinity(item, bloodType) : 'neutral'}
             isAiGenerated={item.id.startsWith('ai-')}
+            goalBadge={goalBadge(item)}
           />
         )}
         ListEmptyComponent={<Text className="text-slate-500 text-center mt-6">No recipes match those filters.</Text>}
@@ -238,9 +272,9 @@ export default function RecipeBrowser() {
 }
 
 function RecipeCard({
-  recipe, isSaved, onToggleSave, bloodTypeAffinity, isAiGenerated,
+  recipe, isSaved, onToggleSave, bloodTypeAffinity, isAiGenerated, goalBadge,
 }: {
-  recipe: Recipe; isSaved: boolean; onToggleSave: () => void; bloodTypeAffinity: 'beneficial' | 'avoid' | 'neutral'; isAiGenerated: boolean;
+  recipe: Recipe; isSaved: boolean; onToggleSave: () => void; bloodTypeAffinity: 'beneficial' | 'avoid' | 'neutral'; isAiGenerated: boolean; goalBadge: string | null;
 }) {
   const router = useRouter();
   const logFood = useAppStore((s) => s.logFood);
@@ -286,6 +320,9 @@ function RecipeCard({
         <Text className={bloodTypeAffinity === 'beneficial' ? 'text-emerald-600 dark:text-emerald-400 text-xs font-medium mb-2' : 'text-red-500 text-xs font-medium mb-2'}>
           {bloodTypeAffinity === 'beneficial' ? '✅ Good match for your type' : '❌ Best avoided for your type'}
         </Text>
+      )}
+      {goalBadge && (
+        <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-medium mb-2">{goalBadge}</Text>
       )}
 
       {justLogged && (

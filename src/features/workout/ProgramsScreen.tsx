@@ -1,5 +1,13 @@
 import { useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView, FlatList } from 'react-native';
+// Note: the "Switch program"/"Choose a program" list below is rendered
+// with a plain .map() rather than a nested FlatList. A FlatList nested
+// inside this screen's outer ScrollView — even with scrollEnabled={false}
+// — still registers as its own VirtualizedList and can claim the touch/
+// pan responder before the outer ScrollView does, which is what was
+// blocking scrolling on this page. The gym-equipment strip above stays a
+// FlatList since it scrolls horizontally on a different axis and doesn't
+// fight the vertical ScrollView the same way.
 import { useAppStore, selectActiveProgramId, selectGyms, selectActiveGymId, selectFitnessPreferences } from '@/store/index';
 import { PROGRAMS } from '@/content/programs';
 import { getCurrentProgramWeek, getSessionsThisWeek } from './buildProgramSession';
@@ -174,13 +182,9 @@ export default function ProgramsScreen() {
         )}
 
         <Text className="text-slate-900 text-lg font-semibold mb-3 dark:text-slate-100">{activeProgram ? 'Switch program' : 'Choose a program'}</Text>
-        <FlatList
-          data={PROGRAMS.filter((p) => p.id !== activeProgramId)}
-          keyExtractor={(item) => item.id}
-          scrollEnabled={false}
-          contentContainerStyle={{ gap: 10 }}
-          renderItem={({ item }) => (
-            <View className={item.id === recommendedId ? 'bg-white rounded-2xl p-4 border-2 border-emerald-400 dark:bg-slate-900' : 'bg-white rounded-2xl p-4 dark:bg-slate-900'}>
+        <View style={{ gap: 10 }}>
+          {PROGRAMS.filter((p) => p.id !== activeProgramId).map((item) => (
+            <View key={item.id} className={item.id === recommendedId ? 'bg-white rounded-2xl p-4 border-2 border-emerald-400 dark:bg-slate-900' : 'bg-white rounded-2xl p-4 dark:bg-slate-900'}>
               <View className="flex-row items-center justify-between mb-1">
                 <Text className="text-slate-900 font-medium dark:text-slate-100">{item.emoji} {item.title}</Text>
                 {item.id === recommendedId && (
@@ -195,8 +199,8 @@ export default function ProgramsScreen() {
                 <Text className="text-slate-800 text-xs font-medium dark:text-slate-200">Start this program</Text>
               </Pressable>
             </View>
-          )}
-        />
+          ))}
+        </View>
       </View>
     </ScrollView>
   );

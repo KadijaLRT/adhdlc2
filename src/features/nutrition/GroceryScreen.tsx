@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView, ActivityIndicator } from 'react-native';
 import {
   useAppStore, selectSavedRecipeIds, selectPantryItems, selectCheckedIngredients,
-  selectAiGeneratedRecipes, selectNutritionPreferences, selectMealPlan, selectMealPlanChecked,
+  selectAiGeneratedRecipes, selectNutritionPreferences, selectFitnessPreferences, selectMealPlan, selectMealPlanChecked,
 } from '@/store/index';
 import { RECIPES, type Recipe } from '@/content/recipes';
 import { buildMergedGroceryList } from '@/content/groceryListBuilder';
@@ -30,6 +30,7 @@ export default function GroceryScreen() {
   const checkedIngredients = useAppStore(selectCheckedIngredients);
   const aiGeneratedRecipes = useAppStore(selectAiGeneratedRecipes);
   const nutritionPreferences = useAppStore(selectNutritionPreferences);
+  const fitnessPreferences = useAppStore(selectFitnessPreferences);
   const mealPlan = useAppStore(selectMealPlan);
   const mealPlanChecked = useAppStore(selectMealPlanChecked);
   const addPantryItem = useAppStore((s) => s.addPantryItem);
@@ -103,7 +104,7 @@ export default function GroceryScreen() {
   const handleGeneratePlan = async () => {
     setPlanLoading(true);
     setPlanError(null);
-    const plan = await generateWeeklyMealPlan(nutritionPreferences);
+    const plan = await generateWeeklyMealPlan(nutritionPreferences, fitnessPreferences);
     setPlanLoading(false);
     if (!plan) {
       setPlanError("Couldn't generate a plan just now — try again in a moment.");
