@@ -1,6 +1,7 @@
 import { WORKOUT_EXERCISES } from '@/content/exercises';
 import type { ProgramDefinition } from '@/content/programs';
 import type { FitnessPreferences } from '@/store/slices/nutritionFitnessSlice';
+import { interleaveByGroup } from './interleaveExercises';
 
 // Full calendar week, Sunday first. The 6 lettered training days
 // (A–F) land on Monday–Saturday; Sunday is always a rest day with no
@@ -49,6 +50,16 @@ export function buildDayLetterContent(
   let filtered = entries.filter((e) => matchesGroup(e) && matchesEquipment(e));
   if (!filtered.length) filtered = entries.filter(matchesGroup);
   if (!filtered.length) filtered = entries;
+
+  // Exercises are listed in the content file one muscle group at a
+  // time (all glutes, then all hamstrings, etc). Without this, a
+  // program targeting more than one group gets its early days
+  // entirely filled from whichever group happens to come first in the
+  // file, before the chunking below ever reaches the other group.
+  // Passing focusAreas here also biases the mix toward what the person
+  // said they actually care about, without dropping the program's other
+  // groups to zero.
+  filtered = interleaveByGroup(filtered, preferences?.focusAreas);
 
   const perDay = Math.max(1, program.sessionExerciseCount || 4);
   const trainingDayCount = Math.min(DAY_LETTERS.length, Math.max(1, Math.ceil(filtered.length / perDay)));

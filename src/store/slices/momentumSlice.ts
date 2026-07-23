@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import { createWriteGuard } from '@/core/storage/writeGuard';
 
 export type MomentumActionType = 'opened_task' | 'started_session' | 'first_step' | 'showed_up';
 
@@ -17,10 +18,10 @@ export interface MomentumSlice extends MomentumState {
   logMomentum: (type: MomentumActionType, refId?: string) => Promise<void>;
 }
 
-async function persist(state: MomentumState) {
+const persist = createWriteGuard(async (state: MomentumState) => {
   const repo = await getRepository();
   await repo.saveMomentumState(state);
-}
+});
 
 function today(): string {
   return (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();

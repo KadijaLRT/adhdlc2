@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import { createWriteGuard } from '@/core/storage/writeGuard';
 
 export interface CountdownEvent {
   id: string;
@@ -18,10 +19,10 @@ export interface CountdownSlice extends CountdownState {
   removeCountdownEvent: (id: string) => Promise<void>;
 }
 
-async function persist(state: CountdownState) {
+const persist = createWriteGuard(async (state: CountdownState) => {
   const repo = await getRepository();
   await repo.saveCountdownState(state);
-}
+});
 
 function currentState(get: () => CountdownState): CountdownState {
   return { countdownEvents: get().countdownEvents || [] };

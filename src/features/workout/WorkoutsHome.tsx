@@ -11,8 +11,10 @@ import { buildWeeklySplit, type WeeklySplitDay } from './buildWeeklySplit';
 import { getWeightProgressLabel } from './weightProgress';
 import { pickStartSomewhereExercise } from './pickStartSomewhere';
 import { WORKOUT_EXERCISES } from '@/content/exercises';
+import { getWarmupForGroups } from '@/content/warmupContent';
 import PersonalizeFitnessCard from './PersonalizeFitnessCard';
 import RecoveryPlanCard from './RecoveryPlanCard';
+import InlineStepTimer from '@/shared/components/InlineStepTimer';
 import { Heading, Subheading } from '@/shared/components/Heading';
 
 function DayStrip({
@@ -55,6 +57,15 @@ function DayCard({
 }) {
   const router = useRouter();
   const setLogs = useAppStore(selectSetLogs);
+  const [showWarmup, setShowWarmup] = useState(false);
+
+  // Tied specifically to what this day trains — a lower-body day gets
+  // the lower-body warm-up, not a generic one. Deliberately separate
+  // from Recovery/stretching (which lives on rest days below): warming
+  // up is prep for today's session, recovery is a different concern
+  // for a different kind of day, and the two shouldn't route to the
+  // same place.
+  const warmup = useMemo(() => getWarmupForGroups(day.muscleGroups), [day.muscleGroups]);
 
   if (day.isRestDay) {
     return (
@@ -105,10 +116,17 @@ function DayCard({
         >
           <Text className="text-slate-700 text-xs dark:text-slate-300">🩺 Body Check-in</Text>
         </Pressable>
-        <Pressable onPress={() => router?.push?.('/fitness/recovery')} className="flex-1 border-2 border-stone-300 rounded-xl py-3 items-center dark:border-slate-700">
-          <Text className="text-slate-700 text-xs dark:text-slate-300">🧘 Warm-Up</Text>
+        <Pressable onPress={() => setShowWarmup(!showWarmup)} className="flex-1 border-2 border-stone-300 rounded-xl py-3 items-center dark:border-slate-700">
+          <Text className="text-slate-700 text-xs dark:text-slate-300">🔥 {showWarmup ? 'Hide Warm-Up' : 'Warm-Up'}</Text>
         </Pressable>
       </View>
+
+      {showWarmup && (
+        <View className="bg-stone-50 dark:bg-slate-800 rounded-xl p-3 mb-3">
+          <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wide mb-2">{warmup.title} — for today's {day.muscleGroups.join(' & ')} session</Text>
+          <InlineStepTimer steps={warmup.steps} />
+        </View>
+      )}
 
       <Pressable onPress={onStart} className="bg-indigo-600 rounded-2xl py-4 items-center active:bg-indigo-500">
         <Text className="text-white font-semibold">▶ Start Day {day.dayLetter}</Text>

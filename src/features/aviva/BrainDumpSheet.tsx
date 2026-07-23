@@ -12,7 +12,7 @@ export default function BrainDumpSheet({ visible, onClose }: { visible: boolean;
   const energyLevel = useAppStore((s) => s.energyLevel);
   const reflections = useAppStore(selectReflections);
   const isOverwhelmed = useAppStore((s) => s.isOverwhelmed);
-  const addTask = useAppStore((s) => s.addTask);
+  const addTasks = useAppStore((s) => s.addTasks);
 
   const handleSubmit = async () => {
     if (!text?.trim()) return;
@@ -43,18 +43,18 @@ export default function BrainDumpSheet({ visible, onClose }: { visible: boolean;
   };
 
   const handleAddAll = async () => {
-    for (const item of result?.items || []) {
-      await addTask({
-        id: item.id,
-        title: item.text,
-        isComplete: false,
-        energyRequired: item.suggestedEnergyLevel,
-        category: mapBrainDumpCategory(item.category),
-        priority: 'nice',
-        createdAt: new Date().toISOString(),
-        subSteps: [],
-      });
-    }
+    const createdAt = new Date().toISOString();
+    const newTasks = (result?.items || []).map((item) => ({
+      id: item.id,
+      title: item.text,
+      isComplete: false,
+      energyRequired: item.suggestedEnergyLevel,
+      category: mapBrainDumpCategory(item.category),
+      priority: 'nice' as const,
+      createdAt,
+      subSteps: [],
+    }));
+    await addTasks(newTasks);
     setText(''); setResult(null); onClose();
   };
 

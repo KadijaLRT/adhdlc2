@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import { createWriteGuard } from '@/core/storage/writeGuard';
 
 export interface SetLogEntry {
   exerciseId: string;
@@ -62,10 +63,10 @@ const DEFAULT_STATE: WorkoutState = {
   recoveryLogs: [],
 };
 
-async function persist(state: WorkoutState) {
+const persist = createWriteGuard(async (state: WorkoutState) => {
   const repo = await getRepository();
   await repo.saveWorkoutState(state);
-}
+});
 
 function currentState(get: () => WorkoutState): WorkoutState {
   return {

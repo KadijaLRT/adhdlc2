@@ -1,17 +1,7 @@
-import OpenAI from 'openai';
 import type { z } from 'zod';
 // @ts-ignore - plain JS by design
 import { sanitizeString, sanitizePayload } from './groqSanitizer';
-
-const AI_BASE_URL = process.env.EXPO_PUBLIC_AI_BASE_URL || 'https://api.groq.com/openai/v1';
-const AI_MODEL = process.env.EXPO_PUBLIC_AI_MODEL || 'llama-3.3-70b-versatile';
-const AI_API_KEY = process.env.EXPO_PUBLIC_AI_API_KEY;
-
-const client = new OpenAI({
-  apiKey: AI_API_KEY || 'missing-key',
-  baseURL: AI_BASE_URL,
-  dangerouslyAllowBrowser: true,
-});
+import { callGroqCompletion } from './groqProxyClient';
 
 /**
  * Shared low-level JSON-mode call for one-off structured generation
@@ -33,17 +23,13 @@ export async function callGroqJSON<T>(
     const userPrompt = sanitizeString(JSON.stringify(cleanPayload));
     if (!userPrompt) return null;
 
-    const response = await client.chat.completions.create({
-      model: AI_MODEL,
-      messages: [
+    const raw = await callGroqCompletion(
+      [
         { role: 'system', content: `${systemPrompt}\nRespond with ONLY valid JSON, no markdown fences, no commentary.` },
         { role: 'user', content: userPrompt },
       ],
-      temperature: 0.6,
-      response_format: { type: 'json_object' },
-    });
-
-    const raw = response?.choices?.[0]?.message?.content || '';
+      0.6
+    );
     if (!raw) return null;
 
     const validated = schema.safeParse(JSON.parse(raw));

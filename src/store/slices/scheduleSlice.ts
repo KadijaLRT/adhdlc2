@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import { createWriteGuard } from '@/core/storage/writeGuard';
 
 export interface ScheduleItem {
   id: string;
@@ -32,10 +33,10 @@ function addMinutesToTime(time: string, minutes: number): string {
   return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
 }
 
-async function persist(state: ScheduleState) {
+const persist = createWriteGuard(async (state: ScheduleState) => {
   const repo = await getRepository();
   await repo.saveScheduleState(state);
-}
+});
 
 function currentState(get: () => ScheduleState): ScheduleState {
   return {

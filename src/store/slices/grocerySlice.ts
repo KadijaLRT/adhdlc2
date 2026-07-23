@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import { createWriteGuard } from '@/core/storage/writeGuard';
 import type { WeeklyMealPlan, PlanDay, PlanMealType } from '@/features/nutrition/mealPlanGeneration';
 
 export interface GroceryState {
@@ -26,10 +27,10 @@ const DEFAULT_STATE: GroceryState = {
   mealPlanChecked: [],
 };
 
-async function persist(state: GroceryState) {
+const persist = createWriteGuard(async (state: GroceryState) => {
   const repo = await getRepository();
   await repo.saveGroceryState(state);
-}
+});
 
 function currentState(get: () => GroceryState): GroceryState {
   return {

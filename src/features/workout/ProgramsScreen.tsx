@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView, FlatList } from 'react-native';
-import { useAppStore, selectActiveProgramId, selectGyms, selectActiveGymId } from '@/store/index';
+import { useAppStore, selectActiveProgramId, selectGyms, selectActiveGymId, selectFitnessPreferences } from '@/store/index';
 import { PROGRAMS } from '@/content/programs';
 import { getCurrentProgramWeek, getSessionsThisWeek } from './buildProgramSession';
+import { recommendProgramId } from './recommendProgram';
 import { Heading, Subheading } from '@/shared/components/Heading';
 
 const EQUIPMENT_OPTIONS = ['bodyweight', 'dumbbell', 'barbell', 'machine', 'cable', 'resistance_band'];
@@ -139,12 +140,17 @@ function GymSelectorCard() {
 export default function ProgramsScreen() {
   const activeProgramId = useAppStore(selectActiveProgramId);
   const sessionsCompletedInProgram = useAppStore((s) => s.sessionsCompletedInProgram);
+  const fitnessPreferences = useAppStore(selectFitnessPreferences);
   const startProgram = useAppStore((s) => s.startProgram);
   const stopProgram = useAppStore((s) => s.stopProgram);
 
   const activeProgram = PROGRAMS.find((p) => p.id === activeProgramId) || null;
   const currentWeek = activeProgram ? getCurrentProgramWeek(activeProgram, sessionsCompletedInProgram) : 0;
   const sessionsThisWeek = activeProgram ? getSessionsThisWeek(activeProgram, sessionsCompletedInProgram) : 0;
+  // Only meaningful once someone has actually set fitness preferences —
+  // otherwise every program would show "recommended" from the same
+  // no-signal default, which is noise, not personalization.
+  const recommendedId = fitnessPreferences ? recommendProgramId(fitnessPreferences) : null;
 
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 20 }}>
@@ -174,8 +180,13 @@ export default function ProgramsScreen() {
           scrollEnabled={false}
           contentContainerStyle={{ gap: 10 }}
           renderItem={({ item }) => (
-            <View className="bg-white rounded-2xl p-4 dark:bg-slate-900">
-              <Text className="text-slate-900 font-medium mb-1 dark:text-slate-100">{item.emoji} {item.title}</Text>
+            <View className={item.id === recommendedId ? 'bg-white rounded-2xl p-4 border-2 border-emerald-400 dark:bg-slate-900' : 'bg-white rounded-2xl p-4 dark:bg-slate-900'}>
+              <View className="flex-row items-center justify-between mb-1">
+                <Text className="text-slate-900 font-medium dark:text-slate-100">{item.emoji} {item.title}</Text>
+                {item.id === recommendedId && (
+                  <Text className="text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wide">For you</Text>
+                )}
+              </View>
               <Text className="text-slate-500 text-xs mb-2">{item.forWhom}</Text>
               <Text className="text-slate-500 text-xs mb-3">
                 {item.daysPerWeek}x/week · {item.durationWeeks} weeks · {item.sessionExerciseCount} exercises per session

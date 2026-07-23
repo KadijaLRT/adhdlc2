@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import { createWriteGuard } from '@/core/storage/writeGuard';
 import type { Task } from './types';
 import type { MilestoneSlice } from './milestoneSlice';
 import type { RpgSlice } from './rpgSlice';
@@ -7,16 +8,17 @@ import type { RpgSlice } from './rpgSlice';
 export interface TaskSlice {
   tasks: Task[];
   addTask: (task: Task) => Promise<void>;
+  addTasks: (tasks: Task[]) => Promise<void>;
   updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
   removeTask: (id: string) => Promise<void>;
   toggleTaskComplete: (id: string) => Promise<void>;
   toggleSubStep: (taskId: string, subStepId: string) => Promise<void>;
 }
 
-async function persist(tasks: Task[]) {
+const persist = createWriteGuard(async (tasks: Task[]) => {
   const repo = await getRepository();
   await repo.saveTasks(tasks || []);
-}
+});
 
 // Depends on MilestoneSlice for the completion-count side effect. This
 // is the one cross-slice dependency in the store; every other slice is
@@ -28,6 +30,17 @@ export const createTaskSlice: StateCreator<
 
   addTask: async (task) => {
     const next = [...(get().tasks || []), task];
+    set({ tasks: next });
+    await persist(next);
+  },
+
+  // Bulk variant for flows that add several tasks at once (e.g. a brain
+  // dump parsed into N items). One state update and one persisted write
+  // instead of N sequential ones — avoids N redundant full-array
+  // serializations where every intermediate write is immediately
+  // superseded by the next.
+  addTasks: async (tasks) => {
+    const next = [...(get().tasks || []), ...(tasks || [])];
     set({ tasks: next });
     await persist(next);
   },

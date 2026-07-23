@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import { createWriteGuard } from '@/core/storage/writeGuard';
 
 export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 
@@ -66,10 +67,10 @@ const DEFAULT_STATE: NutritionTrackingState = {
   customMeals: [],
 };
 
-async function persist(state: NutritionTrackingState) {
+const persist = createWriteGuard(async (state: NutritionTrackingState) => {
   const repo = await getRepository();
   await repo.saveNutritionTrackingState(state);
-}
+});
 
 function currentState(get: () => NutritionTrackingState): NutritionTrackingState {
   return {

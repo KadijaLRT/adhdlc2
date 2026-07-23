@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, Pressable, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAppStore, selectRecoveryLogs } from '@/store/index';
-import { STRETCH_ROUTINES } from '@/content/recoveryContent';
+import { STRETCH_ROUTINES, ACTIVE_RECOVERY_ACTIVITIES, type StretchRoutine } from '@/content/recoveryContent';
 
 const SORENESS_LABELS: Record<number, string> = { 1: 'Barely', 2: 'A little', 3: 'Noticeable', 4: 'Sore', 5: 'A lot' };
 
@@ -26,6 +26,46 @@ export default function RecoveryPlanCard({ compact = false }: { compact?: boolea
     (todaysLog?.hydrationCups || 0) > 0,
     !!todaysLog?.sleepHours,
   ].filter(Boolean).length;
+
+  // Shared row renderer for both the stretch group and the foam
+  // rolling group below — same guided-timer/mark-done pattern either
+  // way, just a different pool of routines.
+  const renderRoutineRow = (routine: StretchRoutine) => {
+    const isExpanded = expandedRoutineId === routine.id;
+    const isSelectedToday = todaysLog?.stretchRoutineId === routine.id;
+    return (
+      <View key={routine.id}>
+        <Pressable
+          onPress={() => setExpandedRoutineId(isExpanded ? null : routine.id)}
+          className={isSelectedToday ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3' : 'bg-stone-100 dark:bg-slate-800 border-2 border-transparent rounded-xl p-3'}
+        >
+          <View className="flex-row items-center justify-between">
+            <Text className={isSelectedToday ? 'text-emerald-700 dark:text-emerald-400 font-medium' : 'text-slate-900 dark:text-slate-100 font-medium'}>{routine.title}</Text>
+            <Text className="text-slate-500 text-xs">{routine.durationMinutes} min</Text>
+          </View>
+        </Pressable>
+        {isExpanded && (
+          <View className="mt-2 ml-2 gap-1">
+            {(routine.steps || []).map((step, index) => (
+              <Text key={index} className="text-slate-500 text-sm">• {step.text} ({step.holdSeconds}s)</Text>
+            ))}
+            <Pressable
+              onPress={() => router?.push?.({ pathname: '/fitness/stretch-run', params: { routineId: routine.id } })}
+              className="bg-indigo-600 rounded-xl py-2 items-center active:bg-indigo-500 mt-2"
+            >
+              <Text className="text-white text-xs font-semibold">▶ Start guided timer</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => logRecoveryUpdate(today, { stretchRoutineId: routine.id, stretchDone: true })}
+              className="py-2 items-center"
+            >
+              <Text className="text-slate-500 text-xs">{isSelectedToday && todaysLog?.stretchDone ? 'Done ✓' : 'Or just mark it done'}</Text>
+            </Pressable>
+          </View>
+        )}
+      </View>
+    );
+  };
 
   if (compact) {
     return (
@@ -78,44 +118,33 @@ export default function RecoveryPlanCard({ compact = false }: { compact?: boolea
       </View>
 
       <View className="bg-white dark:bg-slate-900 rounded-2xl p-4">
-        <Text className="text-slate-900 dark:text-slate-100 text-sm font-semibold mb-3">Stretch routine</Text>
+        <Text className="text-slate-900 dark:text-slate-100 text-sm font-semibold mb-3">🧘 Stretch routines</Text>
         <View className="gap-2 mb-3">
-          {(STRETCH_ROUTINES || []).map((routine) => {
-            const isExpanded = expandedRoutineId === routine.id;
-            const isSelectedToday = todaysLog?.stretchRoutineId === routine.id;
-            return (
-              <View key={routine.id}>
-                <Pressable
-                  onPress={() => setExpandedRoutineId(isExpanded ? null : routine.id)}
-                  className={isSelectedToday ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3' : 'bg-stone-100 dark:bg-slate-800 border-2 border-transparent rounded-xl p-3'}
-                >
-                  <View className="flex-row items-center justify-between">
-                    <Text className={isSelectedToday ? 'text-emerald-700 dark:text-emerald-400 font-medium' : 'text-slate-900 dark:text-slate-100 font-medium'}>{routine.title}</Text>
-                    <Text className="text-slate-500 text-xs">{routine.durationMinutes} min</Text>
-                  </View>
-                </Pressable>
-                {isExpanded && (
-                  <View className="mt-2 ml-2 gap-1">
-                    {(routine.steps || []).map((step, index) => (
-                      <Text key={index} className="text-slate-500 text-sm">• {step.text} ({step.holdSeconds}s)</Text>
-                    ))}
-                    <Pressable
-                      onPress={() => router?.push?.({ pathname: '/fitness/stretch-run', params: { routineId: routine.id } })}
-                      className="bg-indigo-600 rounded-xl py-2 items-center active:bg-indigo-500 mt-2"
-                    >
-                      <Text className="text-white text-xs font-semibold">▶ Start guided timer</Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={() => logRecoveryUpdate(today, { stretchRoutineId: routine.id, stretchDone: true })}
-                      className="py-2 items-center"
-                    >
-                      <Text className="text-slate-500 text-xs">{isSelectedToday && todaysLog?.stretchDone ? 'Done ✓' : 'Or just mark it done'}</Text>
-                    </Pressable>
-                  </View>
-                )}
+          {STRETCH_ROUTINES.filter((r) => r.category === 'stretch').map(renderRoutineRow)}
+        </View>
+      </View>
+
+      <View className="bg-white dark:bg-slate-900 rounded-2xl p-4">
+        <Text className="text-slate-900 dark:text-slate-100 text-sm font-semibold mb-1">🧻 Foam rolling</Text>
+        <Text className="text-slate-500 text-xs mb-3">Self-myofascial release — rolling sore or tight spots to help them loosen up.</Text>
+        <View className="gap-2 mb-3">
+          {STRETCH_ROUTINES.filter((r) => r.category === 'foam_rolling').map(renderRoutineRow)}
+        </View>
+      </View>
+
+      <View className="bg-white dark:bg-slate-900 rounded-2xl p-4">
+        <Text className="text-slate-900 dark:text-slate-100 text-sm font-semibold mb-1">🏃 Active recovery ideas</Text>
+        <Text className="text-slate-500 text-xs mb-3">Doable, low-key activities that promote recovery without adding more fatigue — no timer needed, just go do one.</Text>
+        <View className="gap-2">
+          {ACTIVE_RECOVERY_ACTIVITIES.map((activity) => (
+            <View key={activity.id} className="bg-stone-100 dark:bg-slate-800 rounded-xl p-3">
+              <View className="flex-row items-center justify-between mb-1">
+                <Text className="text-slate-900 dark:text-slate-100 font-medium">{activity.emoji} {activity.title}</Text>
+                <Text className="text-slate-500 text-xs">~{activity.minutes} min</Text>
               </View>
-            );
-          })}
+              <Text className="text-slate-500 text-sm">{activity.blurb}</Text>
+            </View>
+          ))}
         </View>
       </View>
 

@@ -1,6 +1,7 @@
 import { WORKOUT_EXERCISES } from '@/content/exercises';
 import type { ProgramDefinition } from '@/content/programs';
 import type { FitnessPreferences } from '@/store/slices/nutritionFitnessSlice';
+import { interleaveByGroup } from './interleaveExercises';
 
 /**
  * Which week (1-indexed) the person is on, based on sessions completed
@@ -44,6 +45,16 @@ export function buildProgramSessionExerciseIds(
   let filtered = entries.filter((e) => matchesGroup(e) && matchesEquipment(e));
   if (!filtered.length) filtered = entries.filter(matchesGroup); // never end up empty just from equipment
   if (!filtered.length) filtered = entries;
+
+  // Same fix as the weekly split builder: the content file lists every
+  // exercise for one muscle group in a block, so without interleaving,
+  // a program covering more than one group could pull an entire
+  // session — or several weeks of rotated sessions — from just the
+  // first group in the file before ever reaching the rest. Biasing by
+  // focusAreas here too means the rotating multi-week sessions (not
+  // just the fixed weekly split) lean toward what the person said they
+  // care about.
+  filtered = interleaveByGroup(filtered, preferences?.focusAreas);
 
   const currentWeek = getCurrentProgramWeek(program, sessionsCompleted);
 

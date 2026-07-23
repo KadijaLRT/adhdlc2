@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import { createWriteGuard } from '@/core/storage/writeGuard';
 import type { SkillId } from '@/content/rpgCatalog';
 
 export interface RpgState {
@@ -21,10 +22,10 @@ const DEFAULT_STATE: RpgState = {
   ownedUnlockables: [],
 };
 
-async function persist(state: RpgState) {
+const persist = createWriteGuard(async (state: RpgState) => {
   const repo = await getRepository();
   await repo.saveRpgState(state);
-}
+});
 
 // Only ever goes up. No penalty path, no XP loss — purely additive
 // progression, matching the forgiving-systems rule everywhere else.

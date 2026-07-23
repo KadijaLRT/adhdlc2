@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import { createWriteGuard } from '@/core/storage/writeGuard';
 import type { Recipe } from '@/content/recipes';
 
 export interface NutritionPreferences {
@@ -58,10 +59,10 @@ const DEFAULT_STATE: NutritionFitnessState = {
   recipeInstructionsCache: {},
 };
 
-async function persist(state: NutritionFitnessState) {
+const persist = createWriteGuard(async (state: NutritionFitnessState) => {
   const repo = await getRepository();
   await repo.saveNutritionFitnessState(state);
-}
+});
 
 function currentState(get: () => NutritionFitnessState): NutritionFitnessState {
   return {

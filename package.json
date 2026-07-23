@@ -32,7 +32,6 @@
     "expo-status-bar": "^57.0.0",
     "jszip": "^3.10.1",
     "nativewind": "^4.1.10",
-    "openai": "^4.68.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-native": "^0.86.0",

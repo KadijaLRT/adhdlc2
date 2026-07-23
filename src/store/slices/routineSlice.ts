@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import { createWriteGuard } from '@/core/storage/writeGuard';
 import type { Routine } from './types';
 
 export interface RoutineSlice {
@@ -13,10 +14,10 @@ function today(): string {
   return (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
 }
 
-async function persist(routines: Routine[]) {
+const persist = createWriteGuard(async (routines: Routine[]) => {
   const repo = await getRepository();
   await repo.saveRoutines(routines || []);
-}
+});
 
 // A routine's identity (name, icon) lives here. Its progress
 // (RoutineStreak, in streakSlice.ts) is kept separate — a routine can

@@ -26,11 +26,14 @@ export default function RootLayout() {
   // something the light/dark toggle should touch.
   const isOnboarding = pathname?.startsWith('/onboarding');
 
-  // Overwhelmed Mode is designed with zero nav/menus visible. Aviva
-  // shouldn't appear during onboarding either — she's introduced once
-  // setup is done, not as a floating distraction while answering setup
-  // questions.
-  const hideFloatingButton = pathname?.startsWith('/overwhelmed') || pathname?.startsWith('/onboarding');
+  // The floating button is only offered on the Home tab now. Everywhere
+  // else Aviva is already one tap away via Wellness → Chat with Aviva in
+  // the bottom nav bar, so a persistent floating overlay on every other
+  // screen was redundant — and Overwhelmed Mode (zero nav/menus by
+  // design) and onboarding (she's introduced once setup is done, not
+  // mid-setup) were already excluded for the same "don't float where she
+  // doesn't belong" reason.
+  const hideFloatingButton = pathname !== '/home';
 
   useEffect(() => {
     useAppStore.getState().hydrate();

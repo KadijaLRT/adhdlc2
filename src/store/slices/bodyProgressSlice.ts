@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import { createWriteGuard } from '@/core/storage/writeGuard';
 
 export interface WeightEntry {
   date: string;
@@ -28,10 +29,10 @@ export interface BodyProgressSlice extends BodyProgressState {
   importWeightEntries: (entries: WeightEntry[]) => Promise<void>;
 }
 
-async function persist(state: BodyProgressState) {
+const persist = createWriteGuard(async (state: BodyProgressState) => {
   const repo = await getRepository();
   await repo.saveBodyProgressState(state);
-}
+});
 
 function currentState(get: () => BodyProgressState): BodyProgressState {
   return {

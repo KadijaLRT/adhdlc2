@@ -18,10 +18,11 @@ function formatCountdown(totalSeconds: number): string {
 }
 
 /**
- * Walks through a stretch routine one hold at a time with a real
- * countdown per stretch — including "each side" stretches, which are
- * pre-split into separate Right/Left timed steps rather than one
- * countdown silently meaning "do this twice."
+ * Walks through a recovery routine — a stretch routine or a foam
+ * rolling routine, both from STRETCH_ROUTINES — one timed hold at a
+ * time. "Each side" steps are pre-split into separate Right/Left
+ * entries rather than one hold covering both sides, so the countdown
+ * never silently means "do this twice."
  */
 export default function StretchRunner({ routineId }: { routineId: string }) {
   const router = useRouter();
@@ -73,10 +74,12 @@ export default function StretchRunner({ routineId }: { routineId: string }) {
     );
   }
 
+  const isFoamRolling = routine.category === 'foam_rolling';
+
   if (finished) {
     return (
       <SafeAreaView className="flex-1 bg-stone-50 dark:bg-slate-950 items-center justify-center px-8">
-        <Text className="text-4xl mb-4">🧘</Text>
+        <Text className="text-4xl mb-4">{isFoamRolling ? '🧻' : '🧘'}</Text>
         <Text className="text-slate-900 dark:text-slate-100 text-xl font-bold mb-2 text-center">Nice work.</Text>
         <Text className="text-slate-500 text-sm text-center mb-8">You finished {routine.title}.</Text>
         <Pressable onPress={() => router?.back?.()} className="bg-emerald-500 rounded-full py-3 px-8 active:bg-emerald-400">
@@ -89,7 +92,7 @@ export default function StretchRunner({ routineId }: { routineId: string }) {
   if (!currentStep) {
     return (
       <SafeAreaView className="flex-1 bg-stone-50 dark:bg-slate-950 items-center justify-center px-8">
-        <Text className="text-slate-500 text-center">Something went wrong with this stretch routine.</Text>
+        <Text className="text-slate-500 text-center">Something went wrong with this routine.</Text>
         <Pressable onPress={() => router?.back?.()} className="mt-4">
           <Text className="text-indigo-500">Go back</Text>
         </Pressable>
@@ -103,8 +106,8 @@ export default function StretchRunner({ routineId }: { routineId: string }) {
     <SafeAreaView className="flex-1 bg-stone-50 dark:bg-slate-950">
       <ScreenBackButton />
       <View className="flex-1 w-full max-w-md self-center px-6 pt-4">
-        <Text className="text-slate-500 text-xs text-center mb-1">🧘 {routine.title}</Text>
-        <Text className="text-slate-400 text-xs text-center mb-10">Stretch {currentIndex + 1} of {steps.length}</Text>
+        <Text className="text-slate-500 text-xs text-center mb-1">{isFoamRolling ? '🧻' : '🧘'} {routine.title}</Text>
+        <Text className="text-slate-400 text-xs text-center mb-10">Step {currentIndex + 1} of {steps.length}</Text>
 
         <Text className="text-slate-900 dark:text-slate-100 text-2xl font-bold text-center mb-8">{currentStep.text}</Text>
 
@@ -125,7 +128,7 @@ export default function StretchRunner({ routineId }: { routineId: string }) {
 
         <Pressable onPress={goToNext} className="bg-emerald-500 rounded-2xl py-4 items-center active:bg-emerald-400">
           <Text className="text-white font-semibold text-base">
-            {currentIndex + 1 >= steps.length ? 'Finish' : 'Next stretch →'}
+            {currentIndex + 1 >= steps.length ? 'Finish' : 'Next →'}
           </Text>
         </Pressable>
       </View>

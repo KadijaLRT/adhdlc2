@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import { createWriteGuard } from '@/core/storage/writeGuard';
 
 export type TextSize = 'small' | 'medium' | 'large';
 export type ColorSchemePreference = 'light' | 'dark' | 'system';
@@ -36,10 +37,10 @@ const DEFAULT_STATE: SettingsState = {
   unitSystem: 'imperial',
 };
 
-async function persist(state: SettingsState) {
+const persist = createWriteGuard(async (state: SettingsState) => {
   const repo = await getRepository();
   await repo.saveSettingsState(state);
-}
+});
 
 function currentState(get: () => SettingsState): SettingsState {
   return {

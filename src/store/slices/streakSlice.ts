@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import { createWriteGuard } from '@/core/storage/writeGuard';
 import type { RoutineStreak } from './types';
 import type { MilestoneSlice } from './milestoneSlice';
 import type { RpgSlice } from './rpgSlice';
@@ -10,10 +11,10 @@ export interface StreakSlice {
   useStreakFreeze: (routineId: string) => Promise<void>;
 }
 
-async function persist(streaks: RoutineStreak[]) {
+const persist = createWriteGuard(async (streaks: RoutineStreak[]) => {
   const repo = await getRepository();
   await repo.saveStreaks(streaks || []);
-}
+});
 
 function today(): string { return (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })(); }
 

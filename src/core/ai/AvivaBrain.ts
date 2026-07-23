@@ -1,11 +1,7 @@
-import OpenAI from 'openai';
 import { z } from 'zod';
 // @ts-ignore - plain JS by design, see file header.
 import { sanitizeString, sanitizePayload } from './groqSanitizer';
-
-const AI_BASE_URL = process.env.EXPO_PUBLIC_AI_BASE_URL || 'https://api.groq.com/openai/v1';
-const AI_MODEL = process.env.EXPO_PUBLIC_AI_MODEL || 'llama-3.3-70b-versatile';
-const AI_API_KEY = process.env.EXPO_PUBLIC_AI_API_KEY;
+import { callGroqCompletion } from './groqProxyClient';
 
 export interface AvivaContext {
   currentEnergyLevel: 'low' | 'medium' | 'high';
@@ -48,19 +44,6 @@ export type FlashcardSet = z.infer<typeof FlashcardSetSchema>;
  * strict Zod schema before returning, so callers never guess at shape.
  */
 export class AvivaBrain {
-  private client: OpenAI;
-
-  constructor() {
-    if (!AI_API_KEY) {
-      console.error('AvivaBrain: EXPO_PUBLIC_AI_API_KEY is not set. Check your .env file.');
-    }
-    this.client = new OpenAI({
-      apiKey: AI_API_KEY || 'missing-key',
-      baseURL: AI_BASE_URL,
-      dangerouslyAllowBrowser: true,
-    });
-  }
-
   async decomposeTask(taskTitle: string, context: AvivaContext): Promise<TaskDecomposition | null> {
     const cleanTitle = sanitizeString(taskTitle);
     if (!cleanTitle) return null;
@@ -79,13 +62,10 @@ Overwhelmed: ${cleanContext.isOverwhelmed}
 Time of day: ${cleanContext.timeOfDay}`;
 
     try {
-      const response = await this.client.chat.completions.create({
-        model: AI_MODEL,
-        messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
-        temperature: 0.4,
-        response_format: { type: 'json_object' },
-      });
-      const raw = response?.choices?.[0]?.message?.content || '';
+      const raw = await callGroqCompletion(
+        [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
+        0.4
+      );
       if (!raw) return null;
       const validated = TaskDecompositionSchema.safeParse(JSON.parse(raw));
       if (!validated.success) {
@@ -117,13 +97,10 @@ Overwhelmed: ${cleanContext.isOverwhelmed}
 Time of day: ${cleanContext.timeOfDay}${cleanContext.recentReflection ? `\nTheir most recent evening reflection: "${cleanContext.recentReflection}"` : ''}`;
 
     try {
-      const response = await this.client.chat.completions.create({
-        model: AI_MODEL,
-        messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
-        temperature: 0.4,
-        response_format: { type: 'json_object' },
-      });
-      const raw = response?.choices?.[0]?.message?.content || '';
+      const raw = await callGroqCompletion(
+        [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
+        0.4
+      );
       if (!raw) return null;
       const validated = BrainDumpResultSchema.safeParse(JSON.parse(raw));
       if (!validated.success) {
@@ -155,16 +132,13 @@ Respond with ONLY valid JSON, no markdown fences:
 {"cards": [{"front": string, "back": string}]}`;
 
     try {
-      const response = await this.client.chat.completions.create({
-        model: AI_MODEL,
-        messages: [
+      const raw = await callGroqCompletion(
+        [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Notes: "${cleanNotes}"` },
         ],
-        temperature: 0.4,
-        response_format: { type: 'json_object' },
-      });
-      const raw = response?.choices?.[0]?.message?.content || '';
+        0.4
+      );
       if (!raw) return null;
       const validated = FlashcardSetSchema.safeParse(JSON.parse(raw));
       if (!validated.success) {

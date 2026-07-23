@@ -1,6 +1,8 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import { createWriteGuard } from '@/core/storage/writeGuard';
 import type { FitnessPreferences } from './nutritionFitnessSlice';
+import { recommendProgramId } from '@/features/workout/recommendProgram';
 
 export interface ProgramProgressState {
   activeProgramId: string | null;
@@ -15,28 +17,16 @@ export interface ProgramSlice extends ProgramProgressState {
   autoAssignDefaultProgram: (preferences: FitnessPreferences | null) => Promise<void>;
 }
 
-// Maps a stated primary goal to a sensible starter program. This is a
-// gentle default, never a lock-in — anyone can switch programs (or stop
-// entirely) from the workouts landing page at any time. 'strength' and
-// unset/'general' both land on Beginner Strength since it's the
-// broadest, lowest-barrier starting point of the seven programs.
-function pickDefaultProgramId(preferences: FitnessPreferences | null): string {
-  const goal = preferences?.primaryGoal;
-  if (goal === 'endurance') return 'endurance';
-  if (goal === 'mobility') return 'mobility';
-  return 'beginner-strength';
-}
-
 const DEFAULT_STATE: ProgramProgressState = {
   activeProgramId: null,
   programStartedAt: null,
   sessionsCompletedInProgram: 0,
 };
 
-async function persist(state: ProgramProgressState) {
+const persist = createWriteGuard(async (state: ProgramProgressState) => {
   const repo = await getRepository();
   await repo.saveProgramState(state);
-}
+});
 
 // Actual exercise history (sets, reps, streak, records) still lives
 // entirely in workoutSlice. This slice only tracks *which* program is
@@ -73,7 +63,7 @@ export const createProgramSlice: StateCreator<ProgramSlice> = (set, get) => ({
   // the workouts landing page on mount.
   autoAssignDefaultProgram: async (preferences) => {
     if (get().activeProgramId) return;
-    const programId = pickDefaultProgramId(preferences);
+    const programId = recommendProgramId(preferences);
     const nextState = { activeProgramId: programId, programStartedAt: new Date().toISOString(), sessionsCompletedInProgram: 0 };
     set(nextState);
     await persist(nextState);

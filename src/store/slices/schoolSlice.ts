@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import { createWriteGuard } from '@/core/storage/writeGuard';
 
 export type CourseStatus = 'in_progress' | 'completed' | 'failed' | 'retaking';
 
@@ -59,10 +60,10 @@ export interface SchoolSlice extends SchoolState {
   setSchoolSetup: (setup: { gradeLevel?: string; programName?: string; universityName?: string; totalCreditsRequired?: number }) => Promise<void>;
 }
 
-async function persist(state: SchoolState) {
+const persist = createWriteGuard(async (state: SchoolState) => {
   const repo = await getRepository();
   await repo.saveSchoolState(state);
-}
+});
 
 function currentState(get: () => SchoolState): SchoolState {
   return {

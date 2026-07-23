@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 import { getRepository } from '@/core/storage';
+import { createWriteGuard } from '@/core/storage/writeGuard';
 
 export interface ReflectionEntry {
   date: string;
@@ -14,10 +15,10 @@ export interface ReflectionSlice extends ReflectionState {
   saveReflectionForToday: (note: string) => Promise<void>;
 }
 
-async function persist(state: ReflectionState) {
+const persist = createWriteGuard(async (state: ReflectionState) => {
   const repo = await getRepository();
   await repo.saveReflectionState(state);
-}
+});
 
 export const createReflectionSlice: StateCreator<ReflectionSlice> = (set, get) => ({
   reflections: [],
