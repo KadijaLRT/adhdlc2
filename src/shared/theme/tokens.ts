@@ -5,10 +5,14 @@
  * Wellness, Profile) in this pass; every other existing screen still
  * uses its own inline Tailwind classes and should be migrated to these
  * tokens incrementally, not all at once.
+ *
+ * Kept as the static default (Accessibility → Text Size on "medium",
+ * High Contrast off). Anywhere that needs to actually respond to the
+ * person's Text Size / High Contrast settings should use
+ * `useTextScale()` in Heading.tsx instead — this constant stays for
+ * any caller that genuinely wants the fixed default regardless of
+ * preferences.
  */
-
-// Three sizes only: large (screen titles), medium (section/card
-// headers), small (supporting detail). Nothing in between.
 export const TEXT_SCALE = {
   large: 'text-slate-900 dark:text-slate-100 text-2xl font-semibold',
   medium: 'text-slate-900 dark:text-slate-100 text-base font-semibold',

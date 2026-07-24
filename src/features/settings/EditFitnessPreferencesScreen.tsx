@@ -113,9 +113,10 @@ export default function EditFitnessPreferencesScreen() {
           </View>
 
           <Text className="text-slate-900 dark:text-slate-100 text-base font-medium mb-2">Gender</Text>
-          <View className="flex-row gap-2 mb-6">
+          <View className="flex-row gap-2 mb-2">
             {GENDERS.map((g) => <Pill key={g.id} label={`${g.emoji} ${g.label}`} active={gender === g.id} onPress={() => { setGender(g.id); setSaved(false); }} />)}
           </View>
+          <Text className="text-slate-500 text-xs mb-6">Used only as a small factor in the suggested Nutrition Diary targets — never shown or used anywhere else.</Text>
 
           <Text className="text-slate-900 dark:text-slate-100 text-base font-medium mb-2">Weight goal</Text>
           <View className="flex-row gap-2 mb-6">
@@ -124,7 +125,7 @@ export default function EditFitnessPreferencesScreen() {
           <Text className="text-slate-500 text-xs mb-6">Starting/goal weight live in Progress, not here.</Text>
 
           <Text className="text-slate-900 dark:text-slate-100 text-base font-medium mb-2">Body type</Text>
-          <View className="gap-2 mb-6">
+          <View className="gap-2 mb-2">
             {BODY_TYPES.map((t) => (
               <Pressable key={t.id} onPress={() => { setBodyType(t.id); setSaved(false); }} className={bodyType === t.id ? 'bg-emerald-400/10 border-2 border-emerald-400 rounded-xl p-3' : 'bg-white dark:bg-slate-900 border-2 border-transparent rounded-xl p-3'}>
                 <Text className={bodyType === t.id ? 'text-emerald-700 dark:text-emerald-300 font-medium' : 'text-slate-900 dark:text-slate-100 font-medium'}>{t.label}</Text>
@@ -132,6 +133,7 @@ export default function EditFitnessPreferencesScreen() {
               </Pressable>
             ))}
           </View>
+          <Text className="text-slate-500 text-xs mb-6">"Athletic build" adds a small protein bump to the suggested Nutrition Diary targets. Other options don't change anything yet.</Text>
 
           <Text className="text-slate-900 dark:text-slate-100 text-base font-medium mb-2">Daily activity level</Text>
           <View className="gap-2 mb-6">

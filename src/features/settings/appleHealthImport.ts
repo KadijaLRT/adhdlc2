@@ -1,6 +1,8 @@
 // -- APPLE HEALTH IMPORT -------------------------------------------------------
-// Parses Apple Health export XML to extract cycle, sleep, and weight data.
-// Supports both raw .xml and .zip, on web AND native.
+// Parses Apple Health export XML to extract cycle and weight data — the
+// only two things AppleHealthImportCard.tsx actually imports into the
+// app (via importWeightEntries/importCycleLogs). Supports both raw
+// .xml and .zip, on web AND native.
 //
 // The reading strategy is deliberately unified across platforms rather than
 // branched: expo-file-system's `File` class implements the standard `Blob`
@@ -12,7 +14,6 @@
 export interface AppleHealthImportResult {
   periodDates: Set<string>;
   ovulationDates: Set<string>;
-  sleepByDate: Record<string, number>; // hours
   weightByDate: Record<string, number>; // lbs
 }
 
@@ -27,6 +28,23 @@ function healthAttr(tag: string, name: string): string {
 
 const HEALTH_TAG_RE = /<Record [^>]+\/?>/g;
 
+// The only three Health record types this app has any use for. A real
+// export.xml is typically dominated by record types this app never
+// reads (step count, heart rate, workouts, distance, sleep analysis,
+// flights climbed, etc.) — often the large majority of records in a
+// full export. Type is checked against this set FIRST, before
+// extracting anything else from the tag, so a record this app doesn't
+// care about costs exactly one regex match (the type check) instead of
+// several (value, startDate, endDate, unit) that would just be thrown
+// away. Sleep analysis used to be parsed here too, but nothing
+// downstream ever read it — AppleHealthImportCard only imports weight
+// and cycle data — so it's excluded rather than extracted and discarded.
+const NEEDED_TYPES = new Set([
+  'HKCategoryTypeIdentifierMenstrualFlow',
+  'HKCategoryTypeIdentifierOvulationTestResult',
+  'HKQuantityTypeIdentifierBodyMass',
+]);
+
 /**
  * Processes one chunk of export.xml text, updating `state` in place.
  * Returns the leftover tail of the buffer (in case a <Record> tag got
@@ -40,12 +58,15 @@ export function extractHealthRecordsFromChunk(buffer: string, state: AppleHealth
 
   while ((match = HEALTH_TAG_RE.exec(buffer)) !== null) {
     const tag = match[0];
+    lastIndex = HEALTH_TAG_RE.lastIndex;
+
     const type = healthAttr(tag, 'type');
-    const value = healthAttr(tag, 'value');
+    if (!NEEDED_TYPES.has(type)) continue; // skip every field this app doesn't read
+
     const start = healthAttr(tag, 'startDate');
     const date = parseHealthDate(start);
-    lastIndex = HEALTH_TAG_RE.lastIndex;
     if (!date) continue;
+    const value = healthAttr(tag, 'value');
 
     if (type === 'HKCategoryTypeIdentifierMenstrualFlow') {
       if (value && value !== 'HKCategoryValueMenstrualFlowNone') {
@@ -54,17 +75,6 @@ export function extractHealthRecordsFromChunk(buffer: string, state: AppleHealth
     } else if (type === 'HKCategoryTypeIdentifierOvulationTestResult') {
       if (value === 'HKCategoryValueOvulationTestResultPositive') {
         state.ovulationDates.add(date);
-      }
-    } else if (type === 'HKCategoryTypeIdentifierSleepAnalysis') {
-      const isAsleep = value.includes('Asleep');
-      if (isAsleep) {
-        const endStr = healthAttr(tag, 'endDate');
-        const s = new Date(start);
-        const e = new Date(endStr);
-        if (!isNaN(s.getTime()) && !isNaN(e.getTime()) && e > s) {
-          const hours = (e.getTime() - s.getTime()) / 3600000;
-          state.sleepByDate[date] = (state.sleepByDate[date] ?? 0) + hours;
-        }
       }
     } else if (type === 'HKQuantityTypeIdentifierBodyMass') {
       const val = parseFloat(value);
@@ -81,7 +91,7 @@ export function extractHealthRecordsFromChunk(buffer: string, state: AppleHealth
 }
 
 export function newHealthState(): AppleHealthImportResult {
-  return { periodDates: new Set(), ovulationDates: new Set(), sleepByDate: {}, weightByDate: {} };
+  return { periodDates: new Set(), ovulationDates: new Set(), weightByDate: {} };
 }
 
 /** Minimal shape this module actually needs — satisfied by both a web File and expo-file-system's File. */
@@ -92,7 +102,15 @@ interface BlobLike {
 }
 
 const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB per slice
-const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB safety ceiling
+
+// A raised, generous ceiling rather than no ceiling at all — a real
+// multi-year Apple Health export (especially with Apple Watch data)
+// can legitimately land well past the old 500MB cutoff, and the plain
+// .xml path below is fully streamed/chunked, so file size alone isn't
+// actually a memory risk there. 3GB is comfortably past what even a
+// heavy, years-long export produces; this exists as a sanity backstop
+// against a corrupted or wrong file, not a real expected ceiling.
+const MAX_FILE_SIZE = 3 * 1024 * 1024 * 1024; // 3GB safety ceiling
 
 /**
  * Reads a plain (non-zip) file in chunks via .slice().text() — the
@@ -172,7 +190,7 @@ export async function parseAppleHealthFile(
     throw new Error('That file is empty — please try exporting again.');
   }
   if (file.size > MAX_FILE_SIZE) {
-    throw new Error('That export is larger than this can handle right now (500MB+). Contact support if this is your only option.');
+    throw new Error('That file is larger than this can handle (3GB+) — double check it\'s the real Health export and not something else. Contact support if it genuinely is and this is your only option.');
   }
 
   const isZip = file.name?.toLowerCase().endsWith('.zip') || file.type === 'application/zip';

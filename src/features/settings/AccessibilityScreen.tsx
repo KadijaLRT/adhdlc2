@@ -131,6 +131,7 @@ export default function AccessibilityScreen() {
           <Text className="text-indigo-600 text-xs font-bold uppercase tracking-wider mb-4">♿ Accessibility</Text>
 
           <Text className="text-slate-900 text-base font-semibold mb-3">Text Size</Text>
+          <Text className="text-slate-500 text-xs mb-2">Affects headings and section titles app-wide. Not every screen uses these shared text styles yet.</Text>
           <View className="flex-row gap-2 mb-4">
             {TEXT_SIZES.map((option) => {
               const isActive = textSize === option.id;
@@ -161,7 +162,7 @@ export default function AccessibilityScreen() {
           <View className="flex-row items-center justify-between mb-1">
             <View className="flex-1 pr-3">
               <Text className="text-slate-900 text-base font-semibold">High Contrast</Text>
-              <Text className="text-slate-500 text-xs">Boosts contrast for easier reading. Applied to new screens going forward — not yet retrofitted everywhere.</Text>
+              <Text className="text-slate-500 text-xs">Boosts contrast on headings and section titles app-wide. Not every screen uses these shared text styles yet.</Text>
             </View>
             <Switch value={highContrast} onValueChange={setHighContrast} trackColor={{ false: '#d6d3d1', true: '#4f46e5' }} thumbColor="#fff" />
           </View>

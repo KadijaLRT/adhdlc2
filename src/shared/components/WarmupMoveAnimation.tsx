@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, View } from 'react-native';
+import { useAppStore, selectReduceMotion } from '@/store/index';
 
 export type WarmupAnimationType = 'vertical' | 'quickVertical' | 'horizontal' | 'rotate' | 'twist' | 'pulse';
 
@@ -30,13 +31,20 @@ const DURATIONS: Record<WarmupAnimationType, number> = {
  * no added install risk.
  */
 export default function WarmupMoveAnimation({ emoji, animation = 'pulse', paused = false }: Props) {
+  // Accessibility → Reduce Motion turns this off entirely rather than
+  // just slowing it down — the setting exists for people who find
+  // continuous looping movement genuinely uncomfortable or distracting,
+  // not just those who prefer a subtler effect.
+  const reduceMotion = useAppStore(selectReduceMotion);
+  const isMotionOff = paused || reduceMotion;
+
   const progress = useRef(new Animated.Value(0)).current;
   const loopRef = useRef<Animated.CompositeAnimation | null>(null);
 
   useEffect(() => {
     progress.setValue(0);
     loopRef.current?.stop();
-    if (paused) return;
+    if (isMotionOff) return;
 
     const duration = DURATIONS[animation];
     const easing = Easing.inOut(Easing.quad);
@@ -54,7 +62,7 @@ export default function WarmupMoveAnimation({ emoji, animation = 'pulse', paused
     loopRef.current = Animated.loop(sequence);
     loopRef.current.start();
     return () => loopRef.current?.stop();
-  }, [animation, paused, progress]);
+  }, [animation, isMotionOff, progress]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let transform: any[];
@@ -83,7 +91,7 @@ export default function WarmupMoveAnimation({ emoji, animation = 'pulse', paused
 
   return (
     <View className="items-center justify-center" style={{ height: 64 }}>
-      <Animated.Text style={{ fontSize: 40, transform }}>{emoji}</Animated.Text>
+      <Animated.Text style={{ fontSize: 40, transform: isMotionOff ? [] : transform }}>{emoji}</Animated.Text>
     </View>
   );
 }
